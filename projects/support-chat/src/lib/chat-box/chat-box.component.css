@@ -1,0 +1,181 @@
+.chatBox {
+  background-image: url("./../../../assets/chatbox/whatsapp.jpg");
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  animation: fadeInOut 0.3s ease-out;
+  /* Apply the animation */
+  display: none;
+  bottom: 0;
+  z-index: 1000000;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateX(50%);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1.2) translateX(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+.chatBox.active {
+  display: block;
+  /* Show the chat box when it has the "active" class */
+}
+
+
+.header {
+  position: absolute;
+  top: 0;
+  display: flex;
+  width: 100%;
+  background: #f0f2f5;
+  opacity: 0.85;
+  padding: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  align-items: center;
+  display: flex;
+}
+
+.logoImg {
+  opacity: 1;
+  height: 40px;
+  width: 62px;
+  border-radius: 125px;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.CrossClose {
+  font-size: 26px;
+  line-height: 19px;
+  font-weight: 600;
+}
+
+.callIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.callIcon svg {
+  fill: #54656f !important;
+}
+
+.sendButton {
+  height: 26px;
+  width: 36px;
+}
+
+
+.bottomChat {
+  background: #f0f2f5;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 25px;
+  padding-top: 10px;
+}
+
+.chatInputDiv {
+  width: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
+
+}
+
+.chatInput {
+  background: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 3px;
+  padding-left: 15px;
+  width: 100%;
+
+}
+
+.micIcon {
+  width: 28px;
+  height: 28px;
+  padding-left: 5px;
+}
+
+.cameraIcon {
+  width: 30px;
+  height: 30px;
+}
+
+.cameraIcon svg {
+  /* fill:#54656f !important */
+}
+
+svg {
+  color: #54656f;
+  /* fill: #54656f; */
+}
+
+.collapseBottom {
+  position: absolute;
+  bottom: 67px;
+  width: 45%;
+  left: 0;
+}
+
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease;
+}
+
+
+@media screen and (min-width:766px) {
+  .chatBox {
+    width: 400px;
+    height: 800px;
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+
+  }
+}
+
+
+.logoImg {
+  background-image: url('./../../../assets/chatbox/wp.png');
+  background-repeat: no-repeat;
+  background-size: 100%;
+  width: 100px;
+  height: 100px;
+}

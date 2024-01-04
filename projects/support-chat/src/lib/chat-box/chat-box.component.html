@@ -1,0 +1,117 @@
+<div [class.active]="isVisible"  class="chatBox">
+    <div class="header">
+        <div class="logo">
+            <span><img class="logoImg" /> </span>
+            <span class="userName"> User </span>
+        </div>
+        <div class="d-flex">
+            <span class="callIcon me-3
+            ">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                    id="OBJECTS" x="0px" y="0px"  viewBox="0 0 50 50"
+                    enable-background="new 0 0 50 50" xml:space="preserve">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M38.683,48.593c-5.663-0.032-10.869-1.672-15.753-4.463  c-4.831-2.76-8.902-6.416-12.543-10.584c-2.639-3.021-4.974-6.252-6.816-9.83c-1.789-3.473-3.037-7.107-3.493-11.004  c-0.224-1.919,0.193-3.629,1.552-5.027c1.596-1.642,3.191-3.292,4.879-4.837c1.83-1.674,4.305-1.871,6.5-0.696  c0.814,0.436,1.465,1.045,2.012,1.775c1.122,1.501,2.256,2.993,3.356,4.51c1.371,1.891,1.623,3.926,0.576,6.036  c-0.296,0.595-0.735,1.166-1.236,1.603c-1.063,0.926-1.22,2.05-0.957,3.324c0.344,1.672,1.19,3.106,2.195,4.442  c2.09,2.777,4.506,5.242,7.314,7.3c1.392,1.021,2.859,1.937,4.597,2.246c0.563,0.102,1.17,0.118,1.729,0.02  c0.421-0.075,0.842-0.343,1.186-0.62c0.679-0.547,1.242-1.253,1.962-1.729c1.879-1.243,3.872-1.237,5.843-0.208  c1.894,0.988,3.777,2.002,5.624,3.075c2.646,1.541,3.561,5.076,2.022,7.71c-0.276,0.472-0.664,0.891-1.05,1.284  c-1.166,1.191-2.382,2.332-3.53,3.539c-1.396,1.469-3.08,2.178-5.095,2.135C39.266,48.586,38.974,48.593,38.683,48.593z" />
+                </svg>
+            </span>
+            <span class="CrossClose"  (click)="CloseChatBox()" > x </span>
+        </div>
+    </div>
+    <div class="body"></div>
+
+
+
+    <!-- Bottom Bar for Chat -->
+    <div class="bottomChat">
+
+        <div class="collapse collapseBottom" id="collapseExample" #collapseElement>
+            <div class="card card-body p-2">
+                <div class="d-flex align-items-center p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z"
+                            stroke="#1C274C" stroke-width="1.5" />
+                        <path d="M8 12H16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M8 8H16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M8 16H13" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+        
+                    <span class="ps-1">Document</span>
+                </div>
+                <div class="d-flex align-items-center p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M8 11C9.10457 11 10 10.1046 10 9C10 7.89543 9.10457 7 8 7C6.89543 7 6 7.89543 6 9C6 10.1046 6.89543 11 8 11Z"
+                            stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.56055 21C12.1305 8.89998 16.7605 6.77998 22.0005 14.63" stroke="#000000" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M18 3H6C3.79086 3 2 4.79086 2 7V17C2 19.2091 3.79086 21 6 21H18C20.2091 21 22 19.2091 22 17V7C22 4.79086 20.2091 3 18 3Z"
+                            stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+        
+                    <span class="ps-1">Media</span>
+                </div>
+        
+            </div>
+        </div>
+
+
+
+        <div class="plusButton" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false"
+            aria-controls="collapseExample">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="19px" height="19px"
+                viewBox="0 0 19 19" enable-background="new 0 0 19 19" xml:space="preserve">
+                <g>
+                    <path fill="currentColor"
+                        d="M10.946,0.127v7.964h7.646v2.747h-7.646v8.035h-2.89v-8.035H0.409V8.091h7.647V0.127H10.946z">
+                    </path>
+                </g>
+            </svg>
+        </div>
+
+        <div class="chatInputDiv">
+            <input class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
+                (ngModelChange)="onInputChange()">
+        </div>
+        <div class="sendButton fade-in" *ngIf="isSendButtonVisible">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                id="OBJECTS" x="0px" y="0px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
+                <g>
+                    <g>
+                        <path fill="#1B1C1C"
+                            d="M4.347,49.142c-0.41-0.406-0.565-1.014-0.39-1.576l7.347-23.584L5.324,2.386    c-0.17-0.615,0.049-1.273,0.556-1.663s1.198-0.433,1.75-0.11l37.708,22.082c0.476,0.279,0.77,0.787,0.776,1.338    c0.005,0.552-0.279,1.065-0.749,1.354L6.276,49.37c-0.558,0.342-1.269,0.303-1.785-0.098C4.44,49.231,4.392,49.188,4.347,49.142z     M9.381,5.276l5.071,18.313c0.081,0.29,0.076,0.598-0.014,0.886L8.197,44.509l33.295-20.428L9.381,5.276z" />
+                    </g>
+                    <g>
+                        <path fill="#1B1C1C"
+                            d="M11.831,25.119c-0.285-0.285-0.461-0.679-0.46-1.113c0-0.867,0.705-1.569,1.571-1.568l31.604,0.042    c0.867,0.001,1.57,0.705,1.567,1.572c-0.001,0.867-0.704,1.568-1.571,1.567l-31.605-0.042    C12.505,25.577,12.115,25.401,11.831,25.119z" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+        <ng-container *ngIf="!isSendButtonVisible">
+
+            <div class="cameraIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path
+                        d="M3 16.8V9.2C3 8.0799 3 7.51984 3.21799 7.09202C3.40973 6.71569 3.71569 6.40973 4.09202 6.21799C4.51984 6 5.0799 6 6.2 6H7.25464C7.37758 6 7.43905 6 7.49576 5.9935C7.79166 5.95961 8.05705 5.79559 8.21969 5.54609C8.25086 5.49827 8.27836 5.44328 8.33333 5.33333C8.44329 5.11342 8.49827 5.00346 8.56062 4.90782C8.8859 4.40882 9.41668 4.08078 10.0085 4.01299C10.1219 4 10.2448 4 10.4907 4H13.5093C13.7552 4 13.8781 4 13.9915 4.01299C14.5833 4.08078 15.1141 4.40882 15.4394 4.90782C15.5017 5.00345 15.5567 5.11345 15.6667 5.33333C15.7216 5.44329 15.7491 5.49827 15.7803 5.54609C15.943 5.79559 16.2083 5.95961 16.5042 5.9935C16.561 6 16.6224 6 16.7454 6H17.8C18.9201 6 19.4802 6 19.908 6.21799C20.2843 6.40973 20.5903 6.71569 20.782 7.09202C21 7.51984 21 8.0799 21 9.2V16.8C21 17.9201 21 18.4802 20.782 18.908C20.5903 19.2843 20.2843 19.5903 19.908 19.782C19.4802 20 18.9201 20 17.8 20H6.2C5.0799 20 4.51984 20 4.09202 19.782C3.71569 19.5903 3.40973 19.2843 3.21799 18.908C3 18.4802 3 17.9201 3 16.8Z"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="micIcon">
+                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class=""
+                    version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24">
+                    <title>ptt</title>
+                    <path fill="currentColor"
+                        d="M11.999,14.942c2.001,0,3.531-1.53,3.531-3.531V4.35c0-2.001-1.53-3.531-3.531-3.531 S8.469,2.35,8.469,4.35v7.061C8.469,13.412,9.999,14.942,11.999,14.942z M18.237,11.412c0,3.531-2.942,6.002-6.237,6.002 s-6.237-2.471-6.237-6.002H3.761c0,4.001,3.178,7.297,7.061,7.885v3.884h2.354v-3.884c3.884-0.588,7.061-3.884,7.061-7.885 L18.237,11.412z">
+                    </path>
+                </svg>
+            </div>
+        </ng-container>
+    </div>
+    <!-- Bottom Bar for Chat -->
+</div>

@@ -1,4 +1,3 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -10,6 +9,14 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    "paths": {
+      "my-chat-plugin": [
+        "./dist/my-chat-plugin"
+      ],
+      "supportChat": [
+        "./dist/support-chat"
+      ]
+    },
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,

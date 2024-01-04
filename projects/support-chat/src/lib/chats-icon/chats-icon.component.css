@@ -1,0 +1,32 @@
+.chat-icon-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #3498db; /* Change the background color as needed */
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.8); /* Adjust the color and intensity of the shadow */
+    animation: pulse 1.5s infinite; /* Adjust the animation duration as needed */
+    cursor: pointer;
+}
+@keyframes pulse {
+    0% {
+      box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(52, 152, 219, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+    }
+  }
+
+/* Style the chat icon, you can use an actual image here */
+.chat-icon {
+    width: 40px;
+    height: 40px;
+    color: #fff;
+   fill: white;
+   cursor: pointer;
+    /* Change the color of the icon as needed */
+}
