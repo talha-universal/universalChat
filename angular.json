@@ -13,6 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "preserveSymlinks": true,
             "outputPath": "dist/universal-chat",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -99,44 +100,12 @@
         }
       }
     },
-    "my-chat-plugin": {
-      "projectType": "library",
-      "root": "projects/my-chat-plugin",
-      "sourceRoot": "projects/my-chat-plugin/src",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "project": "projects/my-chat-plugin/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/my-chat-plugin/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "projects/my-chat-plugin/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "tsConfig": "projects/my-chat-plugin/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
-          }
-        }
-      }
-    },
     "supportChat": {
       "projectType": "library",
       "root": "projects/support-chat",
       "sourceRoot": "projects/support-chat/src",
       "prefix": "lib",
+
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",

@@ -17,6 +17,8 @@ export class ChatBoxComponent {
   @ViewChild('collapseElement', { static: false }) collapseElement!: ElementRef;
   isSendButtonVisible: boolean = false;
 
+  userName: string = '';
+  
   onInputChange() {
     this.isSendButtonVisible = this.messageText.length > 0;
   }
@@ -24,6 +26,15 @@ export class ChatBoxComponent {
   CloseChatBox() {
     this.isVisible = false
     this.chatBoxClose.emit();
+  }
+
+
+
+  startChat() {
+    if (this.userName) {
+      console.log(`Starting chat with ${this.userName}`);
+      // Add your logic to start the chat here
+    }
   }
 
   @HostListener('document:click', ['$event'])

@@ -2,6 +2,7 @@
 
 # Compiled output
 /dist
+.node_modules
 /tmp
 /out-tsc
 /bazel-out
@@ -40,3 +41,4 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+

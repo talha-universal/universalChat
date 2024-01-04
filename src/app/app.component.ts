@@ -1,16 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { LibChatsComponent } from 'support-chat';
-// import { ChatBoxComponent } from './chat-box/chat-box.component';
-// import { ChatComponent } from './chat/chat.component';
-
-
-
+import { LibChatsComponent } from './../../projects/support-chat/src/public-api';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet,LibChatsComponent ],
+  imports: [CommonModule, RouterOutlet, LibChatsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

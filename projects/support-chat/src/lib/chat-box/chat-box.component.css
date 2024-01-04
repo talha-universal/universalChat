@@ -62,6 +62,7 @@
 .userName {
   font-weight: 600;
   font-size: 20px;
+  margin-left: 15px;
 }
 
 .CrossClose {
@@ -164,10 +165,10 @@ svg {
   .chatBox {
     width: 400px;
     height: 800px;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     right: 10px;
-
+    z-index: 100000;
   }
 }
 
@@ -176,6 +177,33 @@ svg {
   background-image: url('./../../../assets/chatbox/wp.png');
   background-repeat: no-repeat;
   background-size: 100%;
-  width: 100px;
-  height: 100px;
+  width: 63px;
+  height: 61px;
+}
+
+.userNameFormSection{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* opacity: 0.5; */
+  
+}
+
+.userNameForm{
+  height: 200px;
+  width: 300px;
+  background: white;
+  opacity: 1;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+.form-control{
+  width: 90%;
 }
