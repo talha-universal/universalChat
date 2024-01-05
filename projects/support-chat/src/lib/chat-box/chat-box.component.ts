@@ -87,10 +87,7 @@ export class ChatBoxComponent implements OnDestroy {
 
   sendMessage() {
     if (this.messageText.trim() !== '') {
-      // this.messages.push(this.messageText);
-      // console.log(this.messages)
       const current = new Date();
-      debugger
       const sendMessage = {
         type: "message",
         receiver: this.userDetails?.user?.support,
@@ -102,13 +99,14 @@ export class ChatBoxComponent implements OnDestroy {
       this.messageText = '';
       this.isSendButtonVisible = false
     }
+    else{
+      return
+    }
   }
 
   getMessageFromSocket() {
     this.counter = 0;
     this.websocketService.getMarketData().subscribe((data: any) => {
-      console.log(data);
-      console.log(this.userDetails?.user?.email, "email");
 
       const socketData = JSON.parse(data)
 
@@ -129,7 +127,6 @@ export class ChatBoxComponent implements OnDestroy {
 
 
       }
-      console.log(this.messages, "MEARAY ====== []")
     })
   }
 
@@ -137,13 +134,11 @@ export class ChatBoxComponent implements OnDestroy {
   onClickOutside(event: Event) {
     const targetElement = event.target as HTMLElement;
     const collapseNativeElement = this.collapseElement.nativeElement;
-    console.log("call me ")
     // Check if the clicked element is outside the collapse and if the collapse is currently shown
     if (!collapseNativeElement.contains(targetElement) && collapseNativeElement.classList.contains('show')) {
 
       collapseNativeElement.classList.remove('show');
       // do something...
-      console.log("call me here")
     }
   }
 }

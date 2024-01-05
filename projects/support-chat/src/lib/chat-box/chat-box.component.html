@@ -32,7 +32,10 @@
             <div class="errorMessageValidation" *ngIf="nameInput.invalid && (nameInput.dirty || nameInput.touched)">
                 <div *ngIf="nameInput.errors && nameInput.errors['required']">Name is required.</div>
             </div>
-            <button class="btn btn-success" (click)="startChat()" [disabled]="nameInput.invalid">Start Chat</button>
+            <span class="d-flex justify-content-center">
+                <button class="btn btn-success" (click)="startChat()" [disabled]="nameInput.invalid">Start Chat</button>
+                <button class="btn btn-danger ms-2" (click)=" CloseChatBox();guestUserLogin=false">Cancel</button>
+            </span>
         </div>
     </div>
 
@@ -45,13 +48,13 @@
                 <ng-container *ngIf="userDetails?.user?.email == message?.sender.email">
 
                     <div class=" d-flex justify-content-end" style="width: 99%;">
-                        <div class="message"  [ngClass]=" showAnimation ? 'messageAnimation' :'' ">
+                        <div class="message" [ngClass]=" showAnimation ? 'messageAnimation' :'' ">
                             <span class="messagetext">
                                 {{ message.message }}
                             </span>
                             <div class="d-flex justify-content-end align-items-center">
                                 <span class="time">{{message?.sentAt | date : 'dd-MM-YYYY HH:mm a'}}</span>
-                                <span class="doubleTick" *ngIf="message?.delivered || message?.read"  >
+                                <span class="doubleTick" *ngIf="message?.delivered || message?.read">
 
                                     <svg viewBox="0 0 16 11" height="11" width="16" preserveAspectRatio="xMidYMid meet"
                                         class="" fill="none" [ngClass]=" message?.read ? 'doubleTickread' :'' ">
@@ -81,7 +84,8 @@
                                 {{ message.message }}
                             </span>
                             <div class="d-flex justify-content-end align-items-center">
-                                <span class="time" style="height: 23px;">{{message?.sentAt | date : 'dd-MM-YYYY HH:mm a'}}</span>
+                                <span class="time" style="height: 23px;">{{message?.sentAt | date : 'dd-MM-YYYY HH:mm
+                                    a'}}</span>
 
                             </div>
                         </div>
@@ -147,7 +151,7 @@
 
         <div class="chatInputDiv">
             <input class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
-                (ngModelChange)="onInputChange()">
+                (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()">
         </div>
         <div class="sendButton fade-in" *ngIf="isSendButtonVisible" (click)="sendMessage()">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
