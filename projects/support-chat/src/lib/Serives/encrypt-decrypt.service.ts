@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { CONFIG } from '../../../Config';
+import { CONFIG } from '../../Config';
 import { WebsocketService } from './websocket.service';
 
 @Injectable({

@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CONFIG } from '../../../Config';
+import { CONFIG } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 

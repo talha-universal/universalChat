@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { LibChatsComponent } from './../../projects/support-chat/src/public-api';
+// import { LibChatsComponent } from './../../projects/support-chat/src/public-api';
+import { LibChatsComponent } from 'support-chat';
 @Component({
   selector: 'app-root',
   standalone: true,
