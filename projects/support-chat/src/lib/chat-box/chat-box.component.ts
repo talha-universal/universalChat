@@ -1,16 +1,21 @@
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CONFIG } from '../../../Config';
+import { NetworkService } from '../Serives/network.service';
+import { WebsocketService } from '../Serives/websocket.service';
 
 @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor],
+  imports: [FormsModule, NgIf, NgFor,NgClass, DatePipe],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css'
 })
-export class ChatBoxComponent {
+export class ChatBoxComponent implements OnDestroy {
   messageText: any;
+  guestUserLogin: any = false;
+  showAnimation = true;
   @Output() chatBoxClose = new EventEmitter<void>();
   @Input() isVisible = false;
 
@@ -18,7 +23,19 @@ export class ChatBoxComponent {
   isSendButtonVisible: boolean = false;
 
   userName: string = '';
-  
+  chatUserName: any = '';
+  messages: any = [];
+  counter: number = 0;
+  userDetails: any;
+  // 'ws://185.182.194.244:8080'
+  private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://185.182.194.244:8080';
+  constructor(private backendService: NetworkService, private websocketService: WebsocketService) {
+    this.getMessageFromSocket();
+  }
+  ngOnDestroy(): void {
+    this.websocketService.closeSocket();
+  }
+
   onInputChange() {
     this.isSendButtonVisible = this.messageText.length > 0;
   }
@@ -32,9 +49,88 @@ export class ChatBoxComponent {
 
   startChat() {
     if (this.userName) {
-      console.log(`Starting chat with ${this.userName}`);
       // Add your logic to start the chat here
+      const withOutLoginUser = {
+        username: this.userName,
+        role: "Guest",
+        domain: "xyz.com"
+      }
+      this.backendService.getRecordsFromNetwork(CONFIG.userLogin, withOutLoginUser).subscribe((data: any) => {
+        if (data.status == 'success') {
+          this.guestUserLogin = true
+          this.userDetails = data?.data;
+          this.chatUserName = data?.data?.user?.name;
+
+
+          var url = this.SocketBaseUrl + '?token=' + this.userDetails?.user?.token?.token;
+          // var url = this.SocketBaseUrl + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWVzdEVtYWlsIjoidGFsaGExNzA0Mzc2NjYxQHh5ei5jb20iLCJpYXQiOjE3MDQzNzY2NjEsImV4cCI6MTcwNDQwNTQ2MX0.iP4ypSl6V7JC8bK2w_QLBPTLJtW31H5G-52FZf9UKm0';
+
+
+
+          this.websocketService.connect(url).subscribe(
+            async (message: any) => {
+            },
+            (error: any) => {
+              console.error('WebSocket error:', error);
+            },
+            () => {
+              console.log('WebSocket connection closed');
+            }
+          );
+        }
+
+      });
+
+
     }
+  }
+
+  sendMessage() {
+    if (this.messageText.trim() !== '') {
+      // this.messages.push(this.messageText);
+      // console.log(this.messages)
+      const current = new Date();
+      debugger
+      const sendMessage = {
+        type: "message",
+        receiver: this.userDetails?.user?.support,
+        message: this.messageText,
+        sentAt: new Date(),
+        messageId: "web_" + current.getTime()
+      }
+      this.websocketService.send(sendMessage);
+      this.messageText = '';
+      this.isSendButtonVisible = false
+    }
+  }
+
+  getMessageFromSocket() {
+    this.counter = 0;
+    this.websocketService.getMarketData().subscribe((data: any) => {
+      console.log(data);
+      console.log(this.userDetails?.user?.email, "email");
+
+      const socketData = JSON.parse(data)
+
+      if (socketData?.type == "message") {
+
+
+        const indexToUpdate = this.messages.findIndex((msg: any) => msg.messageId === socketData.messageId);
+
+        // If the message with the same messageId is found, update it
+        if (indexToUpdate !== -1) {
+          this.showAnimation = false;
+          this.messages[indexToUpdate] = socketData;
+        } else {
+          this.showAnimation = true;
+          this.messages.push(socketData);
+        }
+
+
+
+      }
+      console.log(this.messages, "MEARAY ====== []")
+    })
   }
 
   @HostListener('document:click', ['$event'])
