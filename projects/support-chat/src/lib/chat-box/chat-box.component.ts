@@ -8,7 +8,7 @@ import { WebsocketService } from '../Serives/websocket.service';
 @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor,NgClass, DatePipe],
+  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css'
 })
@@ -99,7 +99,7 @@ export class ChatBoxComponent implements OnDestroy {
       this.messageText = '';
       this.isSendButtonVisible = false
     }
-    else{
+    else {
       return
     }
   }
@@ -107,26 +107,28 @@ export class ChatBoxComponent implements OnDestroy {
   getMessageFromSocket() {
     this.counter = 0;
     this.websocketService.getMarketData().subscribe((data: any) => {
+      if (data !== "connected") {
+        const socketData = JSON.parse(data)
 
-      const socketData = JSON.parse(data)
-
-      if (socketData?.type == "message") {
+        if (socketData?.type == "message") {
 
 
-        const indexToUpdate = this.messages.findIndex((msg: any) => msg.messageId === socketData.messageId);
+          const indexToUpdate = this.messages.findIndex((msg: any) => msg.messageId === socketData.messageId);
 
-        // If the message with the same messageId is found, update it
-        if (indexToUpdate !== -1) {
-          this.showAnimation = false;
-          this.messages[indexToUpdate] = socketData;
-        } else {
-          this.showAnimation = true;
-          this.messages.push(socketData);
+          // If the message with the same messageId is found, update it
+          if (indexToUpdate !== -1) {
+            this.showAnimation = false;
+            this.messages[indexToUpdate] = socketData;
+          } else {
+            this.showAnimation = true;
+            this.messages.push(socketData);
+          }
+
+
+
         }
-
-
-
       }
+
     })
   }
 

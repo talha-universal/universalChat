@@ -168,7 +168,7 @@ svg {
 @media screen and (min-width:766px) {
   .chatBox {
     width: 400px;
-    height: 800px;
+    height: 760px;
     position: fixed;
     bottom: 0;
     right: 10px;
@@ -177,11 +177,11 @@ svg {
 
 
   .body{
-    height: 737px !important;
+    height: 698px !important;
   }
   
   .message-list {
-    height: 673px !important;
+    height: 627px !important;
   }
 
 }
