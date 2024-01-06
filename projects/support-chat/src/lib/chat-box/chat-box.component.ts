@@ -28,9 +28,36 @@ export class ChatBoxComponent implements OnDestroy {
   counter: number = 0;
   userDetails: any;
   // 'ws://185.182.194.244:8080'
-  private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://185.182.194.244:8080';
+  // private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://185.182.194.244:8080';
+  private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
+  loginData: any ='';
   constructor(private backendService: NetworkService, private websocketService: WebsocketService) {
     this.getMessageFromSocket();
+     this.loginData = JSON.parse(localStorage.getItem('webLogin') as string) ?JSON.parse(localStorage.getItem('webLogin') as string) :  '';
+  
+    if(this.loginData !== ''){
+      this.guestUserLogin = true;
+      this.userDetails = this.loginData?.data;
+
+      var url = this.SocketBaseUrl + '?token=' + this.userDetails?.user?.token?.token;
+      // var url = this.SocketBaseUrl + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWVzdEVtYWlsIjoidGFsaGExNzA0Mzc2NjYxQHh5ei5jb20iLCJpYXQiOjE3MDQzNzY2NjEsImV4cCI6MTcwNDQwNTQ2MX0.iP4ypSl6V7JC8bK2w_QLBPTLJtW31H5G-52FZf9UKm0';
+
+
+
+      this.websocketService.connect(url).subscribe(
+        async (message: any) => {
+        },
+        (error: any) => {
+          console.error('WebSocket error:', error);
+        },
+        () => {
+          console.log('WebSocket connection closed');
+        }
+      );
+    }
+    else{
+      this.guestUserLogin = false;
+    }
   }
   ngOnDestroy(): void {
     this.websocketService.closeSocket();
@@ -85,6 +112,29 @@ export class ChatBoxComponent implements OnDestroy {
     }
   }
 
+obj:any =
+    {
+
+      sender: {
+          name: "as_7",
+          email: "as_7@xyz.com",
+          domain: "xyz.com",
+      },
+      receiver:{},
+      attachments: [],
+      message: "",
+      messageId: "web_1704473158873",
+      type: "message",
+      read: false,
+      forward: false,
+      delivered: false,
+      deliveredToSender: false,
+      sentAt: "2024-01-05T16:45:58.873Z",
+      deletedForMe: false,
+      deletedForAll: false,
+  }
+  
+
   sendMessage() {
     if (this.messageText.trim() !== '') {
       const current = new Date();
@@ -95,6 +145,11 @@ export class ChatBoxComponent implements OnDestroy {
         sentAt: new Date(),
         messageId: "web_" + current.getTime()
       }
+      this.obj.messageId ="web_" + current.getTime();
+      this.obj.message =this.messageText;
+      this.obj.sentAt =current;
+      // this.messages.push(this.obj);
+
       this.websocketService.send(sendMessage);
       this.messageText = '';
       this.isSendButtonVisible = false

@@ -1,7 +1,8 @@
 .chat-icon-container {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px;
     right: 20px;
+  
     background-color: #3498db; /* Change the background color as needed */
     padding: 10px;
     border-radius: 50%;
