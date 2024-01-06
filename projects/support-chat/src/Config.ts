@@ -9,9 +9,10 @@ const BASE_URL = 'https://buzzmehi.com'
 
 
 export const CONFIG = {
-
+  SiteName : 'Chat',
   socketurl : BASE_URL +'',
   userLogin: BASE_URL + "/api/webLogin",
+  userLoginTime:1440,
 
 }
 

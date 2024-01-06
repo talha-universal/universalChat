@@ -45,8 +45,8 @@
 
 
 .header {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  /* top: 0; */
   display: flex;
   width: 100%;
   background: #f0f2f5;
@@ -177,6 +177,12 @@ svg {
   animation: fadeIn 1s ease;
 }
 
+@media screen and (max-width:766px) {
+  .header{
+    top:0;
+  }
+}
+
 
 @media screen and (min-width:766px) {
   .chatBox {
@@ -195,6 +201,10 @@ svg {
   
   .message-list {
     height: 627px !important;
+  }
+
+  .header{
+    width: 400px;
   }
 
 }
@@ -289,6 +299,11 @@ svg {
 .singleTick{
   width: 19px;
   height: 27px;
+}
+
+.pendding{
+  height: 29px;
+  width: 19px;
 }
 
 .doubleTickread{

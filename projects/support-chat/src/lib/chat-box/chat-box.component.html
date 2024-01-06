@@ -2,8 +2,9 @@
     <div class="header">
         <div class="logo">
             <span><img class="logoImg" /> </span>
-            <span class="userName"> 
-                <span *ngIf="userDetails?.user?.support?.length > 0 && userDetails?.user?.support?.length< 8 ">{{userDetails?.user?.support}}</span>
+            <span class="userName">
+                <span
+                    *ngIf="userDetails?.user?.support?.length > 0 && userDetails?.user?.support?.length< 8 ">{{userDetails?.user?.support}}</span>
                 <span
                     *ngIf="userDetails?.user?.support?.length> 0 && userDetails?.user?.support?.length > 8">{{userDetails?.user?.support.substring(0,8)}}</span>
             </span>
@@ -45,14 +46,18 @@
 
         <div class="message-list">
             <ng-container *ngFor="let message of messages.slice().reverse()">
-                <ng-container *ngIf="userDetails?.user?.email == message?.sender.email ">
+                <ng-container *ngIf="userDetails?.user?.email == message?.sender.email || message?.myMessage">
 
                     <div class=" d-flex justify-content-end" style="width: 99%;">
-                        <div class="message" [ngClass]=" showAnimation ? 'messageAnimation' :'' ">
+                        <!-- <div class="message d-flex" [ngClass]="[{'messageAnimation': showAnimation },{'flex-column' : message.message.length > 30}]" > -->
+                     <div class="message d-flex messageAnimation" [ngClass]="message.message.length > 27 ? 'flex-column' : ''" >
+                    
                             <span class="messagetext">
                                 {{ message.message }}
+
                             </span>
-                            <div class="d-flex justify-content-end align-items-center">
+
+                            <div class="ps-2 d-flex justify-content-end align-items-center">
                                 <span class="time">{{message?.sentAt | date : 'h:mm a'}}</span>
                                 <span class="doubleTick" *ngIf="message?.delivered || message?.read">
 
@@ -64,10 +69,20 @@
                                             fill="currentColor"></path>
                                     </svg>
                                 </span>
-                                <span class="singleTick" *ngIf="!message?.delivered && !message?.read">
+                                <span class="singleTick"
+                                    *ngIf="!message?.delivered && !message?.read  && message?.receiver?.email">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -0.5 25 25" fill="none">
                                         <path d="M5.5 12.5L10.167 17L19.5 8" stroke="#000000" stroke-width="1.5"
                                             stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                                <span class="pendding" *ngIf="message?.myMessage">
+                                    <svg viewBox="0 0 16 15" width="16" preserveAspectRatio="xMidYMid meet" class=""
+                                        version="1.1" x="0px" y="0px" enable-background="new 0 0 16 15">
+                                        <title>msg-time</title>
+                                        <path fill="currentColor"
+                                            d="M9.75,7.713H8.244V5.359c0-0.276-0.224-0.5-0.5-0.5H7.65c-0.276,0-0.5,0.224-0.5,0.5v2.947 c0,0.276,0.224,0.5,0.5,0.5h0.094c0.001,0,0.002-0.001,0.003-0.001S7.749,8.807,7.75,8.807h2c0.276,0,0.5-0.224,0.5-0.5V8.213 C10.25,7.937,10.026,7.713,9.75,7.713z M9.75,2.45h-3.5c-1.82,0-3.3,1.48-3.3,3.3v3.5c0,1.82,1.48,3.3,3.3,3.3h3.5 c1.82,0,3.3-1.48,3.3-3.3v-3.5C13.05,3.93,11.57,2.45,9.75,2.45z M11.75,9.25c0,1.105-0.895,2-2,2h-3.5c-1.104,0-2-0.895-2-2v-3.5 c0-1.104,0.896-2,2-2h3.5c1.105,0,2,0.896,2,2V9.25z">
+                                        </path>
                                     </svg>
                                 </span>
                             </div>
@@ -76,11 +91,11 @@
 
                 </ng-container>
 
-                <ng-container *ngIf="userDetails?.user?.email !== message?.sender.email">
+                <ng-container *ngIf="userDetails?.user?.email !== message?.sender.email && message?.receiver?.email">
 
                     <div class="w-100 d-flex justify-content-start">
                         <div class="message receiverMessage ">
-                            <span class="messagetext"  [ngClass]=" showAnimation ? 'messageAnimation' :'' ">
+                            <span class="messagetext" [ngClass]=" showAnimation ? 'messageAnimation' :'' ">
                                 {{ message.message }}
                             </span>
                             <div class="d-flex justify-content-end align-items-center">
@@ -150,7 +165,7 @@
 
         <div class="chatInputDiv">
             <input class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
-                (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()">
+                autocomplete="off" (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()">
         </div>
         <div class="sendButton fade-in" *ngIf="isSendButtonVisible" (click)="sendMessage()">
             <!-- <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
@@ -166,13 +181,20 @@
                     </g>
                 </g>
             </svg> -->
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Uploaded to svgrepo.com" viewBox="0 0 32 32" xml:space="preserve">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                id="Uploaded to svgrepo.com" viewBox="0 0 32 32" xml:space="preserve">
                 <style type="text/css">
-                    .stone_een{fill:blue;}
-                    .st0{fill:#0B1719;}
+                    .stone_een {
+                        fill: blue;
+                    }
+
+                    .st0 {
+                        fill: #0B1719;
+                    }
                 </style>
-                <path class="stone_een" d="M10.774,23.619l-1.625,5.691C9.06,29.164,9,28.992,9,28.794v-5.57l13.09-12.793L10.774,23.619z   M10.017,29.786c0.243-0.002,0.489-0.084,0.69-0.285l3.638-3.639l-2.772-1.386L10.017,29.786z M28.835,2.009L3.802,14.326  c-2.226,1.095-2.236,4.266-0.017,5.375l4.89,2.445L27.464,3.79c0.204-0.199,0.516-0.234,0.759-0.086  c0.326,0.2,0.396,0.644,0.147,0.935l-16.3,18.976l8.84,4.4c1.746,0.873,3.848-0.128,4.27-2.034l5.071-22.858  C30.435,2.304,29.588,1.639,28.835,2.009z"/>
-                </svg>
+                <path class="stone_een"
+                    d="M10.774,23.619l-1.625,5.691C9.06,29.164,9,28.992,9,28.794v-5.57l13.09-12.793L10.774,23.619z   M10.017,29.786c0.243-0.002,0.489-0.084,0.69-0.285l3.638-3.639l-2.772-1.386L10.017,29.786z M28.835,2.009L3.802,14.326  c-2.226,1.095-2.236,4.266-0.017,5.375l4.89,2.445L27.464,3.79c0.204-0.199,0.516-0.234,0.759-0.086  c0.326,0.2,0.396,0.644,0.147,0.935l-16.3,18.976l8.84,4.4c1.746,0.873,3.848-0.128,4.27-2.034l5.071-22.858  C30.435,2.304,29.588,1.639,28.835,2.009z" />
+            </svg>
             <!-- <img class="imgButtonsend" /> -->
             <!-- <img style="width: 20px;" src="../../../assets/chatbox/send.jpg"/> -->
         </div>
