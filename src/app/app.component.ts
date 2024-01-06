@@ -11,6 +11,8 @@ import { LibChatsComponent } from './../../projects/support-chat/src/public-api'
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  // console.log('testing');
+  
   title = 'UniversalChat';
   isChatBoxOpen = false;
 
