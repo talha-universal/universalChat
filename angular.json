@@ -3,39 +3,71 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "UniversalChat": {
+    "universal-chat-lib": {
+      "projectType": "library",
+      "root": "projects/universal-chat-lib",
+      "sourceRoot": "projects/universal-chat-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/universal-chat-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/universal-chat-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/universal-chat-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/universal-chat-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "localapp": {
       "projectType": "application",
       "schematics": {},
-      "root": "",
-      "sourceRoot": "src",
+      "root": "projects/localapp",
+      "sourceRoot": "projects/localapp/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "preserveSymlinks": true,
-            "outputPath": "dist/universal-chat",
-            "index": "src/index.html",
-            "browser": "src/main.ts",
+            "outputPath": "dist/localapp",
+            "index": "projects/localapp/src/index.html",
+            "browser": "projects/localapp/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "projects/localapp/tsconfig.app.json",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "projects/localapp/src/favicon.ico",
+              "projects/localapp/src/assets"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.css"
+              "projects/localapp/src/styles.css"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ],
-            "server": "src/main.server.ts",
+            "server": "projects/localapp/src/main.server.ts",
             "prerender": true,
             "ssr": {
-              "entry": "server.ts"
+              "entry": "projects/localapp/server.ts"
             }
           },
           "configurations": {
@@ -43,13 +75,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "3mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "5mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -66,10 +98,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "UniversalChat:build:production"
+              "buildTarget": "localapp:build:production"
             },
             "development": {
-              "buildTarget": "UniversalChat:build:development"
+              "buildTarget": "localapp:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -77,7 +109,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "UniversalChat:build"
+            "buildTarget": "localapp:build"
           }
         },
         "test": {
@@ -87,55 +119,21 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",
+            "tsConfig": "projects/localapp/tsconfig.spec.json",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "projects/localapp/src/favicon.ico",
+              "projects/localapp/src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "projects/localapp/src/styles.css"
             ],
             "scripts": []
-          }
-        }
-      }
-    },
-    "supportChat": {
-      "projectType": "library",
-      "root": "projects/support-chat",
-      "sourceRoot": "projects/support-chat/src",
-      "prefix": "lib",
-
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "project": "projects/support-chat/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/support-chat/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "projects/support-chat/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "tsConfig": "projects/support-chat/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": "d3915cca-5968-45a4-a239-9a60728b242d"
+    "analytics": "c2f84c07-245a-4280-821f-7529be65cb98"
   }
 }
