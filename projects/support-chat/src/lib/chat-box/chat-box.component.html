@@ -1,12 +1,11 @@
-<div [class.active]="isVisible" class="chatBox">
-    <div class="header">
+<!-- [ngClass]="{'boxheight':!isKeyboardMbl,'mblKeyboardBlur':isKeyboardMbl}" -->
+  <div [class.active]="isVisible" class="chatBox"  id="checkBox" >
+    <div class="header" [ngClass]="{'headerTop':!isKeyboardMbl,'':isKeyboardMbl}">
         <div class="logo">
             <span><img class="logoImg" /> </span>
             <span class="userName">
                 <span
-                    *ngIf="userDetails?.user?.support?.length > 0 && userDetails?.user?.support?.length< 8 ">{{userDetails?.user?.support}}</span>
-                <span
-                    *ngIf="userDetails?.user?.support?.length> 0 && userDetails?.user?.support?.length > 8">{{userDetails?.user?.support.substring(0,8)}}</span>
+                    *ngIf="userDetails?.user?.sName">{{userDetails?.user?.sName}}</span>
             </span>
         </div>
         <div class="d-flex">
@@ -42,7 +41,7 @@
 
     <!--*********** UserName Without Login End ***********-->
 
-    <div class="body">
+    <div class="body" [ngClass]="{'bodyheight':!isKeyboardMbl,'':isKeyboardMbl}">
 
         <div class="message-list">
             <ng-container *ngFor="let message of messages.slice().reverse()">
@@ -165,9 +164,10 @@
 
         <div class="chatInputDiv">
             <input class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
-                autocomplete="off" (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()">
+                autocomplete="off" (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()"
+                 (focus)="onfocusText();"  (focusout)="onBlurText($event)">
         </div>
-        <div class="sendButton fade-in" *ngIf="isSendButtonVisible" (click)="sendMessage()">
+        <div class="sendButton fade-in" id="sendButton" *ngIf="isSendButtonVisible" (click)="sendMessage();isSendButtonClick=true">
             <!-- <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
                 id="OBJECTS" x="0px" y="0px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
                 <g>
@@ -222,4 +222,4 @@
         </ng-container>
     </div>
     <!---***********  Bottom Bar for Chat End -*********** -->
-    <!-- </div> -->
+    </div>

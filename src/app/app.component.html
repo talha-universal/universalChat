@@ -3,10 +3,10 @@
 <app-chat-box *ngIf="isChatBoxOpen" (chatBoxClose)="isChatBoxOpen = false" [isVisible]="isChatBoxOpen"></app-chat-box> -->
 
 <!-- <router-outlet></router-outlet> -->
-<div style="height:1200px;width:200px;background:yellow"></div>
+<div style="height:1200px;width:200px;background:yellow;overflow: hidden;"></div>
 
 
 <!-- <lib-chat-box></lib-chat-box> -->
 
+        <lib-chats></lib-chats>
 
-<lib-chats></lib-chats>

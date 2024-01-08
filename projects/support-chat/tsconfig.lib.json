@@ -10,10 +10,11 @@
     "paths": {
       "@angular/*": [
          "./node_modules/@angular/*"
-      ],
+      ]
    }
   },
   "exclude": [
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "../node_modules/**",
   ]
 }

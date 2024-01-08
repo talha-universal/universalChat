@@ -10,11 +10,8 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "paths": {
-      "my-chat-plugin": [
-        "./dist/my-chat-plugin"
-      ],
       "supportChat": [
-        "./dist/support-chat"
+          "./projects/support-chat/src/public-api"
       ]
     },
     "esModuleInterop": true,
@@ -36,5 +33,6 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
+   
   }
 }

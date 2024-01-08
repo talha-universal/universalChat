@@ -3,6 +3,7 @@
 # Compiled output
 /dist
 .node_modules
+projects/support-chat/node_modules
 /tmp
 /out-tsc
 /bazel-out
