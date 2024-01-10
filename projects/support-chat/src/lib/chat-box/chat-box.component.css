@@ -80,6 +80,8 @@
   font-size: 18px;
   margin-left: 15px;
   color: black;
+  display: flex;
+  flex-direction: column;
 }
 
 .CrossClose {
@@ -307,7 +309,7 @@ svg {
 
 .singleTick {
   width: 19px;
-  height: 27px;
+  height: 29px;
 }
 
 .pendding {
@@ -318,7 +320,11 @@ svg {
 .doubleTickread {
   color: #53bdeb !important;
 }
+.supporterStatus{
+  font-size: 14px;
+  color: #aaa;
 
+}
 @keyframes slideIn {
   from {
     opacity: 0;

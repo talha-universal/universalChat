@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable, of, Subject } from 'rxjs';
 
@@ -11,6 +11,21 @@ export class NetworkService {
 
   constructor(private http: HttpClient) { }
 
+
+  // createAuthorizationHeader(headers: Headers,token:any) {
+  //   headers.append('Authorization', 'Bearer ' +
+  //     token); 
+  // }
+
+  private createAuthorizationHeader(token: string | null): HttpHeaders {
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = new HttpHeaders({
+        'Authorization': 'Bearer ' + token
+      });
+    }
+    return headers;
+  }
   getAllRecordsByPost(url: any, params: any) {
     return this.http.post<any>(url, params)
       .pipe(map(data => {
@@ -18,13 +33,19 @@ export class NetworkService {
       }));
   }
 
+  getSupporterStatusByGet(url: any, params: any) {
 
-  // setBetStakes(stakes: any) {
-  //   this.betstakeObs.next(stakes);
-  // }
-  // getBetStakes() {
-  //   return this.betStakes
-  // }
+    let headers = new HttpHeaders();
+    const token = JSON.parse(localStorage.getItem('webLogin') || '{}').data?.user?.token?.token;
+
+    headers = this.createAuthorizationHeader(token);
+
+    const requestUrl = url + '/'+ params
+    return this.http.get<any>(requestUrl, {headers})
+      .pipe(map(data => {
+        return data;
+      }));
+  }
 
 
   private setLocalStorage(key: any, data: any): void {

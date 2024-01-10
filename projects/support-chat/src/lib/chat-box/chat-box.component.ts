@@ -1,10 +1,11 @@
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CONFIG } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import { first } from 'rxjs';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
@@ -12,7 +13,7 @@ declare var $: any; @Component({
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css'
 })
-export class ChatBoxComponent implements OnDestroy {
+export class ChatBoxComponent implements OnInit, OnDestroy {
   messageText: any;
   guestUserLogin: any = false;
   showAnimation = true;
@@ -28,7 +29,7 @@ export class ChatBoxComponent implements OnDestroy {
   counter: number = 0;
   userDetails: any;
   // 'ws://185.182.194.244:8080'
-  // private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://185.182.194.244:8080';
+  // private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://10.10.0.22:8080';
   private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
   loginData: any = '';
   sendMessageObj: any;
@@ -38,10 +39,20 @@ export class ChatBoxComponent implements OnDestroy {
   isMobileInfo: string;
   opnKeybord: boolean = false;
   isSendButtonClick: boolean = false;
+  sendSocketstatus: any = 1;
+  sendMessagesArray: any = [];
+  isConnecting: any = false;
+  SupporterStatus: any = "Offline";
   constructor(private backendService: NetworkService, private websocketService: WebsocketService,
     private devicedetector: DeviceDetectorService, private el: ElementRef) {
     this.getMessageFromSocket();
-    this.LoginGuestUser();
+
+    const weblogin = localStorage.getItem('webLogin') as string | '';
+    if (weblogin == '' || weblogin == null || weblogin == undefined) {
+      this.guestUserLogin = false;
+    } else {
+      this.LoginGuestUser();
+    }
     this.isDesktop = this.devicedetector.isDesktop();
     // Check if the current device is a mobile
 
@@ -51,6 +62,8 @@ export class ChatBoxComponent implements OnDestroy {
 
 
   }
+  ngOnInit(): void {
+  }
   ngOnDestroy(): void {
     this.websocketService.closeSocket();
     this.messages = [];
@@ -59,6 +72,19 @@ export class ChatBoxComponent implements OnDestroy {
 
   onInputChange() {
     this.isSendButtonVisible = this.messageText.length > 0;
+
+    if (this.messageText.length > 0 && this.sendSocketstatus == 1) {
+      this.sendSocketstatus = 0;
+      const typingObj = {
+        type: "action",
+        action: "dirty",
+        sender: this.userDetails?.user?.id,
+        receiver: this.userDetails?.user?.support,
+        flag: "yes"
+      }
+      this.websocketService.send(typingObj);
+    }
+
   }
 
   CloseChatBox() {
@@ -89,8 +115,38 @@ export class ChatBoxComponent implements OnDestroy {
       if (data.status == 'success') {
         this.guestUserLogin = true
         this.userDetails = data?.data;
-        this.chatUserName = data?.data?.user?.name;
 
+        const date1 = new Date(this.userDetails?.user?.token?.expiresAt);
+        const date2 = new Date();
+        if (date1 <= date2) {
+
+          this.backendService.getAllRecordsByPost(CONFIG.validateMe, { token: this.userDetails?.user?.token?.token }).pipe(first())
+            .subscribe((res) => {
+
+              if (res.status = 'success') {
+                this.userDetails.data.user.token.token = res?.data?.token;
+                this.userDetails.data.user.token.expiresAt = res?.data?.token;
+
+                data.data = this.userDetails;
+                // Convert the object to a JSON string
+                var updatedObjectString = JSON.stringify(data);
+
+
+                // Store the updated string back in local storage
+                localStorage.setItem('webLogin', updatedObjectString);
+              }
+              else {
+                localStorage.clear();
+                this.guestUserLogin = false
+              }
+
+
+            });
+
+
+        }
+
+        this.chatUserName = data?.data?.user?.name;
 
         var url = this.SocketBaseUrl + '?token=' + this.userDetails?.user?.token?.token;
         // var url = this.SocketBaseUrl + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWVzdEVtYWlsIjoidGFsaGExNzA0Mzc2NjYxQHh5ei5jb20iLCJpYXQiOjE3MDQzNzY2NjEsImV4cCI6MTcwNDQwNTQ2MX0.iP4ypSl6V7JC8bK2w_QLBPTLJtW31H5G-52FZf9UKm0';
@@ -154,7 +210,7 @@ export class ChatBoxComponent implements OnDestroy {
         sentAt: new Date(),
         messageId: "web_" + current.getTime()
       }
-  
+
       const newMessage = {
         ...this.obj,  // Copy properties from the original object if needed
         messageId: this.sendMessageObj.messageId,
@@ -162,11 +218,19 @@ export class ChatBoxComponent implements OnDestroy {
         sentAt: formatDate(current),
         myMessage: true
       };
-      
+      this.showAnimation = true;
       this.messages.push(newMessage);
-      this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+      // console.log(this.messages);
+      // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+      this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
 
-      this.websocketService.send(this.sendMessageObj);
+
+      // this.sendMessagesArray.push(this.sendMessageObj);
+
+      // this.checkAndSendMessages()
+      this.websocketService.addToSendQueue(this.sendMessageObj);
+      // this.websocketService.send(this.sendMessageObj);
+
       this.messageText = '';
       // this.isSendButtonVisible = false
 
@@ -175,6 +239,7 @@ export class ChatBoxComponent implements OnDestroy {
       return
     }
   }
+
 
   binarySearch(messages: any, targetMessageId: any) {
     let left = 0;
@@ -217,28 +282,30 @@ export class ChatBoxComponent implements OnDestroy {
           } else {
             // If the message with the same messageId is not found, add it to the array
             this.showAnimation = true;
+
+            const localDate = new Date(socketData.sentAt); // Creating a new Date object
+            // console.log('UTC Date:', socketData.sentAt);
+            // console.log('Local Date:', localDate.toLocaleString());
+            // socketData.sentAt = localDate;
             this.messages.push(socketData);
+            // console.log(socketData);
 
             // Assuming the messages array remains sorted, if not, you may need to sort it.
             this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+            // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.toLocaleString() - b.sentAt.toLocaleString());
           }
 
-
-          // const indexToUpdate = this.messages.findIndex((msg: any) => msg.messageId === socketData.messageId);
-
-          // // If the message with the same messageId is found, update it
-          // if (indexToUpdate !== -1) {
-          //   this.showAnimation = false;
-          //   this.messages[indexToUpdate] = socketData;
-          // } else {
-          //   this.showAnimation = true;
-          //   this.messages.push(socketData);
-          //   this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-
-          // }
-
-
         }
+        if (socketData?.type == "all_user_status") {
+          this.backendService.getSupporterStatusByGet(CONFIG.getUserStatus, this.userDetails?.user?.support).pipe(first())
+            .subscribe((res: any) => {
+              if (res.status == "success") {
+                this.SupporterStatus = res?.data?.status
+              }
+
+            });
+        }
+
       }
 
     })
@@ -246,7 +313,6 @@ export class ChatBoxComponent implements OnDestroy {
 
   onfocusText() {
     this.isKeyboardMbl = false;
-    debugger
     if (!this.opnKeybord && this.isMobile) {
       this.setMarketScrollHeight();
     }
@@ -275,10 +341,31 @@ export class ChatBoxComponent implements OnDestroy {
 
     if (checkBoxElement) {
       checkBoxElement.style.height = `${targetHeight}px`;
+      // checkBoxElement.style.top = `0`;
+      // checkBoxElement.scrollTo({ top:0, behavior: 'smooth' });
+      // checkBoxElement.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+
       // marketScrollElement.style.marginTop = `${margintop}px`;
     }
   }
 
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: Event) {
+    // Call your onBlurText() method or perform any other functionality
+    // console.log("He Call me Scrol")
+
+    if (this.opnKeybord) {
+      // Call your onBlurText() method or perform any other functionality
+      // this.onBlurText();
+    } else {
+      // Prevent default scroll behavior when the text box is focused
+      // console.log("hhh");
+      event.stopPropagation();
+      event.preventDefault();
+      document.body.style.overflow = 'hidden';
+    }
+    // this.onBlurText();
+  }
 
   onBlurText(event: FocusEvent) {
     setTimeout(() => {
@@ -297,6 +384,16 @@ export class ChatBoxComponent implements OnDestroy {
           checkBoxElement.style.height = `100%`;
         }
       }
+
+      const typingObj = {
+        type: "action",
+        action: "dirty",
+        sender: this.userDetails?.user?.id,
+        receiver: this.userDetails?.user?.support,
+        flag: "no"
+      }
+      this.sendSocketstatus = 1;
+      this.websocketService.send(typingObj);
     }, 300);
 
   }

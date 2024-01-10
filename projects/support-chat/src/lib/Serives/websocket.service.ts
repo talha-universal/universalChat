@@ -21,8 +21,11 @@ export class WebsocketService implements OnInit {
   isAttempt: boolean = false;
   reattempting: boolean = false;
   private marketData = new Subject<string>();
+  private connectionCallback: (() => void) | null = null;
+  private isConnectedFlag: boolean = false;
 
   ngOnInit() {
+
   }
 
   constructor() {
@@ -34,6 +37,11 @@ export class WebsocketService implements OnInit {
 
   public updateMarketData(message: any): void {
     this.marketData.next(message);
+  }
+
+  // Add a method to check the connection status
+  isConnected(): boolean {
+    return this.socket && this.socket.readyState === WebSocket.OPEN;
   }
 
   public connect(Url_Token?: any): Observable<any> {
@@ -55,6 +63,19 @@ export class WebsocketService implements OnInit {
 
       this.socket.onerror = (event: Event) => {
         observer.error(event);
+      };
+
+      this.socket.onopen = (event: Event) => {
+        // console.log('WebSocket connection opened:', event);
+        this.isConnectedFlag = true;
+        if (this.connectionCallback) {
+          this.connectionCallback(); // Notify when the connection is established
+        }
+        setTimeout(() => {
+            // Check and send queued messages when connected
+        this.sendQueuedMessages(); // Make sure this line is present
+        }, 2000);
+      
       };
 
       this.socket.onclose = (event: CloseEvent) => {
@@ -112,6 +133,33 @@ export class WebsocketService implements OnInit {
       };
     });
   }
+
+
+
+
+
+  private messageQueue: any[] = [];
+
+
+  addToSendQueue(message: any): void {
+
+    if(this.isConnected()){
+      this.send(message);
+    }else{
+      this.messageQueue.push(message);
+    }
+  }
+
+  sendQueuedMessages(): void {
+    // console.log('Sending queued messages...');
+    while (this.messageQueue.length > 0 && this.isConnectedFlag) {
+      const message = this.messageQueue.shift();
+      // console.log('Sending message:', message);
+      this.send(message);
+    }
+    this.isConnectedFlag = false;
+  }
+
   closeSocket(): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.onclose = () => {
@@ -122,6 +170,7 @@ export class WebsocketService implements OnInit {
       this.connect(); // If the WebSocket connection is not open, create a new one directly
     }
   }
+
   public send(message: any): void {
     this.isAttempt = false
     this.previousMsg = message;
@@ -138,6 +187,7 @@ export class WebsocketService implements OnInit {
       else {
 
         try {
+          this.addToSendQueue(message);
           this.socket.send(JSON.stringify(message));
         }
         catch (error) {
@@ -158,6 +208,7 @@ export class WebsocketService implements OnInit {
   NeedToSendPrevious() {
     return this.socket && this.isAttempt;
   }
+
   public ping(): void {
     setInterval(() => {
       if (this.socket.readyState === WebSocket.OPEN) {
@@ -171,6 +222,10 @@ export class WebsocketService implements OnInit {
       this.socket.onmessage = (event: MessageEvent) => {
         observer.next(event.data);
         this.marketData.next(event?.data);
+        if (event?.data === 'connected') {
+          this.isConnectedFlag = true;
+          this.sendQueuedMessages();
+        }
       };
 
       this.socket.onerror = (event: Event) => {
