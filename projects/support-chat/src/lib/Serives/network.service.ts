@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, of, Subject } from 'rxjs';
+import { catchError, map, Observable, of, Subject, throwError } from 'rxjs';
+import { CONFIG } from '../../Config';
 
 @Injectable({
   providedIn: 'root'
@@ -28,9 +29,17 @@ export class NetworkService {
   }
   getAllRecordsByPost(url: any, params: any) {
     return this.http.post<any>(url, params)
-      .pipe(map(data => {
-        return data;
-      }));
+      .pipe(
+        map(data => {
+          return data;
+        }),
+        catchError(error => {
+          // Handle other errors
+          return throwError(() => error);
+
+        })
+
+      );
   }
 
   getSupporterStatusByGet(url: any, params: any) {
@@ -40,11 +49,32 @@ export class NetworkService {
 
     headers = this.createAuthorizationHeader(token);
 
-    const requestUrl = url + '/'+ params
-    return this.http.get<any>(requestUrl, {headers})
+    const requestUrl = url + '/' + params
+    return this.http.get<any>(requestUrl, { headers })
       .pipe(map(data => {
         return data;
       }));
+  }
+
+  uploadfile(imgObj: any) {
+    let headers = new HttpHeaders();
+    const token = JSON.parse(localStorage.getItem('webLogin') || '{}').data?.user?.token?.token;
+    headers = this.createAuthorizationHeader(token);
+    const formData = new FormData();
+    formData.append('file', imgObj.file);
+    formData.append('attachmentId', imgObj.attachmentId);
+
+    return this.http.post<any>(CONFIG.uploadDocument, formData, {headers})
+      .pipe(
+        map(data => {
+          return data;
+        }),
+        catchError(error => {
+          // Handle other errors
+          return throwError(() => error);
+        })
+      );
+
   }
 
 

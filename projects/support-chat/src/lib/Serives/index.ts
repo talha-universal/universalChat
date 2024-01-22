@@ -5,3 +5,4 @@ export * from './network.service';
 export * from './websocket.service';
 export * from './index-db.service';
 export * from './main.service';
+export * from './message-handling.service';

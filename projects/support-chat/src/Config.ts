@@ -17,6 +17,7 @@ export const CONFIG = {
   userLoginTime:1440,
   validateMe: BASE_URL + "/api/user/validateMe",
   getUserStatus: BASE_URL + "/api/user/get_user_status",
+  uploadDocument: BASE_URL + "/api/file/upload_document",
 
 }
 

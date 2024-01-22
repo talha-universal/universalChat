@@ -6,6 +6,11 @@ import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { first } from 'rxjs';
+import { mkdirSync } from 'fs';
+import { timeStamp } from 'console';
+import { IndexDBChatService } from '../Serives/index-dbchat.service';
+import { SocketMessage } from '../Serives/message-interface';
+import { MessageHandlingService } from '../Serives';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
@@ -14,7 +19,7 @@ declare var $: any; @Component({
   styleUrl: './chat-box.component.css'
 })
 export class ChatBoxComponent implements OnInit, OnDestroy {
-  messageText: any;
+  messageText: any = '';
   guestUserLogin: any = false;
   showAnimation = true;
   @Output() chatBoxClose = new EventEmitter<void>();
@@ -29,8 +34,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   counter: number = 0;
   userDetails: any;
   // 'ws://185.182.194.244:8080'
-  // private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://' + window.location.host + '/universecasino' : 'ws://10.10.0.22:8080';
-  private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
+  private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://buzzmehi.com/socketChat/' : 'ws://10.10.0.22:8080';
+  // private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
   loginData: any = '';
   sendMessageObj: any;
   isDesktop: boolean;
@@ -43,9 +48,16 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   sendMessagesArray: any = [];
   isConnecting: any = false;
   SupporterStatus: any = "Offline";
-  constructor(private backendService: NetworkService, private websocketService: WebsocketService,
-    private devicedetector: DeviceDetectorService, private el: ElementRef) {
-    this.getMessageFromSocket();
+  uploadImgResponse: any;
+  // messages: SocketMessage[] = [];
+  constructor(private backendService: NetworkService, private websocketService: WebsocketService, private indexedDBService: IndexDBChatService,
+    private devicedetector: DeviceDetectorService,
+    private messageHandlingService: MessageHandlingService, private el: ElementRef) {
+    // this.getMessageFromSocket();
+    this.messageHandlingService.getMessages().subscribe((message: any) => {
+      // Handle incoming messages here
+      this.handleIncomingMessage(message);
+    });
 
     const weblogin = localStorage.getItem('webLogin') as string | '';
     if (weblogin == '' || weblogin == null || weblogin == undefined) {
@@ -119,13 +131,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         const date1 = new Date(this.userDetails?.user?.token?.expiresAt);
         const date2 = new Date();
         if (date1 <= date2) {
-
           this.backendService.getAllRecordsByPost(CONFIG.validateMe, { token: this.userDetails?.user?.token?.token }).pipe(first())
             .subscribe((res) => {
-
               if (res.status = 'success') {
-                this.userDetails.data.user.token.token = res?.data?.token;
-                this.userDetails.data.user.token.expiresAt = res?.data?.token;
+                this.userDetails.user.token.token = res?.data?.token;
+                this.userDetails.user.token.expiresAt = res?.data?.token;
 
                 data.data = this.userDetails;
                 // Convert the object to a JSON string
@@ -139,10 +149,22 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 localStorage.clear();
                 this.guestUserLogin = false
               }
+            },
+              (error) => {
+                // Error handling
+                if (error?.data?.type == 99) {
+                  // Handle 401 error specifically here
+                  localStorage.clear();
+                  this.guestUserLogin = false
+                  // Redirect to login, clear local storage, or take other appropriate actions
+                } else {
+                  localStorage.clear();
+                  this.guestUserLogin = false
+                  console.error('An error occurred:', error);
+                }
+              }
 
-
-            });
-
+            );
 
         }
 
@@ -194,52 +216,141 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
 
+  // sendMessage() {
+  //   this.isSendButtonClick = true;
+  //   const chatBox = document.getElementById('chatMessage')
+  //   chatBox?.focus();
+  //   const formatDate = (date: Date): string => {
+  //     return date.toISOString();
+  //   };
+  //   if (this.messageText.trim() !== '' && this.messageText !== undefined) {
+  //     const current = new Date();
+  //     this.sendMessageObj = {
+  //       type: "message",
+  //       receiver: this.userDetails?.user?.support,
+  //       message: this.messageText,
+  //       sentAt: new Date(),
+  //       messageId: "web_" + current.getTime()
+  //     }
+
+  //     const newMessage = {
+  //       ...this.obj,  // Copy properties from the original object if needed
+  //       messageId: this.sendMessageObj.messageId,
+  //       message: this.messageText,
+  //       sentAt: formatDate(current),
+  //       myMessage: true
+  //     };
+  //     this.showAnimation = true;
+  //     this.messages.push(newMessage);
+  //     // console.log(this.messages);
+  //     // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+  //     this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
+
+
+  //     // this.sendMessagesArray.push(this.sendMessageObj);
+
+  //     // this.checkAndSendMessages()
+  //     this.websocketService.addToSendQueue(this.sendMessageObj);
+  //     // this.websocketService.send(this.sendMessageObj);
+
+  //     this.messageText = '';
+  //     // this.isSendButtonVisible = false
+
+  //   }
+  //   else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
+  //     this.uploadImgResponse.receiver = this.userDetails?.user?.support;
+
+  //     const newMessage = {
+  //       attachments:[{...this.uploadImgResponse}], // Copy properties from the original object if needed
+  //       myMessage: true,
+  //       message: '',
+  //       sender:{
+  //         email:this.userDetails?.user?.email
+  //       },
+  //       messageId: this.uploadImgResponse.messageId,
+  //       sentAt: this.uploadImgResponse.sentAt
+  //     };
+  //     this.showAnimation = true;
+  //     this.messages.push(newMessage);
+      
+  //     this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
+  //     this.websocketService.addToSendQueue(this.uploadImgResponse);
+
+  //     this.uploadImgResponse = {};
+  //     console.log(this.messages);
+  //   }
+
+  //   else {
+  //     return
+  //   }
+  // }
+
   sendMessage() {
     this.isSendButtonClick = true;
-    const chatBox = document.getElementById('chatMessage')
+    const chatBox = document.getElementById('chatMessage');
     chatBox?.focus();
     const formatDate = (date: Date): string => {
       return date.toISOString();
     };
-    if (this.messageText.trim() !== '') {
+    if (this.messageText.trim() !== '' && this.messageText !== undefined) {
       const current = new Date();
-      this.sendMessageObj = {
+      const sendMessageObj = {
+        ...this.obj,
         type: "message",
         receiver: this.userDetails?.user?.support,
         message: this.messageText,
         sentAt: new Date(),
         messageId: "web_" + current.getTime()
-      }
+      };
 
+      // Send the message using MessageHandlingService
+      this.messageHandlingService.sendMessage(sendMessageObj);
       const newMessage = {
-        ...this.obj,  // Copy properties from the original object if needed
-        messageId: this.sendMessageObj.messageId,
+        ...this.obj,
+        messageId: sendMessageObj.messageId,
         message: this.messageText,
         sentAt: formatDate(current),
         myMessage: true
       };
       this.showAnimation = true;
       this.messages.push(newMessage);
-      // console.log(this.messages);
-      // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-      this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
 
-
-      // this.sendMessagesArray.push(this.sendMessageObj);
-
-      // this.checkAndSendMessages()
-      this.websocketService.addToSendQueue(this.sendMessageObj);
-      // this.websocketService.send(this.sendMessageObj);
+      // Save the sent message to IndexedDB
+      this.indexedDBService.addMessage(sendMessageObj);
 
       this.messageText = '';
-      // this.isSendButtonVisible = false
+    } else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
+      // ... (other logic for handling file upload)
 
-    }
-    else {
-      return
+      // Send the file message using MessageHandlingService
+      this.messageHandlingService.sendMessage(this.uploadImgResponse);
+
+      // ... (other logic for updating UI and saving to IndexedDB)
     }
   }
 
+  // Handle incoming messages
+  private handleIncomingMessage(message: any): void {
+    const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
+
+    setTimeout(() => {
+      if (index !== -1) {
+        // Do something with the found object, e.g., update it
+        this.showAnimation = false;
+        this.messages[index] = message;
+      } else {
+        // If the message with the same messageId is not found, add it to the array
+        this.showAnimation = true;
+        this.messages.push(message);
+
+        // Assuming the messages array remains sorted, if not, you may need to sort it.
+        this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+
+        // Save the received message to IndexedDB
+        this.indexedDBService.addMessage(message);
+      }
+    }, 900);
+  }
 
   binarySearch(messages: any, targetMessageId: any) {
     let left = 0;
@@ -272,28 +383,44 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
         if (socketData?.type == "message") {
 
+          // const index = this.binarySearch(this.messages, socketData.messageId);
+          const index = this.messages.findIndex((msg: any) => msg.messageId == socketData.messageId);
 
-          const index = this.binarySearch(this.messages, socketData.messageId);
+          setTimeout(() => {
+            if (index !== -1) {
+              // Do something with the found object, e.g., update it
+              this.showAnimation = false;
+              this.messages[index] = socketData;
+            } else {
+              // If the message with the same messageId is not found, add it to the array
+              this.showAnimation = true;
 
-          if (index !== -1) {
-            // Do something with the found object, e.g., update it
-            this.showAnimation = false;
-            this.messages[index] = socketData;
-          } else {
-            // If the message with the same messageId is not found, add it to the array
-            this.showAnimation = true;
+              const localDate = new Date(socketData.sentAt); // Creating a new Date object
+              // console.log('UTC Date:', socketData.sentAt);
+              // console.log('Local Date:', localDate.toLocaleString());
+              // socketData.sentAt = localDate;
+              this.messages.push(socketData);
+              console.log(socketData);
+              console.log(this.messages);
 
-            const localDate = new Date(socketData.sentAt); // Creating a new Date object
-            // console.log('UTC Date:', socketData.sentAt);
-            // console.log('Local Date:', localDate.toLocaleString());
-            // socketData.sentAt = localDate;
-            this.messages.push(socketData);
-            // console.log(socketData);
+              // Assuming the messages array remains sorted, if not, you may need to sort it.
+              this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+              // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.toLocaleString() - b.sentAt.toLocaleString());
 
-            // Assuming the messages array remains sorted, if not, you may need to sort it.
-            this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-            // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.toLocaleString() - b.sentAt.toLocaleString());
-          }
+
+              //Send Read status to other fellow
+              if (this.userDetails?.user?.email !== socketData?.sender.email) {
+                const isReadReceiverObj = {
+                  type: "read_at",
+                  sender: this.userDetails?.user?.support,
+                  receiver: this.userDetails?.user?.id,
+                  id: socketData._id,
+                }
+                this.websocketService.send(isReadReceiverObj);
+              }
+            }
+          }, 900);
+
 
         }
         if (socketData?.type == "all_user_status") {
@@ -304,6 +431,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
               }
 
             });
+        }
+        if (socketData?.type == "action") {
+          if (socketData.action == "dirty" && socketData.flag == 'yes') {
+            this.SupporterStatus = 'typing...'
+          }
+          else if (socketData.action == "dirty" && socketData.flag == 'no') {
+            this.SupporterStatus = 'Online'
+          }
         }
 
       }
@@ -409,5 +544,71 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       // do something...
     }
   }
-  // 
+
+  @ViewChild('fileInput') fileInput: ElementRef | undefined;
+  selectedFile: File | null = null;
+
+  openFileInput(): void {
+    if (this.fileInput) {
+      this.fileInput.nativeElement.click();
+    }
+  }
+
+  onFileSelected(event: any): void {
+    debugger
+    this.selectedFile = event.target.files[0];
+    if (this.selectedFile) {
+      const current = new Date();
+      const timestamp = current.getTime();
+      const fileObj = {
+        file: this.selectedFile,
+        attachmentId: timestamp
+      }
+
+      this.backendService.uploadfile(fileObj).subscribe(response => {
+        // Handle the response from the server
+        const targetElement = event.target as HTMLElement;
+        const collapseNativeElement = this.collapseElement.nativeElement;
+        // Check if the clicked element is outside the collapse and if the collapse is currently shown
+        if (collapseNativeElement.classList.contains('show')) {
+
+          collapseNativeElement.classList.remove('show');
+          // do something...
+        }
+        console.log(response);
+        const time = new Date();
+
+        this.uploadImgResponse =
+        {
+          type: "multimedia",
+          fileUrl: response.fileUrl,
+          fileName: response.fileName,
+          messageId: "web_" + time.getTime(),
+          detailType: "jpg",
+          sentAt: new Date(),
+          receiver: "web_" + time.getTime(),
+          attachmentId: response.attachmentId,
+          originalName: this.selectedFile?.name,
+          size: this.selectedFile?.size,
+          docType: this.selectedFile?.type
+        }
+
+        this.sendMessage();
+
+      });
+    }
+  }
+
+  // onUpload(): void {
+  //   if (this.selectedFile) {
+  //     const formData = new FormData();
+  //     formData.append('file', this.selectedFile);
+
+  //     this.http.post('http://your-api-endpoint/upload', formData)
+  //       .subscribe(response => {
+  //         // Handle the response from the server
+  //         console.log(response);
+  //       });
+  //   }
+  // }
 }
