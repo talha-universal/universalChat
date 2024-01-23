@@ -34,7 +34,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   counter: number = 0;
   userDetails: any;
   // 'ws://185.182.194.244:8080'
-  private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://buzzmehi.com/socketChat/' : 'ws://10.10.0.22:8080';
+  private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://buzzmehi.com/socketChat/' : CONFIG.socketurl;
   // private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
   loginData: any = '';
   sendMessageObj: any;
@@ -56,6 +56,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     // this.getMessageFromSocket();
     this.messageHandlingService.getMessages().subscribe((message: any) => {
       // Handle incoming messages here
+      console.log("12")
       this.handleIncomingMessage(message);
     });
 
@@ -272,7 +273,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   //     };
   //     this.showAnimation = true;
   //     this.messages.push(newMessage);
-      
+
   //     this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
   //     this.websocketService.addToSendQueue(this.uploadImgResponse);
 
@@ -320,36 +321,58 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
       this.messageText = '';
     } else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
-      // ... (other logic for handling file upload)
+      this.uploadImgResponse.receiver = this.userDetails?.user?.support;
 
+      const newMessage = {
+        attachments: [{ ...this.uploadImgResponse }], // Copy properties from the original object if needed
+        myMessage: true,
+        message: '',
+        sender: {
+          email: this.userDetails?.user?.email
+        },
+        messageId: this.uploadImgResponse.messageId,
+        sentAt: this.uploadImgResponse.sentAt
+      };
+      this.showAnimation = true;
+
+      this.messages.push(newMessage);
+
+      this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
       // Send the file message using MessageHandlingService
       this.messageHandlingService.sendMessage(this.uploadImgResponse);
-
-      // ... (other logic for updating UI and saving to IndexedDB)
+      this.uploadImgResponse = {};
     }
   }
 
   // Handle incoming messages
   private handleIncomingMessage(message: any): void {
-    const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
+    debugger
+    if(message.length !== 0){
 
-    setTimeout(() => {
-      if (index !== -1) {
-        // Do something with the found object, e.g., update it
-        this.showAnimation = false;
-        this.messages[index] = message;
-      } else {
-        // If the message with the same messageId is not found, add it to the array
-        this.showAnimation = true;
-        this.messages.push(message);
+      const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
+  
+      setTimeout(() => {
+        if (index !== -1) {
+          // Do something with the found object, e.g., update it
+          this.showAnimation = false;
+          this.messages[index] = message;
+        } else {
+          // If the message with the same messageId is not found, add it to the array
+          this.showAnimation = true;
+          this.messages.push(message);
+  
+          // Assuming the messages array remains sorted, if not, you may need to sort it.
+          this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+  
+          // Save the received message to IndexedDB
+          this.indexedDBService.addMessage(message);
+        }
+      }, 900);
 
-        // Assuming the messages array remains sorted, if not, you may need to sort it.
-        this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-
-        // Save the received message to IndexedDB
-        this.indexedDBService.addMessage(message);
-      }
-    }, 900);
+    }
+    else{
+      this.messages = []
+    }
   }
 
   binarySearch(messages: any, targetMessageId: any) {
@@ -586,7 +609,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
           messageId: "web_" + time.getTime(),
           detailType: "jpg",
           sentAt: new Date(),
-          receiver: "web_" + time.getTime(),
+          receiver: this.userDetails?.user?.support,
           attachmentId: response.attachmentId,
           originalName: this.selectedFile?.name,
           size: this.selectedFile?.size,

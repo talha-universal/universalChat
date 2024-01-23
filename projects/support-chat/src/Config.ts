@@ -1,10 +1,12 @@
 
 
 // const BASE_URL = 'http://185.182.194.244:3000'
-// const BASE_URL = 'http://10.10.0.22:3000'
+
+// const BASE_URL = 'http://10.10.0.14:3000'
+// const socketurl = 'ws://10.10.0.14:8080'
+
 const BASE_URL = 'https://buzzmehi.com'
 const socketurl ='';
-// const socketurl = 'ws://10.10.0.22:8080'
     
 // const BASE_URL = ''
 

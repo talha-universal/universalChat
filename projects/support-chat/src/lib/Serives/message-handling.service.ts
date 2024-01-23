@@ -1,5 +1,5 @@
-import { Injectable, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subject, take } from 'rxjs';
 import { IndexDBChatService } from './index-dbchat.service';
 import { SocketMessage } from './message-interface';
 import { WebsocketService } from './websocket.service';
@@ -7,8 +7,9 @@ import { WebsocketService } from './websocket.service';
 @Injectable({
   providedIn: 'root',
 })
-export class MessageHandlingService implements OnInit {
+export class MessageHandlingService implements OnInit, OnDestroy {
   private messages: Subject<SocketMessage> = new Subject<SocketMessage>();
+  private intervalId: any;
 
   constructor(
     private websocketService: WebsocketService,
@@ -16,19 +17,63 @@ export class MessageHandlingService implements OnInit {
   ) {
     this.init();
     this.subscribeToIndexDBUpdates();
-    this.indexedDBService.removeOldMessages();
+    this.startPeriodicCheck();
+   
+
+  }
+  ngOnDestroy(): void {
+    this.stopPeriodicCheck();
   }
 
-  private async init(): Promise<void>  {
-    // await this.indexedDBService.getDatabaseReadyObservable().toPromise();
-    // await this.removeOldMessages();
+  private async init(): Promise<void> {
+
     this.websocketService.getMarketData().subscribe((data: any) => {
       this.processIncomingMessage(data);
     });
   }
 
-  private async removeOldMessages(): Promise<void> {
+  private async checkAndRemoveOldMessagesIfNeeded(): Promise<void> {
+    // Check and remove old messages if needed
+    console.log("call checkAndRemoveOldMessagesIfNeeded")
     await this.indexedDBService.removeOldMessages();
+      this.indexedDBService.getDelMessage().pipe(take(1)).subscribe((delObj) => {
+        
+      // Handle the deletion message
+      if (delObj.length > 0 && delObj !== '') {
+        const messageDelete = {
+          type: "delete",
+          all: 'false',
+          messageIds: delObj
+        }
+        console.log("Received deletion message:", delObj);
+        this.websocketService.send(messageDelete);
+      }
+
+      this.indexedDBService.getAllMessages().subscribe((messages: SocketMessage[]) => {
+        let updatedData : any= messages
+        debugger
+        // Emit the updated data to the UI
+        this.emitMessage(updatedData);
+        // Now 'messages' contains an array of SocketMessage objects
+      });
+
+    
+
+    });
+  }
+
+  private startPeriodicCheck(): void {
+    // Run the checkAndRemoveOldMessagesIfNeeded function every 30 minutes (30 * 60 * 1000 milliseconds)
+    const cleanupIntervalMs = 1 * 60 * 1000;
+    this.intervalId = setInterval(() => {
+      this.checkAndRemoveOldMessagesIfNeeded();
+    }, cleanupIntervalMs);
+    console.log("call")
+  }
+
+  private stopPeriodicCheck(): void {
+    // Stop the periodic check when needed, for example, when the component is destroyed
+    clearInterval(this.intervalId);
   }
 
   private subscribeToIndexDBUpdates(): void {
@@ -77,7 +122,7 @@ export class MessageHandlingService implements OnInit {
       });
     } else {
       // If the message with the same messageId is not found, add it to IndexedDB
-       this.indexedDBService.addMessage(socketData);
+      this.indexedDBService.addMessage(socketData);
     }
   }
 
@@ -94,6 +139,7 @@ export class MessageHandlingService implements OnInit {
   // }
 
   private emitMessage(message: SocketMessage): void {
+    debugger
     this.messages.next(message);
   }
 
