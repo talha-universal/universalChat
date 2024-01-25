@@ -22,8 +22,6 @@ export class IndexDBChatService {
 
   constructor( private websocketService: WebsocketService,) {
     this.initDatabase();
-    debugger
-    this.setDelMessage('');
   }
 
   public async initDatabase(): Promise<void> {
@@ -35,7 +33,7 @@ export class IndexDBChatService {
   }
 
   public async getMessageById(messageId: string): Promise<SocketMessage | undefined> {
-    console.log(this.db?.get('messages', messageId))
+    // console.log(this.db?.get('messages', messageId))
     return this.db?.get('messages', messageId);
   }
 
@@ -125,7 +123,7 @@ export class IndexDBChatService {
   // }
 
   public async removeOldMessages(): Promise<void> {
-    console.log("call removeOldMessages")
+    // console.log("call removeOldMessages")
 
     if (!this.db) {
       return;
@@ -134,7 +132,8 @@ export class IndexDBChatService {
     try {
       const currentTime = new Date();
       const thresholdTime = new Date(currentTime);
-      thresholdTime.setMinutes(currentTime.getMinutes() - 2); // Remove messages older than 2 minutes
+      // thresholdTime.setMinutes(currentTime.getMinutes() - 2); // Remove messages older than 2 minutes
+      thresholdTime.setHours(currentTime.getHours() - 8);
 
       const transaction = this.db.transaction('messages', 'readwrite');
       const store = transaction.objectStore('messages');
@@ -142,9 +141,9 @@ export class IndexDBChatService {
       let deleteMessageIDs=[];
       for (const message of messages) {
         const messageSentAt = new Date(message.sentAt);
-        console.log("call before ifremoveOldMessages")
+        // console.log("call before ifremoveOldMessages")
         if (messageSentAt < thresholdTime) {
-          console.log("call after if removeOldMessages")
+          // console.log("call after if removeOldMessages")
           deleteMessageIDs.push(message._id)
           await store.delete(message.messageId);
           // Optionally, notify subscribers about the deleted message
@@ -152,12 +151,15 @@ export class IndexDBChatService {
         }
       }
       debugger
-      console.log(deleteMessageIDs)
+      // console.log(deleteMessageIDs)
       // this.deleteMessage.next(deleteMessageIDs);
       // this.setDelMessage("a");
       if(deleteMessageIDs.length > 0){
         this.setDelMessage(deleteMessageIDs);
+        
+        // console.log('He hit me deleteMessageIDs>0')
       }
+      deleteMessageIDs = [];
     } catch (error) {
       console.error('Error removing old messages from IndexedDB:', error);
     }
@@ -167,7 +169,9 @@ export class IndexDBChatService {
 
   setDelMessage(delObj: any) {
     this.deleteMessage.next(delObj);
-
+    setTimeout(() => {
+    this.deleteMessage.next([]); 
+    }, 2000);
   }
   getDelMessage(): Observable<any>{
     return this.data$;

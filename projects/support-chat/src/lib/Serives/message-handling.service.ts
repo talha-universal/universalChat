@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, take } from 'rxjs';
+import { delay, Observable, Subject, take } from 'rxjs';
 import { IndexDBChatService } from './index-dbchat.service';
 import { SocketMessage } from './message-interface';
 import { WebsocketService } from './websocket.service';
@@ -34,10 +34,11 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
   private async checkAndRemoveOldMessagesIfNeeded(): Promise<void> {
     // Check and remove old messages if needed
-    console.log("call checkAndRemoveOldMessagesIfNeeded")
+    // console.log("call checkAndRemoveOldMessagesIfNeeded")
     await this.indexedDBService.removeOldMessages();
-      this.indexedDBService.getDelMessage().pipe(take(1)).subscribe((delObj) => {
-        
+      this.indexedDBService.getDelMessage().pipe(take(1),delay(5000)).subscribe((delObj) => {
+        // console.log("Received")
+        debugger
       // Handle the deletion message
       if (delObj.length > 0 && delObj !== '') {
         const messageDelete = {
@@ -45,8 +46,11 @@ export class MessageHandlingService implements OnInit, OnDestroy {
           all: 'false',
           messageIds: delObj
         }
-        console.log("Received deletion message:", delObj);
         this.websocketService.send(messageDelete);
+        delObj=[]
+      }
+      else{
+        return
       }
 
       this.indexedDBService.getAllMessages().subscribe((messages: SocketMessage[]) => {
@@ -64,11 +68,11 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
   private startPeriodicCheck(): void {
     // Run the checkAndRemoveOldMessagesIfNeeded function every 30 minutes (30 * 60 * 1000 milliseconds)
-    const cleanupIntervalMs = 1 * 60 * 1000;
+    const cleanupIntervalMs =  8 * 60 * 60 * 1000; 
     this.intervalId = setInterval(() => {
       this.checkAndRemoveOldMessagesIfNeeded();
     }, cleanupIntervalMs);
-    console.log("call")
+    // console.log("call")
   }
 
   private stopPeriodicCheck(): void {
@@ -84,7 +88,6 @@ export class MessageHandlingService implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    debugger
     // this.indexedDBService.removeOldMessages();
   }
 

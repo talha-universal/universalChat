@@ -56,7 +56,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     // this.getMessageFromSocket();
     this.messageHandlingService.getMessages().subscribe((message: any) => {
       // Handle incoming messages here
-      console.log("12")
       this.handleIncomingMessage(message);
     });
 
@@ -423,8 +422,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
               // console.log('Local Date:', localDate.toLocaleString());
               // socketData.sentAt = localDate;
               this.messages.push(socketData);
-              console.log(socketData);
-              console.log(this.messages);
 
               // Assuming the messages array remains sorted, if not, you may need to sort it.
               this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
@@ -598,7 +595,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
           collapseNativeElement.classList.remove('show');
           // do something...
         }
-        console.log(response);
         const time = new Date();
 
         this.uploadImgResponse =
@@ -634,4 +630,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   //       });
   //   }
   // }
+
+  dropdownVisible: boolean = false;
+
+  openDropDow() {
+    this.dropdownVisible = !this.dropdownVisible;
+  }
 }
