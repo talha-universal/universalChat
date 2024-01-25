@@ -81,9 +81,31 @@
                                 {{ message.message }}
                             </span>
 
+
+
                             <span *ngIf="message.attachments.length > 0 " class="messagetext">
-                                <img [src]="message?.attachments[0].url ? message?.attachments[0].url : message?.attachments[0].fileUrl"
-                                    alt="" style="width: 100%;">
+                                <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
+                                    
+                                    <a href="{{ message?.attachments[0].url}}" target="_blank">
+                                        <img [src]="message?.attachments[0].url ? message?.attachments[0].url : message?.attachments[0].fileUrl"
+                                        alt="" style="width: 100%;">
+                                    </a>
+                                </ng-container>
+                                <span class="chat-message">
+                                    <!-- Other message content -->
+
+                                    <!-- Displaying the file link -->
+                                    <ng-container *ngIf="message.attachments[0].type == 'pdf' ">
+                                        <span class="fileView">
+                                            <span class="fileViewBasic"
+                                                [ngClass]="message.attachments[0].type  == 'pdf' ? 'fileViewpdf' : 'fileViewOther' "></span>
+                                            <a href="{{ message?.attachments[0].url}}" target="_blank">
+                                                {{ message?.attachments[0]?.originalName }}</a>
+                                        </span>
+
+                                    </ng-container>
+
+                                </span>
                             </span>
 
                             <div class="ps-2 d-flex justify-content-end align-items-center">
@@ -151,11 +173,10 @@
 
         <div class="collapse collapseBottom" id="collapseExample" #collapseElement>
             <div class="card card-body p-2">
-                <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput()">
-                    <input type="file" #fileInput style="display: none"
-                        accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
+                <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput('document')">
+                    <input type="file" #fileInput style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        (change)="onFileSelected($event)">
+                        (change)="onFileSelected($event,'document')">
 
                     <svg height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="ms-1">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -165,9 +186,9 @@
 
                     <span class="ps-1">Document</span>
                 </div>
-                <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput()">
-                    <input type="file" #fileInput style="display: none" accept="image/*,video/*"
-                        (change)="onFileSelected($event)">
+                <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput('media')">
+                    <input type="file" #mediaInput style="display: none" accept="image/*,video/*"
+                        (change)="onFileSelected($event,'media')">
                     <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M8 11C9.10457 11 10 10.1046 10 9C10 7.89543 9.10457 7 8 7C6.89543 7 6 7.89543 6 9C6 10.1046 6.89543 11 8 11Z"

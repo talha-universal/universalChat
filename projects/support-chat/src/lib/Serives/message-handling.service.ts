@@ -131,7 +131,7 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
 
   private mergeSocketData(existingMessage: SocketMessage, socketData: any): void {
-    debugger
+    
     // Merge properties from the WebSocket data into the existing message
     // Modify this part based on your message structure and desired merging logic
     Object.assign(existingMessage, socketData);
@@ -142,7 +142,6 @@ export class MessageHandlingService implements OnInit, OnDestroy {
   // }
 
   private emitMessage(message: SocketMessage): void {
-    debugger
     this.messages.next(message);
   }
 

@@ -566,15 +566,21 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('fileInput') fileInput: ElementRef | undefined;
+  @ViewChild('mediaInput') mediaInput: ElementRef | undefined;
   selectedFile: File | null = null;
+  selectedFileType: string | null = null;
 
-  openFileInput(): void {
-    if (this.fileInput) {
-      this.fileInput.nativeElement.click();
+  openFileInput(fileType: string): void {
+    this.selectedFileType = fileType;
+
+    if (fileType === 'document' && this.fileInput) {
+        this.fileInput.nativeElement.click();
+    } else if (fileType === 'media' && this.mediaInput) {
+        this.mediaInput.nativeElement.click();
     }
-  }
+}
 
-  onFileSelected(event: any): void {
+  onFileSelected(event: any,typeFile: string): void {
     debugger
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
@@ -585,8 +591,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         attachmentId: timestamp
       }
 
+      const fileName = this.selectedFile.name;
+      const fileExtension = fileName.split('.').pop();
+
+
       this.backendService.uploadfile(fileObj).subscribe(response => {
         // Handle the response from the server
+        debugger
         const targetElement = event.target as HTMLElement;
         const collapseNativeElement = this.collapseElement.nativeElement;
         // Check if the clicked element is outside the collapse and if the collapse is currently shown
@@ -603,7 +614,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
           fileUrl: response.fileUrl,
           fileName: response.fileName,
           messageId: "web_" + time.getTime(),
-          detailType: "jpg",
+          detailType: fileExtension,
           sentAt: new Date(),
           receiver: this.userDetails?.user?.support,
           attachmentId: response.attachmentId,
