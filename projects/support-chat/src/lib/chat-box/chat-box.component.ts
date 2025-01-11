@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CONFIG } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
@@ -11,22 +11,28 @@ import { timeStamp } from 'console';
 import { IndexDBChatService } from '../Serives/index-dbchat.service';
 import { SocketMessage } from '../Serives/message-interface';
 import { MessageHandlingService } from '../Serives';
+import { RecordingService } from '../Serives/recording.service';
+import { DomSanitizer } from '@angular/platform-browser';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
   imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe],
   templateUrl: './chat-box.component.html',
-  styleUrl: './chat-box.component.css'
+  styleUrl: './chat-box.component.css',
 })
-export class ChatBoxComponent implements OnInit, OnDestroy {
+export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   messageText: any = '';
   guestUserLogin: any = false;
   showAnimation = true;
   @Output() chatBoxClose = new EventEmitter<void>();
   @Input() isVisible = false;
+  visualizerCanvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('waveformCanvas', { static: true }) waveformCanvasRef!: ElementRef<HTMLCanvasElement>;
+  
 
   @ViewChild('collapseElement', { static: false }) collapseElement!: ElementRef;
   isSendButtonVisible: boolean = false;
+  audioRecording: any = false;
 
   userName: string = '';
   chatUserName: any = '';
@@ -49,14 +55,29 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   isConnecting: any = false;
   SupporterStatus: any = "Offline";
   uploadImgResponse: any;
+  audioSrc: any;
+
+  isRecording = false;
+  dataArray: Uint8Array | undefined;
+  private animationFrameId: number | undefined;
+
+  private canvasVisible = false;
+  private mediaRecorder: MediaRecorder | null = null;
+  private chunks: Blob[] = [];
+  blobAudio:any;
   // messages: SocketMessage[] = [];
-  constructor(private backendService: NetworkService, private websocketService: WebsocketService, private indexedDBService: IndexDBChatService,
+  constructor(private backendService: NetworkService, private websocketService: WebsocketService,
+    private indexedDBService: IndexDBChatService,
     private devicedetector: DeviceDetectorService,
+    private recordingService: RecordingService,
+    private sanitizer: DomSanitizer,
+    private ngZone: NgZone,
     private messageHandlingService: MessageHandlingService, private el: ElementRef) {
     // this.getMessageFromSocket();
     this.messageHandlingService.getMessages().subscribe((message: any) => {
       // Handle incoming messages here
       this.handleIncomingMessage(message);
+      // this.visualizerCanvasRef = new ElementRef<HTMLCanvasElement>(document.createElement('canvas'));
     });
 
     const weblogin = localStorage.getItem('webLogin') as string | '';
@@ -75,13 +96,56 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
   }
   ngOnInit(): void {
+    this.recordingService.getRecordingCompletedObservable().subscribe((blob :Blob) => {
+      debugger
+      // this.playRecording(blob)
+      this.blobAudio= blob
+      console.log("blobAudio",this.blobAudio)
+      this.audioSrc = URL.createObjectURL(blob);
+      this.audioSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
+    });
+    // this.startVisualization();
   }
+
   ngOnDestroy(): void {
+    this.stopAnimation();
+    this.stopRecording();
     this.websocketService.closeSocket();
     this.messages = [];
     document.body.style.overflowY = 'auto';
   }
+  ngAfterViewInit(): void {
+    // this.toggleCanvasVisibility(false);
 
+
+    // Start the animation loop after ngAfterViewInit
+    // this.startAnimation();
+
+  }
+
+  private toggleCanvasVisibility(visible: boolean): void {
+    debugger
+    if (this.waveformCanvasRef) {
+      const canvasElement = this.waveformCanvasRef.nativeElement;
+      canvasElement.style.display = visible ? 'block' : 'block';
+      this.canvasVisible = visible;
+    }
+  }
+
+  playRecording(): void {
+    if (this.blobAudio) {
+      // Create a URL for the Blob
+      const blobUrl = URL.createObjectURL(this.blobAudio);
+
+      // Create an <audio> element to play the recording
+      const audio = new Audio(blobUrl);
+
+      // Play the recording
+      audio.play();
+    } else {
+      console.error('Recorded Blob is undefined or null. Make sure to set it before playing.');
+    }
+  }
   onInputChange() {
     this.isSendButtonVisible = this.messageText.length > 0;
 
@@ -346,10 +410,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   // Handle incoming messages
   private handleIncomingMessage(message: any): void {
     debugger
-    if(message.length !== 0){
+    if (message.length !== 0) {
 
       const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
-  
+
       setTimeout(() => {
         if (index !== -1) {
           // Do something with the found object, e.g., update it
@@ -359,17 +423,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
           // If the message with the same messageId is not found, add it to the array
           this.showAnimation = true;
           this.messages.push(message);
-  
+
           // Assuming the messages array remains sorted, if not, you may need to sort it.
           this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-  
+
           // Save the received message to IndexedDB
           this.indexedDBService.addMessage(message);
         }
       }, 900);
 
     }
-    else{
+    else {
       this.messages = []
     }
   }
@@ -574,13 +638,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     this.selectedFileType = fileType;
 
     if (fileType === 'document' && this.fileInput) {
-        this.fileInput.nativeElement.click();
+      this.fileInput.nativeElement.click();
     } else if (fileType === 'media' && this.mediaInput) {
-        this.mediaInput.nativeElement.click();
+      this.mediaInput.nativeElement.click();
     }
-}
+  }
 
-  onFileSelected(event: any,typeFile: string): void {
+  onFileSelected(event: any, typeFile: string): void {
     debugger
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
@@ -647,4 +711,140 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   openDropDow() {
     this.dropdownVisible = !this.dropdownVisible;
   }
+
+
+  
+  startRecording(): void {
+    this.audioRecording=true;
+    this.isSendButtonVisible=true;
+    this.recordingService.startRecording();
+    this.startAnimation()
+  }
+
+  stopRecording(): void {
+    debugger
+    this.recordingService.stopRecording();
+    this.stopAnimation();
+  }
+
+  // private startAnimation(): void {
+  //   const canvasElement = this.waveformCanvasRef.nativeElement;
+  //   const context = canvasElement.getContext('2d');
+
+  //   if (context) {
+  //     const animationLoop = () => {
+  //       // Update dataArray and draw visualization
+  //       this.updateAndDraw(context);
+
+  //       // Continue the animation loop
+  //       this.animationFrameId = requestAnimationFrame(animationLoop);
+  //     };
+
+  //     // Start the animation loop
+  //     animationLoop();
+  //   }
+  // }
+
+  // private stopAnimation(): void {
+  //   if (this.animationFrameId !== undefined) {
+  //     cancelAnimationFrame(this.animationFrameId);
+  //     this.animationFrameId = undefined;
+  //   }
+  // }
+
+ private startAnimation(): void {
+  this.ngZone.runOutsideAngular(() => {
+    const canvas = this.waveformCanvasRef.nativeElement;
+    let position = 0;
+
+    const animate = (context: CanvasRenderingContext2D | null) => {
+      if (!context) {
+        // Canvas context is not available, exit the animation loop
+        return;
+      }
+
+      position += 5; // Adjust the speed of the animation
+
+      if (position > canvas.width) {
+        // Reset position when it exceeds canvas width
+        position = 0;
+      }
+
+      // Clear the canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the waveform at the new offset
+      this.updateAndDraw(context, position);
+
+      // Continue the animation
+      this.animationFrameId = requestAnimationFrame(() => animate(context));
+    };
+
+    // Start the animation loop
+    this.animationFrameId = requestAnimationFrame(() => animate(canvas.getContext('2d')));
+  });
+}
+
+  private stopAnimation(): void {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = undefined;
+    }
+  }
+
+  private updateAndDraw(context: CanvasRenderingContext2D,position: number): void {
+    if (!context) {
+      // Canvas context is not available, exit early
+      return;
+    }
+    const dataArray = this.recordingService.getAudioDataArray();
+  const canvasElement = this.waveformCanvasRef.nativeElement;
+
+  // Clear the canvas
+  context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+  // Draw vertical bars based on dataArray
+  const barWidth = canvasElement.width / dataArray.length;
+
+  for (let i = 0; i < dataArray.length; i++) {
+    const normalizedValue = dataArray[i] / 218; // Normalize the value to be within [0, 1]
+    const barHeight = normalizedValue * canvasElement.height;
+
+    context.fillStyle = 'blue';
+    context.fillRect(i * barWidth, canvasElement.height - barHeight, barWidth, barHeight);
+  }
+  }
+
+  // private updateAndDraw(context: CanvasRenderingContext2D): void {
+  
+  //   const dataArray = this.recordingService.getAudioDataArray();
+  //   const canvasElement = this.waveformCanvasRef.nativeElement;
+  
+  //   // console.log('dataArray:', dataArray)
+  //   // Clear the canvas
+  //   context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  
+  //   // Draw the visualization based on dataArray
+  //   context.beginPath();
+  //   const sliceWidth = canvasElement.width / dataArray.length;
+  //   let x = 0;
+  
+  //   for (const value of dataArray) {
+  //     const normalizedValue = value / 218; // Normalize the value to be within [0, 1]
+  //     const y = normalizedValue * canvasElement.height;
+  
+  //     if (x === 0) {
+  //       context.moveTo(x, y);
+  //     } else {
+  //       context.lineTo(x, y);
+  //     }
+  
+  //     x += sliceWidth;
+  //   }
+
+  
+  //   context.strokeStyle = 'blue';
+  //   context.lineWidth = 2;
+  //   context.stroke();
+  // }
 }

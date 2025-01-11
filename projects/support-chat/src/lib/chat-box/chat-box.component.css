@@ -22,6 +22,12 @@
   height: 20px;
 }
 
+.sendButton svg{
+  color: #00a884;
+  height: 30px;
+  width: 42px;
+}
+
 .fileViewBasic{
   width: 55px;
   height: 62px;
