@@ -6,8 +6,6 @@ import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { first } from 'rxjs';
-import { mkdirSync } from 'fs';
-import { timeStamp } from 'console';
 import { IndexDBChatService } from '../Serives/index-dbchat.service';
 import { SocketMessage } from '../Serives/message-interface';
 import { MessageHandlingService } from '../Serives';
@@ -108,8 +106,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.stopAnimation();
-    this.stopRecording();
+    // this.stopAnimation();
+    // this.stopRecording();
     this.websocketService.closeSocket();
     this.messages = [];
     document.body.style.overflowY = 'auto';
@@ -717,14 +715,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   startRecording(): void {
     this.audioRecording=true;
     this.isSendButtonVisible=true;
-    this.recordingService.startRecording();
-    this.startAnimation()
+    // this.recordingService.startRecording();
+    // this.startAnimation()
   }
 
   stopRecording(): void {
     debugger
-    this.recordingService.stopRecording();
-    this.stopAnimation();
+    // this.recordingService.stopRecording();
+    // this.stopAnimation();
   }
 
   // private startAnimation(): void {

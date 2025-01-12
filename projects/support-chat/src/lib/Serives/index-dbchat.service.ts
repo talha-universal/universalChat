@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
 import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
-import { WebsocketService } from 'support-chat';
 import { SocketMessage } from './message-interface';
 
 @Injectable({
@@ -20,7 +19,7 @@ export class IndexDBChatService {
 
   private db: IDBPDatabase<SocketMessage> | null = null;
 
-  constructor( private websocketService: WebsocketService,) {
+  constructor() {
     this.initDatabase();
   }
 
