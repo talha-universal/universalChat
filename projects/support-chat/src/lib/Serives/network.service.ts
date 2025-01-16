@@ -42,6 +42,19 @@ export class NetworkService {
       );
   }
 
+ allPostWithToken(url: string, payload: any) {
+    let headers = new HttpHeaders();
+    const token = JSON.parse(localStorage.getItem('webLogin') || '{}').data?.user?.token?.token;
+  
+    headers = this.createAuthorizationHeader(token);
+  
+    // This approach only works if your server/API accepts a payload in GET requests
+    return this.http.request<any>('POST', url, { headers, body: payload })
+      .pipe(map(data => {
+        return data;
+      }));
+  }
+
   getSupporterStatusByGet(url: any, params: any) {
 
     let headers = new HttpHeaders();

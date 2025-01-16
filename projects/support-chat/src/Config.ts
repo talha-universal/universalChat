@@ -20,6 +20,8 @@ export const CONFIG = {
   validateMe: BASE_URL + "/api/user/validateMe",
   getUserStatus: BASE_URL + "/api/user/get_user_status",
   uploadDocument: BASE_URL + "/api/file/upload_document",
+  deleteMessage: BASE_URL + "/api/chat/delete_message",
+  updateMessage: BASE_URL + "/api/chat/update_message",
 
 }
 

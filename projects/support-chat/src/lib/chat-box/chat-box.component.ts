@@ -18,7 +18,7 @@ declare var $: any; @Component({
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css',
 })
-export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
+export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   messageText: any = '';
   guestUserLogin: any = false;
   showAnimation = true;
@@ -26,7 +26,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   @Input() isVisible = false;
   visualizerCanvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('waveformCanvas', { static: true }) waveformCanvasRef!: ElementRef<HTMLCanvasElement>;
-  
+
 
   @ViewChild('collapseElement', { static: false }) collapseElement!: ElementRef;
   isSendButtonVisible: boolean = false;
@@ -62,7 +62,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   private canvasVisible = false;
   private mediaRecorder: MediaRecorder | null = null;
   private chunks: Blob[] = [];
-  blobAudio:any;
+  blobAudio: any;
+  editMessage: any;
+  editMessageIndex: any;
+  editMessageCom: any;
   // messages: SocketMessage[] = [];
   constructor(private backendService: NetworkService, private websocketService: WebsocketService,
     private indexedDBService: IndexDBChatService,
@@ -94,10 +97,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
 
   }
   ngOnInit(): void {
-    this.recordingService.getRecordingCompletedObservable().subscribe((blob :Blob) => {
+    this.recordingService.getRecordingCompletedObservable().subscribe((blob: Blob) => {
       // this.playRecording(blob)
-      this.blobAudio= blob
-      console.log("blobAudio",this.blobAudio)
+      this.blobAudio = blob
+      console.log("blobAudio", this.blobAudio)
       this.audioSrc = URL.createObjectURL(blob);
       this.audioSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
     });
@@ -126,6 +129,53 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
       canvasElement.style.display = visible ? 'block' : 'block';
       this.canvasVisible = visible;
     }
+  }
+
+
+
+  deleteMessage(msg: any, index: any) {
+    let layload = {
+      id: msg._id,
+    }
+
+    this.backendService.allPostWithToken(CONFIG.deleteMessage, layload).pipe(first())
+      .subscribe((res) => {
+        if (res.status == 'success') {
+          // this.socketService.emitDeleteMessage(msg._id);
+
+          let actualIndex = (this.messages.length -1) - index;
+          this.messages.splice(actualIndex, 1);
+        }
+      });
+
+  }
+
+  updateMessage(msg: any, index: any) {
+    this.editMessage = msg.message;
+    this.editMessageIndex = index;
+    this.editMessageCom = msg;
+  }
+
+
+  editText(message: any) {
+
+    let layload = {
+      id: this.editMessageCom._id,
+      newMessage: message,
+    }
+
+    this.backendService.allPostWithToken(CONFIG.updateMessage, layload).pipe(first())
+    .subscribe((resp) => {
+      if (resp.status == 'success') {
+
+        // this.socketService.emitEditMessage(layload);
+        this.editMessageCom.message = message;
+        let actualIndex = (this.messages.length -1) - this.editMessageIndex;
+
+        this.messages[actualIndex] = this.editMessageCom;
+      }
+    });
+   
   }
 
   playRecording(): void {
@@ -706,10 +756,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   }
 
 
-  
+
   startRecording(): void {
-    this.audioRecording=true;
-    this.isSendButtonVisible=true;
+    this.audioRecording = true;
+    this.isSendButtonVisible = true;
     this.recordingService.startRecording();
     this.startAnimation()
   }
@@ -744,38 +794,38 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   //   }
   // }
 
- private startAnimation(): void {
-  this.ngZone.runOutsideAngular(() => {
-    const canvas = this.waveformCanvasRef.nativeElement;
-    let position = 0;
+  private startAnimation(): void {
+    this.ngZone.runOutsideAngular(() => {
+      const canvas = this.waveformCanvasRef.nativeElement;
+      let position = 0;
 
-    const animate = (context: CanvasRenderingContext2D | null) => {
-      if (!context) {
-        // Canvas context is not available, exit the animation loop
-        return;
-      }
+      const animate = (context: CanvasRenderingContext2D | null) => {
+        if (!context) {
+          // Canvas context is not available, exit the animation loop
+          return;
+        }
 
-      position += 5; // Adjust the speed of the animation
+        position += 5; // Adjust the speed of the animation
 
-      if (position > canvas.width) {
-        // Reset position when it exceeds canvas width
-        position = 0;
-      }
+        if (position > canvas.width) {
+          // Reset position when it exceeds canvas width
+          position = 0;
+        }
 
-      // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw the waveform at the new offset
-      this.updateAndDraw(context, position);
+        // Draw the waveform at the new offset
+        this.updateAndDraw(context, position);
 
-      // Continue the animation
-      this.animationFrameId = requestAnimationFrame(() => animate(context));
-    };
+        // Continue the animation
+        this.animationFrameId = requestAnimationFrame(() => animate(context));
+      };
 
-    // Start the animation loop
-    this.animationFrameId = requestAnimationFrame(() => animate(canvas.getContext('2d')));
-  });
-}
+      // Start the animation loop
+      this.animationFrameId = requestAnimationFrame(() => animate(canvas.getContext('2d')));
+    });
+  }
 
   private stopAnimation(): void {
     if (this.animationFrameId) {
@@ -784,57 +834,57 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
     }
   }
 
-  private updateAndDraw(context: CanvasRenderingContext2D,position: number): void {
+  private updateAndDraw(context: CanvasRenderingContext2D, position: number): void {
     if (!context) {
       // Canvas context is not available, exit early
       return;
     }
     const dataArray = this.recordingService.getAudioDataArray();
-  const canvasElement = this.waveformCanvasRef.nativeElement;
+    const canvasElement = this.waveformCanvasRef.nativeElement;
 
-  // Clear the canvas
-  context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    // Clear the canvas
+    context.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-  // Draw vertical bars based on dataArray
-  const barWidth = canvasElement.width / dataArray.length;
+    // Draw vertical bars based on dataArray
+    const barWidth = canvasElement.width / dataArray.length;
 
-  for (let i = 0; i < dataArray.length; i++) {
-    const normalizedValue = dataArray[i] / 218; // Normalize the value to be within [0, 1]
-    const barHeight = normalizedValue * canvasElement.height;
+    for (let i = 0; i < dataArray.length; i++) {
+      const normalizedValue = dataArray[i] / 218; // Normalize the value to be within [0, 1]
+      const barHeight = normalizedValue * canvasElement.height;
 
-    context.fillStyle = 'blue';
-    context.fillRect(i * barWidth, canvasElement.height - barHeight, barWidth, barHeight);
-  }
+      context.fillStyle = 'blue';
+      context.fillRect(i * barWidth, canvasElement.height - barHeight, barWidth, barHeight);
+    }
   }
 
   // private updateAndDraw(context: CanvasRenderingContext2D): void {
-  
+
   //   const dataArray = this.recordingService.getAudioDataArray();
   //   const canvasElement = this.waveformCanvasRef.nativeElement;
-  
+
   //   // console.log('dataArray:', dataArray)
   //   // Clear the canvas
   //   context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  
+
   //   // Draw the visualization based on dataArray
   //   context.beginPath();
   //   const sliceWidth = canvasElement.width / dataArray.length;
   //   let x = 0;
-  
+
   //   for (const value of dataArray) {
   //     const normalizedValue = value / 218; // Normalize the value to be within [0, 1]
   //     const y = normalizedValue * canvasElement.height;
-  
+
   //     if (x === 0) {
   //       context.moveTo(x, y);
   //     } else {
   //       context.lineTo(x, y);
   //     }
-  
+
   //     x += sliceWidth;
   //   }
 
-  
+
   //   context.strokeStyle = 'blue';
   //   context.lineWidth = 2;
   //   context.stroke();

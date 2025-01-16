@@ -423,3 +423,28 @@ svg {
   }
 
 }
+.messageOptions {
+  /* display: none; */
+  display: none;
+  position: absolute;
+  right: 4px;
+}
+
+.message:hover  .messageOptions {
+  /* display: block;
+  position: absolute;
+  top: 8px; */
+  display: block;
+  position: absolute;
+  top: 8px;
+  top: -3px;
+  right: 6px;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.modal {
+  --bs-modal-zindex: 1111117;
+}
