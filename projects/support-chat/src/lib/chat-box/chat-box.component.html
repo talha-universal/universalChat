@@ -87,7 +87,7 @@
                                 <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
 
                                     <a href="{{ message?.attachments[0].url}}" target="_blank">
-                                        <img [src]="message?.attachments[0].url ? message?.attachments[0].url : message?.attachments[0].fileUrl"
+                                        <img [src]="message?.attachments[0]?.url ? message?.attachments[0]?.url : message?.attachments[0].fileUrl"
                                             alt="" style="width: 100%;">
                                     </a>
                                 </ng-container>
@@ -266,8 +266,7 @@
 
         <!-- *ngIf="isSendButtonVisible" -->
         <ng-container *ngIf="isSendButtonVisible">
-            <ng-container>
-                <!-- *ngIf="audioRecording" -->
+            <ng-container *ngIf="audioRecording">
                 <span (click)="stopRecording()">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="height: 33px; width: 30px;">
                         <circle cx="16" cy="16" r="14.75" fill="none" stroke="red" stroke-width="2.5"></circle>

@@ -2,16 +2,23 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../out-tsc/lib",
+    // "outDir": "../../out-tsc/lib",
+    "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
     "types": [],
+    // "paths": {
+    //   "@angular/*": [
+    //     "./node_modules/@angular/*"
+    //   ]
+    // },
+   "baseUrl": "./",
     "paths": {
-      "@angular/*": [
-         "./node_modules/@angular/*"
+      "support-chat": [
+        "node_modules/support-chat"
       ]
-   }
+    }
   },
   "exclude": [
     "**/*.spec.ts",

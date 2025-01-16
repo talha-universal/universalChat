@@ -6,7 +6,7 @@ import { ChatsIconComponent } from '../chats-icon/chats-icon.component';
 @Component({
   selector: 'lib-chats',
   standalone: true,
-  imports: [ChatBoxComponent,ChatsIconComponent,NgIf, NgFor],
+  imports: [ChatBoxComponent,ChatsIconComponent,NgIf],
   templateUrl: './chats.component.html',
   styleUrl: './chats.component.css'
 })

@@ -95,7 +95,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   }
   ngOnInit(): void {
     this.recordingService.getRecordingCompletedObservable().subscribe((blob :Blob) => {
-      debugger
       // this.playRecording(blob)
       this.blobAudio= blob
       console.log("blobAudio",this.blobAudio)
@@ -113,7 +112,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
     document.body.style.overflowY = 'auto';
   }
   ngAfterViewInit(): void {
-    // this.toggleCanvasVisibility(false);
+    this.toggleCanvasVisibility(false);
 
 
     // Start the animation loop after ngAfterViewInit
@@ -122,7 +121,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   }
 
   private toggleCanvasVisibility(visible: boolean): void {
-    debugger
     if (this.waveformCanvasRef) {
       const canvasElement = this.waveformCanvasRef.nativeElement;
       canvasElement.style.display = visible ? 'block' : 'block';
@@ -407,7 +405,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
 
   // Handle incoming messages
   private handleIncomingMessage(message: any): void {
-    debugger
     if (message.length !== 0) {
 
       const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
@@ -643,7 +640,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   }
 
   onFileSelected(event: any, typeFile: string): void {
-    debugger
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
       const current = new Date();
@@ -659,7 +655,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
 
       this.backendService.uploadfile(fileObj).subscribe(response => {
         // Handle the response from the server
-        debugger
         const targetElement = event.target as HTMLElement;
         const collapseNativeElement = this.collapseElement.nativeElement;
         // Check if the clicked element is outside the collapse and if the collapse is currently shown
@@ -715,14 +710,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy,AfterViewInit {
   startRecording(): void {
     this.audioRecording=true;
     this.isSendButtonVisible=true;
-    // this.recordingService.startRecording();
-    // this.startAnimation()
+    this.recordingService.startRecording();
+    this.startAnimation()
   }
 
   stopRecording(): void {
-    debugger
-    // this.recordingService.stopRecording();
-    // this.stopAnimation();
+    this.recordingService.stopRecording();
+    this.stopAnimation();
   }
 
   // private startAnimation(): void {
