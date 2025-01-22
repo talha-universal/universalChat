@@ -75,6 +75,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private ngZone: NgZone,
     private messageHandlingService: MessageHandlingService, private el: ElementRef) {
     // this.getMessageFromSocket();
+    this.actionMessages();
     this.messageHandlingService.getMessages().subscribe((message: any) => {
       // Handle incoming messages here
       this.handleIncomingMessage(message);
@@ -143,7 +144,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         if (res.status == 'success') {
           // this.socketService.emitDeleteMessage(msg._id);
 
-          let actualIndex = (this.messages.length -1) - index;
+          let actualIndex = (this.messages.length - 1) - index;
           this.messages.splice(actualIndex, 1);
         }
       });
@@ -165,17 +166,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.backendService.allPostWithToken(CONFIG.updateMessage, layload).pipe(first())
-    .subscribe((resp) => {
-      if (resp.status == 'success') {
+      .subscribe((resp) => {
+        if (resp.status == 'success') {
 
-        // this.socketService.emitEditMessage(layload);
-        this.editMessageCom.message = message;
-        let actualIndex = (this.messages.length -1) - this.editMessageIndex;
+          // this.socketService.emitEditMessage(layload);
+          this.editMessageCom.message = message;
+          let actualIndex = (this.messages.length - 1) - this.editMessageIndex;
 
-        this.messages[actualIndex] = this.editMessageCom;
-      }
-    });
-   
+          this.messages[actualIndex] = this.editMessageCom;
+        }
+      });
+
   }
 
   playRecording(): void {
@@ -458,12 +459,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     if (message.length !== 0) {
 
       const index = this.messages.findIndex((msg: any) => msg.messageId == message.messageId);
-
       setTimeout(() => {
         if (index !== -1) {
           // Do something with the found object, e.g., update it
           this.showAnimation = false;
           this.messages[index] = message;
+
         } else {
           // If the message with the same messageId is not found, add it to the array
           this.showAnimation = true;
@@ -474,13 +475,47 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
           // Save the received message to IndexedDB
           this.indexedDBService.addMessage(message);
+          if (this.userDetails?.user?.email !== message?.sender.email) {
+            const isReadReceiverObj = {
+              type: "read_at",
+              sender: this.userDetails?.user?.support,
+              receiver: this.userDetails?.user?.id,
+              id: message._id,
+            }
+            this.messageHandlingService.sendMessage(isReadReceiverObj);
+          }
         }
       }, 900);
+
+
 
     }
     else {
       this.messages = []
     }
+  }
+
+
+  actionMessages() {
+    this.messageHandlingService.getActionMessages().subscribe((message: any) => {
+      if (message?.type == "all_user_status") {
+        this.backendService.getSupporterStatusByGet(CONFIG.getUserStatus, this.userDetails?.user?.support).pipe(first())
+          .subscribe((res: any) => {
+            if (res.status == "success") {
+              this.SupporterStatus = res?.data?.status
+            }
+
+          });
+      }
+      if (message?.type == "action") {
+        if (message.action == "dirty" && message.flag == 'yes') {
+          this.SupporterStatus = 'typing...'
+        }
+        else if (message.action == "dirty" && message.flag == 'no') {
+          this.SupporterStatus = 'Online'
+        }
+      }
+    });
   }
 
   binarySearch(messages: any, targetMessageId: any) {

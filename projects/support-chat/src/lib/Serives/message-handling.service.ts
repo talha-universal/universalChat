@@ -9,6 +9,7 @@ import { WebsocketService } from './websocket.service';
 })
 export class MessageHandlingService implements OnInit, OnDestroy {
   private messages: Subject<SocketMessage> = new Subject<SocketMessage>();
+  private actionMessages: Subject<SocketMessage> = new Subject<SocketMessage>();
   private intervalId: any;
 
   constructor(
@@ -38,7 +39,6 @@ export class MessageHandlingService implements OnInit, OnDestroy {
     await this.indexedDBService.removeOldMessages();
       this.indexedDBService.getDelMessage().pipe(take(1),delay(5000)).subscribe((delObj) => {
         // console.log("Received")
-        debugger
       // Handle the deletion message
       if (delObj.length > 0 && delObj !== '') {
         const messageDelete = {
@@ -55,7 +55,6 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
       this.indexedDBService.getAllMessages().subscribe((messages: SocketMessage[]) => {
         let updatedData : any= messages
-        debugger
         // Emit the updated data to the UI
         this.emitMessage(updatedData);
         // Now 'messages' contains an array of SocketMessage objects
@@ -97,6 +96,10 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
       if (socketData?.type === 'message') {
         await this.handleIncomingMessage(socketData);
+      }
+
+      if(socketData.type === 'all_user_status' || socketData.type === 'action'){
+         this.setActionMessage(socketData)
       }
     }
   }
@@ -151,5 +154,14 @@ export class MessageHandlingService implements OnInit, OnDestroy {
 
   public getMessages(): Observable<SocketMessage> {
     return this.messages.asObservable();
+  }
+
+
+  private setActionMessage(actionMessages: SocketMessage): void {
+    this.actionMessages.next(actionMessages);
+  }
+
+  public getActionMessages(): Observable<SocketMessage> {
+    return this.actionMessages.asObservable();
   }
 }
