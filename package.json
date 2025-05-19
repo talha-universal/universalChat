@@ -26,6 +26,7 @@
     "idb": "^7.1.1",
     "ngx-device-detector": "^7.0.0",
     "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.1",
     "support-chat": "file:support-chat-1.0.11.tgz",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

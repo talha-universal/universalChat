@@ -4,8 +4,8 @@
         <div class="logo">
             <span><img class="logoImg" /> </span>
             <span class="userName">
-                <span>{{loginData.aId ? loginData?.aId:'AGENT'}}</span>
-                <span class="supporterStatus">{{loginData.aId ? 'Online' : ''}}</span>
+                <span *ngIf="userDetails?.user?.sName">{{userDetails?.user?.sName}}</span>
+                <span class="supporterStatus">{{SupporterStatus}}</span>
             </span>
         </div>
         <div class="d-flex">
@@ -46,15 +46,36 @@
         <div class="message-list">
 
             <ng-container *ngFor="let message of messages.slice().reverse();let i =index;">
-                <ng-container *ngIf="message.sender == 'client' || message?.myMessage">
+                <ng-container *ngIf="userDetails?.user?.email == message?.sender.email || message?.myMessage">
 
                     <div class=" d-flex justify-content-end" style="width: 99%;">
 
 
                         <div class="message d-flex"
-                            [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 )}">
+                            [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 || message?.attachments.length>0 )}">
+
+                            <!-- <span data-icon="down-context" (click)="openDropDow()"
+                                class="down-context d-flex justify-content-end align-items-center">
+                                <svg viewBox="0 0 18 18" height="18" width="18" preserveAspectRatio="xMidYMid meet"
+                                    class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 18 18">
+                                    <title>down-context</title>
+                                    <path fill="currentColor"
+                                        d="M3.3,4.6L9,10.3l5.7-5.7l1.6,1.6L9,13.4L1.7,6.2L3.3,4.6z">
+                                    </path>
+                                </svg>
+                            </span> -->
+
+                            <!-- <ul class="dropdown-menu" [ngClass]="{'fixed-dropdown-menu': dropdownVisible}">
+                                <li><a class="dropdown-item" href="#">Reply</a></li>
+                                <li><a class="dropdown-item" href="#">Delete For All</a></li>
+                                <li><a class="dropdown-item" href="#">Delete For Me</a></li>
+                            </ul> -->
 
 
+
+
+                            <!-- <div class="message d-flex "
+                            [ngClass]="message.message.length > 27 ? 'flex-column' : showAnimation ? 'messageAnimation' : ''"> -->
                             <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
                                 aria-expanded="false">
                                 <span class="messageOptions down-context">
@@ -67,13 +88,13 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="messagetext">
+                                <span *ngIf="!message.fileUrl" class="messagetext">
                                     {{ message.message }}
                                 </span>
 
 
 
-                                <span *ngIf="message.type == 'image' || message.type == 'video'" class="messagetext">
+                                <span *ngIf="message.attachments.length > 0 " class="messagetext">
                                     <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
 
                                         <a href="{{ message?.attachments[0].url}}" target="_blank">
@@ -85,7 +106,7 @@
                                         <!-- Other message content -->
 
                                         <!-- Displaying the file link -->
-                                        <ng-container *ngIf="message.type == 'isfile' ">
+                                        <ng-container *ngIf="message.attachments[0].type == 'pdf' ">
                                             <span class="fileView">
                                                 <span class="fileViewBasic"
                                                     [ngClass]="message.attachments[0].type  == 'pdf' ? 'fileViewpdf' : 'fileViewOther' "></span>
@@ -99,7 +120,7 @@
                                 </span>
 
                                 <div class="ps-2 d-flex justify-content-end align-items-center">
-                                    <span class="time">{{message?.timestamp | date : 'h:mm a'}}</span>
+                                    <span class="time">{{message?.sentAt | date : 'h:mm a'}}</span>
                                     <span class="doubleTick" *ngIf="message?.delivered || message?.read">
 
                                         <svg viewBox="0 0 16 11" height="11" width="16"
@@ -112,8 +133,7 @@
                                         </svg>
                                     </span>
                                     <span class="singleTick"
-                                        *ngIf="message?.viewurl  && message?.sender == 'client'">
-                                        <!-- *ngIf="!message?.delivered && !message?.read  && message?.sender == 'client'" -->
+                                        *ngIf="!message?.delivered && !message?.read  && message?.receiver?.email">
                                         <svg viewBox="0 0 12 11" height="11" width="16"
                                             preserveAspectRatio="xMidYMid meet" class="" fill="none">
                                             <title>msg-check</title>
@@ -151,17 +171,17 @@
                     </div>
                 </ng-container>
 
-                <ng-container *ngIf="message.sender == 'agent' ">
+                <ng-container *ngIf="userDetails?.user?.email !== message?.sender.email && message?.receiver?.email">
 
                     <div class="w-100 d-flex justify-content-start">
                         <div class="message receiverMessage "
-                            [ngClass]="{'messageAnimation': showAnimation, 'flex-column': (message.message.length > 30  )}">
+                            [ngClass]="{'messageAnimation': showAnimation, 'flex-column': (message.message.length > 30 || message?.attachments.length>0 )}">
                             <span class="messagetext">
                                 {{ message.message }}
                             </span>
 
 
-                            <span *ngIf="message.type == 'image' || message.type == 'video'" class="messagetext">
+                            <span *ngIf="message.attachments.length > 0 " class="messagetext">
                                 <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
 
                                     <a href="{{ message?.attachments[0].url}}" target="_blank">
@@ -173,7 +193,7 @@
                                     <!-- Other message content -->
 
                                     <!-- Displaying the file link -->
-                                    <ng-container *ngIf="message.type == 'isfile' ">
+                                    <ng-container *ngIf="message.attachments[0].type == 'pdf' ">
                                         <span class="fileView">
                                             <span class="fileViewBasic"
                                                 [ngClass]="message.attachments[0].type  == 'pdf' ? 'fileViewpdf' : 'fileViewOther' "></span>
@@ -186,7 +206,7 @@
                                 </span>
                             </span>
                             <div class="d-flex justify-content-end align-items-center">
-                                <span class="time" style="height: 23px;">{{message?.timestamp | date : 'h:mm a'}}</span>
+                                <span class="time" style="height: 23px;">{{message?.sentAt | date : 'h:mm a'}}</span>
 
                             </div>
                         </div>
@@ -260,8 +280,8 @@
 
         <div *ngIf="!audioRecording" class="chatInputDiv">
             <input class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
-                autocomplete="off" (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()" (focus)="onfocusText();"
-                (focusout)="onBlurText($event)">
+                autocomplete="off" (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()"
+                (focus)="onfocusText();" (focusout)="onBlurText($event)">
         </div>
         <!-- -->
         <div class="chatInputDiv" [ngClass]="audioRecording ? 'd-block' : 'd-none'">
@@ -272,7 +292,7 @@
 
         <!-- *ngIf="isSendButtonVisible" -->
         <ng-container *ngIf="isSendButtonVisible">
-            <!-- <ng-container *ngIf="audioRecording">
+            <ng-container *ngIf="audioRecording">
                 <span (click)="stopRecording()">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="height: 33px; width: 30px;">
                         <circle cx="16" cy="16" r="14.75" fill="none" stroke="red" stroke-width="2.5"></circle>
@@ -289,7 +309,7 @@
                             fill="currentColor"></path>
                     </svg>
                 </span>
-            </ng-container> -->
+            </ng-container>
 
 
 
@@ -339,7 +359,28 @@
         <button (click)="stopRecording()">Stop Recording</button>
 
         <audio *ngIf="audioSrc" [src]="audioSrc" controls></audio> -->
+        <ng-container *ngIf="!isSendButtonVisible">
 
+            <!-- <div class="cameraIcon fade-in">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path
+                        d="M3 16.8V9.2C3 8.0799 3 7.51984 3.21799 7.09202C3.40973 6.71569 3.71569 6.40973 4.09202 6.21799C4.51984 6 5.0799 6 6.2 6H7.25464C7.37758 6 7.43905 6 7.49576 5.9935C7.79166 5.95961 8.05705 5.79559 8.21969 5.54609C8.25086 5.49827 8.27836 5.44328 8.33333 5.33333C8.44329 5.11342 8.49827 5.00346 8.56062 4.90782C8.8859 4.40882 9.41668 4.08078 10.0085 4.01299C10.1219 4 10.2448 4 10.4907 4H13.5093C13.7552 4 13.8781 4 13.9915 4.01299C14.5833 4.08078 15.1141 4.40882 15.4394 4.90782C15.5017 5.00345 15.5567 5.11345 15.6667 5.33333C15.7216 5.44329 15.7491 5.49827 15.7803 5.54609C15.943 5.79559 16.2083 5.95961 16.5042 5.9935C16.561 6 16.6224 6 16.7454 6H17.8C18.9201 6 19.4802 6 19.908 6.21799C20.2843 6.40973 20.5903 6.71569 20.782 7.09202C21 7.51984 21 8.0799 21 9.2V16.8C21 17.9201 21 18.4802 20.782 18.908C20.5903 19.2843 20.2843 19.5903 19.908 19.782C19.4802 20 18.9201 20 17.8 20H6.2C5.0799 20 4.51984 20 4.09202 19.782C3.71569 19.5903 3.40973 19.2843 3.21799 18.908C3 18.4802 3 17.9201 3 16.8Z"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div> -->
+            <div class="micIcon fade-in" (click)="startRecording()">
+                <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class=""
+                    version="1.1" x="0px" y="0px" enable-background="new 0 0 24 24">
+                    <title>ptt</title>
+                    <path fill="currentColor"
+                        d="M11.999,14.942c2.001,0,3.531-1.53,3.531-3.531V4.35c0-2.001-1.53-3.531-3.531-3.531 S8.469,2.35,8.469,4.35v7.061C8.469,13.412,9.999,14.942,11.999,14.942z M18.237,11.412c0,3.531-2.942,6.002-6.237,6.002 s-6.237-2.471-6.237-6.002H3.761c0,4.001,3.178,7.297,7.061,7.885v3.884h2.354v-3.884c3.884-0.588,7.061-3.884,7.061-7.885 L18.237,11.412z">
+                    </path>
+                </svg>
+            </div>
+        </ng-container>
 
         <!-- <ng-container>
             <span class="sendButton">

@@ -1,11 +1,11 @@
 {
   "name": "support-chat",
-  "version": "1.0.19",
+  "version": "1.0.21",
   "peerDependencies": {
     "@angular/common": "^19.0.6",
     "@angular/core": "^19.0.6",
     "ngx-device-detector": "^7.0.0",
-    "idb": "^7.1.1"
+    "socket.io-client": "^4.8.1"
   },
   "dependencies": {
     "tslib": "^2.3.0"

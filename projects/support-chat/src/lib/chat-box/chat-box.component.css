@@ -132,15 +132,15 @@
   background-image: url('./../../../assets/chatbox/wp.png');
   background-repeat: no-repeat;
   background-size: 100%;
-  width: 54px;
-  height: 54px;
+  width: 38px; /* 54px before*/
+  height: 38px; /* 54px before*/
   border-radius: 125px;
 }
 
 
 .userName {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px; /* 18px before*/
   margin-left: 15px;
   color: black;
   display: flex;

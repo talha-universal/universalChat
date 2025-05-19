@@ -6,8 +6,9 @@ import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { first } from 'rxjs';
+import { IndexDBChatService } from '../Serives/index-dbchat.service';
 import { SocketMessage } from '../Serives/message-interface';
-import { MessageHandlingService, WebSocketService } from '../Serives';
+import { MessageHandlingService } from '../Serives';
 import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 declare var $: any; @Component({
@@ -39,7 +40,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // 'ws://185.182.194.244:8080'
   private SocketBaseUrl = CONFIG.socketurl == '' ? 'wss://buzzmehi.com/socketChat/' : CONFIG.socketurl;
   // private SocketBaseUrl = 'wss://buzzmehi.com/socketChat/';
-  loginData: any = {};
+  loginData: any = '';
   sendMessageObj: any;
   isDesktop: boolean;
   isMobile: boolean;
@@ -65,20 +66,28 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   editMessage: any;
   editMessageIndex: any;
   editMessageCom: any;
-  agentDetail: any;
-  agentName: any = {};
   // messages: SocketMessage[] = [];
   constructor(private backendService: NetworkService, private websocketService: WebsocketService,
+    private indexedDBService: IndexDBChatService,
     private devicedetector: DeviceDetectorService,
     private recordingService: RecordingService,
     private sanitizer: DomSanitizer,
-    private socketService: WebSocketService,
     private ngZone: NgZone,
     private messageHandlingService: MessageHandlingService, private el: ElementRef) {
+    // this.getMessageFromSocket();
+    this.actionMessages();
+    this.messageHandlingService.getMessages().subscribe((message: any) => {
+      // Handle incoming messages here
+      this.handleIncomingMessage(message);
+      // this.visualizerCanvasRef = new ElementRef<HTMLCanvasElement>(document.createElement('canvas'));
+    });
 
- 
-
-
+    const weblogin = localStorage.getItem('webLogin') as string | '';
+    if (weblogin == '' || weblogin == null || weblogin == undefined) {
+      this.guestUserLogin = false;
+    } else {
+      this.LoginGuestUser();
+    }
     this.isDesktop = this.devicedetector.isDesktop();
     // Check if the current device is a mobile
 
@@ -89,30 +98,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
   ngOnInit(): void {
-    this.socketService.connect();
-
-    this.userDetails = localStorage.getItem('webLogin') as string | '';
-    if (this.userDetails == '' || this.userDetails == null || this.userDetails == undefined) {
-      this.guestUserLogin = false;
-    } else {
-      this.LoginGuestUser(this.userDetails);
-    }
-
-
-    this.socketService.onEvent('client_joined', (data) => {
-      this.clientDetail(data)
-      // console.log('Received message event:', data);
+    this.recordingService.getRecordingCompletedObservable().subscribe((blob: Blob) => {
+      // this.playRecording(blob)
+      this.blobAudio = blob
+      console.log("blobAudio", this.blobAudio)
+      this.audioSrc = URL.createObjectURL(blob);
+      this.audioSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
     });
-
-    this.socketService.onEvent('message', (data) => {
-      this.updateIncomingMessage(data);
-      // console.log('Received message event:', data);
-    });
-
-    this.socketService.onEvent('message_history', (data) => {
-      this.messages = data.messages;
-      // console.log('Received message event:', data);
-    });
+    // this.startVisualization();
   }
 
   ngOnDestroy(): void {
@@ -123,42 +116,22 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     document.body.style.overflowY = 'auto';
   }
   ngAfterViewInit(): void {
+    this.toggleCanvasVisibility(false);
+
+
+    // Start the animation loop after ngAfterViewInit
+    // this.startAnimation();
 
   }
 
-
-  clientDetail(data: any) {
-    this.loginData = data;
-  }
-
-  updateIncomingMessage(newMessage: any): void {
-    const index = this.messages.findIndex(
-      (msg: any) => msg.message === newMessage.message
-    );
-
-    if (index >= 0) {
-      // Replace the existing message
-      this.messages.splice(index, 1, newMessage);
-    } else {
-      // Add new message
-      this.messages.push(newMessage);
+  private toggleCanvasVisibility(visible: boolean): void {
+    if (this.waveformCanvasRef) {
+      const canvasElement = this.waveformCanvasRef.nativeElement;
+      canvasElement.style.display = visible ? 'block' : 'block';
+      this.canvasVisible = visible;
     }
-    this.scrollChat();
   }
-  scrollChat() {
-    setTimeout(() => {
-      const parent = document.querySelector('.messages');
-      const lastChild = parent?.lastElementChild;
 
-      if (lastChild) {
-        lastChild.scrollIntoView({
-          behavior: 'smooth',
-          block: 'end',
-          inline: 'nearest',
-        });
-      }
-    }, 200);
-  }
 
 
   deleteMessage(msg: any, index: any) {
@@ -220,21 +193,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       console.error('Recorded Blob is undefined or null. Make sure to set it before playing.');
     }
   }
-
   onInputChange() {
     this.isSendButtonVisible = this.messageText.length > 0;
 
-    // if (this.messageText.length > 0 && this.sendSocketstatus == 1) {
-    //   this.sendSocketstatus = 0;
-    //   const typingObj = {
-    //     type: "action",
-    //     action: "dirty",
-    //     sender: this.userDetails?.user?.id,
-    //     receiver: this.userDetails?.user?.support,
-    //     flag: "yes"
-    //   }
-    //   this.websocketService.send(typingObj);
-    // }
+    if (this.messageText.length > 0 && this.sendSocketstatus == 1) {
+      this.sendSocketstatus = 0;
+      const typingObj = {
+        type: "action",
+        action: "dirty",
+        sender: this.userDetails?.user?.id,
+        receiver: this.userDetails?.user?.support,
+        flag: "yes"
+      }
+      this.websocketService.send(typingObj);
+    }
 
   }
 
@@ -247,7 +219,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   startChat() {
     if (this.userName) {
-      this.LoginGuestUser(this.userName)
+      // Add your logic to start the chat here
+      const withOutLoginUser = {
+        username: this.userName,
+        role: "Guest",
+        domain: "xyz.com"
+      }
+      this.LoginGuestUser(withOutLoginUser)
+
 
     }
   }
@@ -255,31 +234,169 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   LoginGuestUser(userLoginObj?: any) {
+    this.backendService.recordsFromLocalStorage(CONFIG.userLogin, CONFIG.userLoginTime, userLoginObj).subscribe((data: any) => {
+      if (data.status == 'success') {
+        this.guestUserLogin = true
+        this.userDetails = data?.data;
 
-    let clientId = userLoginObj.trim();
-    if (!clientId) return alert('Please enter a valid client ID.');
-    this.guestUserLogin = true;
-    localStorage.setItem('webLogin', clientId);
+        const date1 = new Date(this.userDetails?.user?.token?.expiresAt);
+        const date2 = new Date();
+        if (date1 <= date2) {
+          this.backendService.getAllRecordsByPost(CONFIG.validateMe, { token: this.userDetails?.user?.token?.token }).pipe(first())
+            .subscribe((res) => {
+              if (res.status = 'success') {
+                this.userDetails.user.token.token = res?.data?.token;
+                this.userDetails.user.token.expiresAt = res?.data?.token;
 
-    this.socketService.sendMessage('init', clientId);
-    this.chatUserName = clientId;
+                data.data = this.userDetails;
+                // Convert the object to a JSON string
+                var updatedObjectString = JSON.stringify(data);
+
+
+                // Store the updated string back in local storage
+                localStorage.setItem('webLogin', updatedObjectString);
+              }
+              else {
+                localStorage.clear();
+                this.guestUserLogin = false
+              }
+            },
+              (error) => {
+                // Error handling
+                if (error?.data?.type == 99) {
+                  // Handle 401 error specifically here
+                  localStorage.clear();
+                  this.guestUserLogin = false
+                  // Redirect to login, clear local storage, or take other appropriate actions
+                } else {
+                  localStorage.clear();
+                  this.guestUserLogin = false
+                  console.error('An error occurred:', error);
+                }
+              }
+
+            );
+
+        }
+
+        this.chatUserName = data?.data?.user?.name;
+
+        var url = this.SocketBaseUrl + '?token=' + this.userDetails?.user?.token?.token;
+        // var url = this.SocketBaseUrl + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWVzdEVtYWlsIjoidGFsaGExNzA0Mzc2NjYxQHh5ei5jb20iLCJpYXQiOjE3MDQzNzY2NjEsImV4cCI6MTcwNDQwNTQ2MX0.iP4ypSl6V7JC8bK2w_QLBPTLJtW31H5G-52FZf9UKm0';
+
+
+
+        this.websocketService.connect(url).subscribe(
+          async (message: any) => {
+          },
+          (error: any) => {
+            console.error('WebSocket error:', error);
+          },
+          () => {
+            console.log('WebSocket connection closed');
+          }
+        );
+      }
+      else {
+        this.guestUserLogin = false
+      }
+
+    });
 
   }
 
-  obj: any = {
+  obj: any =
+    {
 
-    from: "nnn",
-    sender: "client",
-    message: "dada",
-    type: "text",
-    timestamp: 1747648934425,
+      sender: {
+        name: "as_7",
+        email: "as_7@xyz.com",
+        domain: "xyz.com",
+        _id: "1223",
+      },
+      receiver: {},
+      attachments: [],
+      message: "",
+      messageId: "web_1704473158873",
+      type: "message",
+      myMessage: false,
+      forward: false,
+      delivered: false,
+      deliveredToSender: false,
+      sentAt: "2024-01-05T16:45:58.873Z",
+    }
 
-  }
 
+  // sendMessage() {
+  //   this.isSendButtonClick = true;
+  //   const chatBox = document.getElementById('chatMessage')
+  //   chatBox?.focus();
+  //   const formatDate = (date: Date): string => {
+  //     return date.toISOString();
+  //   };
+  //   if (this.messageText.trim() !== '' && this.messageText !== undefined) {
+  //     const current = new Date();
+  //     this.sendMessageObj = {
+  //       type: "message",
+  //       receiver: this.userDetails?.user?.support,
+  //       message: this.messageText,
+  //       sentAt: new Date(),
+  //       messageId: "web_" + current.getTime()
+  //     }
+
+  //     const newMessage = {
+  //       ...this.obj,  // Copy properties from the original object if needed
+  //       messageId: this.sendMessageObj.messageId,
+  //       message: this.messageText,
+  //       sentAt: formatDate(current),
+  //       myMessage: true
+  //     };
+  //     this.showAnimation = true;
+  //     this.messages.push(newMessage);
+  //     // console.log(this.messages);
+  //     // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
+  //     this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
+
+
+  //     // this.sendMessagesArray.push(this.sendMessageObj);
+
+  //     // this.checkAndSendMessages()
+  //     this.websocketService.addToSendQueue(this.sendMessageObj);
+  //     // this.websocketService.send(this.sendMessageObj);
+
+  //     this.messageText = '';
+  //     // this.isSendButtonVisible = false
+
+  //   }
+  //   else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
+  //     this.uploadImgResponse.receiver = this.userDetails?.user?.support;
+
+  //     const newMessage = {
+  //       attachments:[{...this.uploadImgResponse}], // Copy properties from the original object if needed
+  //       myMessage: true,
+  //       message: '',
+  //       sender:{
+  //         email:this.userDetails?.user?.email
+  //       },
+  //       messageId: this.uploadImgResponse.messageId,
+  //       sentAt: this.uploadImgResponse.sentAt
+  //     };
+  //     this.showAnimation = true;
+  //     this.messages.push(newMessage);
+
+  //     this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
+  //     this.websocketService.addToSendQueue(this.uploadImgResponse);
+
+  //     this.uploadImgResponse = {};
+  //     console.log(this.messages);
+  //   }
+
+  //   else {
+  //     return
+  //   }
+  // }
 
   sendMessage() {
-
-
     this.isSendButtonClick = true;
     const chatBox = document.getElementById('chatMessage');
     chatBox?.focus();
@@ -288,21 +405,29 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     if (this.messageText.trim() !== '' && this.messageText !== undefined) {
       const current = new Date();
-      let message = this.messageText;
-      this.socketService.sendMessage('message_to_agent', { message, type: 'text' });
-
-
-      const newMessage = {
-        type: "text",
-        sender: "client",
-        from: this.userDetails,
+      const sendMessageObj = {
+        ...this.obj,
+        type: "message",
+        receiver: this.userDetails?.user?.support,
         message: this.messageText,
-        timestamp: formatDate(current),
+        sentAt: new Date(),
+        messageId: "web_" + current.getTime()
+      };
+
+      // Send the message using MessageHandlingService
+      this.messageHandlingService.sendMessage(sendMessageObj);
+      const newMessage = {
+        ...this.obj,
+        messageId: sendMessageObj.messageId,
+        message: this.messageText,
+        sentAt: formatDate(current),
         myMessage: true
       };
       this.showAnimation = true;
       this.messages.push(newMessage);
-      // console.log(this.messages)
+
+      // Save the sent message to IndexedDB
+      this.indexedDBService.addMessage(sendMessageObj);
 
       this.messageText = '';
     } else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
@@ -349,6 +474,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
 
           // Save the received message to IndexedDB
+          this.indexedDBService.addMessage(message);
           if (this.userDetails?.user?.email !== message?.sender.email) {
             const isReadReceiverObj = {
               type: "read_at",
@@ -369,6 +495,28 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+
+  actionMessages() {
+    this.messageHandlingService.getActionMessages().subscribe((message: any) => {
+      if (message?.type == "all_user_status") {
+        this.backendService.getSupporterStatusByGet(CONFIG.getUserStatus, this.userDetails?.user?.support).pipe(first())
+          .subscribe((res: any) => {
+            if (res.status == "success") {
+              this.SupporterStatus = res?.data?.status
+            }
+
+          });
+      }
+      if (message?.type == "action") {
+        if (message.action == "dirty" && message.flag == 'yes') {
+          this.SupporterStatus = 'typing...'
+        }
+        else if (message.action == "dirty" && message.flag == 'no') {
+          this.SupporterStatus = 'Online'
+        }
+      }
+    });
+  }
 
   binarySearch(messages: any, targetMessageId: any) {
     let left = 0;
@@ -544,7 +692,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         flag: "no"
       }
       this.sendSocketstatus = 1;
-      // this.websocketService.send(typingObj);
+      this.websocketService.send(typingObj);
     }, 300);
 
   }
