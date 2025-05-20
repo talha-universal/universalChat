@@ -139,25 +139,28 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     if (index >= 0) {
       // Replace the existing message
       this.messages.splice(index, 1, newMessage);
-    } else {
+      this.scrollChat();
+    } else 
+    {
       // Add new message
       this.messages.push(newMessage);
+      this.scrollChat();
     }
     this.scrollChat();
   }
   scrollChat() {
     setTimeout(() => {
-      const parent = document.querySelector('.messages');
+      const parent = document.querySelector('.message');
       const lastChild = parent?.lastElementChild;
 
-      if (lastChild) {
-        lastChild.scrollIntoView({
+      if (parent) {
+        parent.scrollIntoView({
           behavior: 'smooth',
           block: 'end',
           inline: 'nearest',
         });
       }
-    }, 200);
+    }, 500);
   }
 
 
@@ -301,8 +304,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         timestamp: formatDate(current),
         myMessage: true
       };
-      this.showAnimation = true;
-      this.messages.push(newMessage);
+      // this.showAnimation = true;
+      // this.messages.push(newMessage);
       // console.log(this.messages)
 
       this.messageText = '';
@@ -566,58 +569,53 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       const file = fileInput?.files?.[0];
       if (!file) return;
-      if(file.type.startsWith('image/')){
+      if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-    
-        reader.onload = function (e:any) {
-        const img = new Image();
-        img.src = e.target.result;
-    
-        img.onload = function () {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width; // Keep original width
-          canvas.height = img.height; // Keep original height
-    
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0);
-    
-          // Compress using lower quality
-          canvas.toBlob(
-          (blob:any) => {
-            const compressedFile = new File([blob], file.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now(),
-            });
-            
-            const originalSize = (file.size / 1024).toFixed(2);
-            const compressedSize = (compressedFile.size / 1024).toFixed(2);
-    
-            const formData = new FormData();
-            if(originalSize > compressedSize){
-              formData.append('file', compressedFile);
-            }else{
-            formData.append('file', file);
-            }
-            
-            fetch('https://buzzmehi.com/upload', {
-            method: 'POST',
-            body: formData
-            }).then((res:any) => res.json()).then((data:any) => {
-            if(data.error) return;
-            
-            const url = data.url;
-            const type = 'image';
-            // this.socketService.sendMessage('message_to_agent', { message: url, type });
-
-            });
-          },
-          'image/jpeg',
-          0.6 // Adjust quality (0.6 = good compression, try 0.4 for stronger)
-          );
+      
+        reader.onload = (e: any) => {
+          const img = new Image();
+          img.src = e.target.result;
+      
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+      
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0);
+      
+            canvas.toBlob(
+              (blob: any) => {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+      
+                const originalSize = (file.size / 1024).toFixed(2);
+                const compressedSize = (compressedFile.size / 1024).toFixed(2);
+      
+                const formData = new FormData();
+                formData.append('file', originalSize > compressedSize ? compressedFile : file);
+      
+                fetch('https://buzzmehi.com/upload', {
+                  method: 'POST',
+                  body: formData
+                }).then((res: any) => res.json()).then((data: any) => {
+                  if (data.error) return;
+      
+                  const url = data.url;
+                  const type = 'image';
+                  this.socketService.sendMessage('message_to_agent', { message: url, type });
+                });
+              },
+              'image/jpeg',
+              0.6
+            );
+          };
         };
-        }; 
-      }else{
+      }
+      else{
         const formData = new FormData();
         formData.append('file', file);
         
