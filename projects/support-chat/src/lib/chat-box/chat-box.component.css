@@ -1,5 +1,5 @@
 .notranslate {
-  translate: no; 
+  translate: no;
 }
 
 .chatBox {
@@ -27,13 +27,14 @@
   height: 20px;
 }
 
-.sendButton svg{
+.sendButton svg {
   color: #00a884;
-  height: 28px;
-  width: 42px;
+  transform: translateY(-1.5px);
+  /* height: 28px;
+  width: 37px; */
 }
 
-.fileViewBasic{
+.fileViewBasic {
   width: 55px;
   height: 62px;
   background-repeat: no-repeat;
@@ -44,11 +45,9 @@
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAA8CAMAAAD8KXLNAAAAvVBMVEUAAAD3d3fxRkbyRkbyRkb3fn74g4PyRUX3lZXzRUXyRUX/RkbyQED3fn7zRUX2iYn/Rkb4lpb0cHDvQEDzRETzRkbzQEDzQkLzOzv////939/yODj2enr4kJD0UVHzPT38xMT92tr5lZX1ZGT+6+v4g4P1bW35m5v7yMj91dX3fn76sLD1XFz6qan//f36trb+5OT0VVX6rKz7vb3yNDT4iIj/9vb0TEz5o6PtTEzlRUXsYWHiNzfyRETsSEiKDgROAAAAFHRSTlMAH+Z5+80n+JHu0AWTv6w6CX3V/BbNCjoAAAHfSURBVHgB7daDsisxGMDxHNtftLZqu+//WDebOu1p08H1f7D8zRoIoferx4djXb4htYvXy7vrI32NXi4U8v6KjzcbFTcKer48bQplS3dYwyhbwhpGRTpGRZpGoNvzjUT6RkU6RkX6RiJNM7dUhE/2NYkVhDU2lCgIa6DxxNr0eathBPoab5re6xjJ1pkaRu2XmP8GiIzKCSrHAW9NiKhiwKnKsFkukRMOZaWCVnWZA7uGxEaZn6UDApBGYjz3ekDFZtrGoig1FRPwZXnoQoXL6p0qwSTjy9pdxdicG41K1ue8g6kwRiWLOPcHQDzO84aoE7N9M2SMWX1eD11hal0zNMQ8tzQ2c0UU75saBXB9zhMmTJthsyc2J7cTuIRSQQ5sxzRZK9oYN4x4VGXCDMtz14IDxiusntiM0SILQ6oG71umMLKcHTCL+rEL+qZe5iWUwta+hUwYz7btoCAHTCdJEgcTgKUxY84NfPwc1AihABhLM+x2N+c6oICXqWa5RJo8bTQ59x04YgJhYMvIMnnvfGtivxmsTdr0RbmNCca0ZjR7FCtGNnCcAd6aEIELyhLFABXb35qg62k59v9d9d/8MnN5fa75QFeXZ5qvN4SezzTPCKEn8et/p9vD49UT+gEdNgrQ89qG8QAAAABJRU5ErkJggg==);
 }
 
-.fileViewOther{
+.fileViewOther {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAA8CAYAAADL94L/AAAByElEQVR4Ae3axdJTQRAFYFyegA3u8ALseCDcicsGhxt3x+G32BXc3X3NBnfXYTqp3sZlhuqpOlXZRL46He9ReJyJxGSTEreaPfEHZiX+1uSJvelVNu+Jvjd7Yk9zI8aSUe0eDpjCIYfNSuw5v/zF5In/6mU27478tXriLJvXjdSwPq1lCDTCmxjiCNav8GZYBVMwWKagX8kWjk9vCcMhYWhEFEw1+oV0wZjdPKY6Vn9EwmBDTYPwBoXCYPLGDQTJjkHQNQRJj0FQtmgs+C8wOHIIkh2DoDu5vD5Xfkz9hsTBWDyxhjDYUDqvLRYSY1JilSQGyyxXOt4QKJPX70NDQmI27gyxHcn9bH/5RFMNAUgoDI4afOAMHBiCdiDNj5woGAhgsCEYudSI1lBCRwoPL957slAoDDYEoPXb/ZVs3FE/y9072fDxsx4BMPVfGOpl1VY/y5++4EWM1Fm9LcCKpy8RpnchDGEIQxjCEIYwhCEMYQhDGMIQhjCEIQxhCEMYwhCGMIQhDGEIQxhYNlXiP+XHXLRDM5thQVpyzIfS2YtLceVEkRmzalsgMArPhp258bA6b/LEb8LqPM930VNdvY/fhMmCxw+Of+4BTcPInBo2AAAAAElFTkSuQmCC);
-
 }
-
 
 .fileView {
   display: flex;
@@ -56,7 +55,7 @@
 }
 
 .attachments {
-  color: #3b4a54
+  color: #3b4a54;
 }
 
 .attachments:hover {
@@ -112,7 +111,6 @@
   /* Show the chat box when it has the "active" class */
 }
 
-
 .header {
   position: fixed;
   /* top: 0; */
@@ -133,16 +131,14 @@
   display: flex;
 }
 
-
 .logoImg {
-  background-image: url('./../../../assets/chatbox/wp.png');
+  background-image: url("./../../../assets/chatbox/wp.png");
   background-repeat: no-repeat;
   background-size: 100%;
   width: 38px; /* 54px before*/
   height: 38px; /* 54px before*/
   border-radius: 125px;
 }
-
 
 .userName {
   font-weight: 600;
@@ -169,11 +165,15 @@
   fill: #54656f !important;
 }
 
-.sendButton {
+/* .sendButton {
   height: 26px;
   width: 36px;
-}
+} */
 
+/* .btnww {
+  width: 20px;
+  height: 20px;
+} */
 
 .bottomChat {
   background: #f0f2f5;
@@ -185,16 +185,16 @@
   align-items: center;
   padding-left: 10px;
   padding-right: 10px;
-  padding-bottom: 25px;
+  padding-bottom: 10px;
   padding-top: 10px;
   touch-action: none;
+  z-index: 10;
 }
 
 .chatInputDiv {
   width: 100%;
-  padding-left: 10px;
+  /* padding-left: 10px; */
   padding-right: 10px;
-
 }
 
 .chatInput {
@@ -202,9 +202,17 @@
   border: 1px solid transparent;
   border-radius: 20px;
   padding: 3px;
-  padding-left: 15px;
+  padding-left: 40px;
+  padding-right: 40px;
+  height: 40px;
   width: 100%;
+}
+.chatInputDiv-1 {
+  padding-right: 80px !important;
+}
 
+.chatInput:focus {
+  outline: none;
 }
 
 .micIcon {
@@ -231,12 +239,29 @@ svg {
   position: absolute;
   bottom: 67px;
   width: 45%;
-  left: 0;
+  right: 40px;
   color: #111b21 !important;
 }
 
+::ng-deep .collapse:not(.show) {
+  display: flex !important;
+  height: 0px !important;
+  width: 0px !important;
+  bottom: 67 !important;
+  overflow: hidden;
+  transition: all 300ms !important;
+  transform-origin: bottom;
+}
+::ng-deep .collapsing {
+  transform-origin: bottom;
+  transition: all 300ms !important;
+  bottom: 67px !important;
+  overflow: hidden !important;
 
-
+  width: 169px;
+  height: 82px;
+  /* z-index: -10; */
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -251,14 +276,13 @@ svg {
   animation: fadeIn 1s ease;
 }
 
-@media screen and (max-width:766px) {
+@media screen and (max-width: 766px) {
   .header {
     top: 0;
   }
 }
 
-
-@media screen and (min-width:766px) {
+@media screen and (min-width: 766px) {
   .chatBox {
     width: 400px;
     height: 760px;
@@ -267,7 +291,6 @@ svg {
     right: 10px;
     z-index: 100000;
   }
-
 
   .body {
     height: 698px !important;
@@ -280,9 +303,7 @@ svg {
   .header {
     width: 400px;
   }
-
 }
-
 
 .userNameFormSection {
   position: relative;
@@ -293,7 +314,6 @@ svg {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   /* opacity: 0.5; */
-
 }
 
 .errorMessageValidation {
@@ -394,7 +414,16 @@ svg {
 .supporterStatus {
   font-size: 14px;
   color: #aaa;
+}
 
+.bg-cls {
+  background-color: #1fc262;
+  border-radius: 50%;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @keyframes slideIn {
@@ -409,8 +438,7 @@ svg {
   }
 }
 
-@media only screen and (max-width:768px) {
-
+@media only screen and (max-width: 768px) {
   /* .mblKeyboardFocus  .header{
   top: 17rem;
 }
@@ -428,7 +456,6 @@ svg {
   .bodyheight {
     height: 85% !important;
   }
-
 }
 .messageOptions {
   /* display: none; */
@@ -437,7 +464,7 @@ svg {
   right: 4px;
 }
 
-.message:hover  .messageOptions {
+.message:hover .messageOptions {
   /* display: block;
   position: absolute;
   top: 8px; */
@@ -454,4 +481,41 @@ svg {
 
 .modal {
   --bs-modal-zindex: 1111117;
+}
+
+.chat-ii {
+  position: relative;
+}
+
+.plusButton {
+  position: absolute;
+  right: 60px;
+  top: 6px;
+  pointer-events: all;
+  transition-duration: 300ms;
+  z-index: 100;
+}
+.plusButton-1 {
+  position: absolute !important;
+  right: 20px !important;
+  top: 6px !important;
+}
+.camera-file {
+  visibility: visible;
+  position: absolute;
+  right: 20px;
+  top: 4px;
+  opacity: 1;
+  transition-duration: 300ms;
+  transition-delay: 150ms !important;
+}
+.camera-file-1 {
+  visibility: hidden;
+  opacity: 0 !important;
+  transition-delay: 100ms !important;
+}
+.stickerr {
+  position: absolute;
+  left: 10px;
+  top: 6px;
 }
