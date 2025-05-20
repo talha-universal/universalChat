@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CONFIG,BASE_URL } from '../../Config';
+import { CONFIG, BASE_URL } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -53,7 +53,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   SupporterStatus: any = "Offline";
   uploadImgResponse: any;
   audioSrc: any;
-  baseURL:any= BASE_URL;
+  baseURL: any = BASE_URL;
 
   isRecording = false;
   dataArray: Uint8Array | undefined;
@@ -76,8 +76,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private socketService: WebSocketService,
     private ngZone: NgZone, private el: ElementRef) {
 
- 
-      this.baseURL= BASE_URL;
+
+    this.baseURL = BASE_URL;
 
     this.isDesktop = this.devicedetector.isDesktop();
     // Check if the current device is a mobile
@@ -141,8 +141,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       // Replace the existing message
       this.messages.splice(index, 1, newMessage);
       this.scrollChat();
-    } else 
-    {
+    } else {
       // Add new message
       this.messages.push(newMessage);
       this.scrollChat();
@@ -245,7 +244,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   CloseChatBox() {
     this.isVisible = false
     this.chatBoxClose.emit();
-    
+
   }
 
 
@@ -286,6 +285,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
     this.isSendButtonClick = true;
+    this.isSendButtonVisible = false;
     const chatBox = document.getElementById('chatMessage');
     chatBox?.focus();
     const formatDate = (date: Date): string => {
@@ -310,7 +310,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       // console.log(this.messages)
 
       this.messageText = '';
-    } 
+    }
   }
 
   // Handle incoming messages
@@ -392,8 +392,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.isMobile) {
       document.body.style.overflowY = 'hidden';
-     const messageList = document.getElementsByClassName("message-list")[0] as HTMLElement;
-     messageList.style.touchAction = "none";
+      const messageList = document.getElementsByClassName("message-list")[0] as HTMLElement;
+      messageList.style.touchAction = "none";
     }
     let targetHeight;
     if (windowHeight <= 720) {
@@ -492,9 +492,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         file: this.selectedFile,
         attachmentId: timestamp
       }
-      debugger
-      const fileInput = document.getElementById('mediaInput') as HTMLInputElement ;
-      const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement ;
+
+      const fileInput = document.getElementById('mediaInput') as HTMLInputElement;
+      const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement;
 
       const fileName = this.selectedFile.name;
       const fileExtension = fileName.split('.').pop();
@@ -506,41 +506,46 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       if (file?.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-      
+
         reader.onload = (e: any) => {
           const img = new Image();
           img.src = e.target.result;
-      
+
           img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
-      
+
             const ctx = canvas.getContext('2d');
             ctx?.drawImage(img, 0, 0);
-      
+
             canvas.toBlob(
               (blob: any) => {
                 const compressedFile = new File([blob], file.name, {
                   type: 'image/jpeg',
                   lastModified: Date.now(),
                 });
-      
+
                 const originalSize = (file.size / 1024).toFixed(2);
                 const compressedSize = (compressedFile.size / 1024).toFixed(2);
-      
+
                 const formData = new FormData();
                 formData.append('file', originalSize > compressedSize ? compressedFile : file);
-      
+
                 fetch('https://buzzmehi.com/upload', {
                   method: 'POST',
                   body: formData
                 }).then((res: any) => res.json()).then((data: any) => {
+                  // debugger
                   if (data.error) return;
-      
+
                   const url = data.url;
                   const type = 'image';
                   this.socketService.sendMessage('message_to_agent', { message: url, type });
+                  const collapseNativeElement = this.collapseElement?.nativeElement;
+                  if (collapseNativeElement && collapseNativeElement.classList.contains('show')) {
+                    collapseNativeElement.classList.remove('show');
+                  }
                 });
               },
               'image/jpeg',
@@ -549,15 +554,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           };
         };
       }
-      else{
+      else {
         const formData = new FormData();
         formData.append('file', filepdf! );
-        
+
         fetch('https://buzzmehi.com/upload', {
-        method: 'POST',
-        body: formData
+          method: 'POST',
+          body: formData
         }).then(res => res.json()).then(data => {
-        if(data.error) return;
+          if(data.error) return;
         
         const url = data.url;
         const type = filepdf?.type.startsWith('image') ? 'image' :
@@ -570,9 +575,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
       // fileInput?.addEventListener('change', () => {
-     
+
       // });
-    
+
 
 
       // this.backendService.uploadfile(fileObj).subscribe(response => {

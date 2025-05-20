@@ -224,7 +224,7 @@
 
 
     <!---***********  Bottom Bar for Chat -*********** -->
-    <div class="collapse collapseBottom" id="collapseExample" #collapseElement>
+    <div class="collapse collapseBottom show" id="collapseExample" #collapseElement>
         <div class="card card-body p-2">
             <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput('document')">
                 <input type="file" #fileInput id="fileInput" style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
@@ -263,34 +263,31 @@
 
         </div>
     </div>
+
+
+
+
+
     <div class="bottomChat">
-
-
-
-
-
         <div *ngIf="!audioRecording" class="chatInputDiv chat-ii">
             <div [ngClass]="{
                 'plusButton-1' : isSendButtonVisible
             }" class="plusButton" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false"
                 aria-controls="collapseExample">
-                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="19px" height="19px"
-                    viewBox="0 0 19 19" enable-background="new 0 0 19 19" xml:space="preserve">
-                    <g>
-                        <path fill="currentColor"
-                            d="M10.946,0.127v7.964h7.646v2.747h-7.646v8.035h-2.89v-8.035H0.409V8.091h7.647V0.127H10.946z">
-                        </path>
-                    </g>
+                <svg style="rotate: 315deg;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 10.828a4 4 0 10-5.656-5.656L6.343 11.172a6 6 0 108.485 8.485L20 14" />
                 </svg>
+
             </div>
-            <div class="camera-file d-flex align-items-center p-1 attachments" (click)="openFileInput('document')"
+            <div class="camera-file d-flex align-items-center p-1 attachments" (click)="openFileInput('media')"
                 [ngClass]="{
                 'camera-file-1' : isSendButtonVisible
             }">
                 <input type="file" #fileInput style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    (change)="onFileSelected($event,'document')">
+                    (change)="onFileSelected($event,'media')">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"
                     height="24" width="24" preserveAspectRatio="xMidYMid meet" class="x1cbnkk4" fill="none">
                     <title>camera-filled-refreshed</title>
