@@ -1,3 +1,7 @@
+.notranslate {
+  translate: no; 
+}
+
 .chatBox {
   /* background-image: url("./../../../assets/chatbox/whatsapp.jpg"); */
   /* background-image: url("./../../../assets/chatbox/bg.png"); */

@@ -306,28 +306,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       // console.log(this.messages)
 
       this.messageText = '';
-    } else if (this.uploadImgResponse.fileUrl !== '' || this.uploadImgResponse.fileUrl !== undefined) {
-      this.uploadImgResponse.receiver = this.userDetails?.user?.support;
-
-      const newMessage = {
-        attachments: [{ ...this.uploadImgResponse }], // Copy properties from the original object if needed
-        myMessage: true,
-        message: '',
-        sender: {
-          email: this.userDetails?.user?.email
-        },
-        messageId: this.uploadImgResponse.messageId,
-        sentAt: this.uploadImgResponse.sentAt
-      };
-      this.showAnimation = true;
-
-      this.messages.push(newMessage);
-
-      this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
-      // Send the file message using MessageHandlingService
-      // this.messageHandlingService.sendMessage(this.uploadImgResponse);
-      this.uploadImgResponse = {};
-    }
+    } 
   }
 
   // Handle incoming messages
@@ -538,16 +517,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           checkBoxElement.style.height = `100%`;
         }
       }
-
-      const typingObj = {
-        type: "action",
-        action: "dirty",
-        sender: this.userDetails?.user?.id,
-        receiver: this.userDetails?.user?.support,
-        flag: "no"
-      }
-      this.sendSocketstatus = 1;
-      // this.websocketService.send(typingObj);
     }, 300);
 
   }
@@ -588,43 +557,128 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         file: this.selectedFile,
         attachmentId: timestamp
       }
+      debugger
+      const fileInput = document.getElementById('mediaInput') as HTMLInputElement ;
 
       const fileName = this.selectedFile.name;
       const fileExtension = fileName.split('.').pop();
 
 
-      this.backendService.uploadfile(fileObj).subscribe(response => {
-        // Handle the response from the server
-        const targetElement = event.target as HTMLElement;
-        const collapseNativeElement = this.collapseElement.nativeElement;
-        // Check if the clicked element is outside the collapse and if the collapse is currently shown
-        if (collapseNativeElement.classList.contains('show')) {
+      const file = fileInput?.files?.[0];
+      if (!file) return;
+      if(file.type.startsWith('image/')){
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+    
+        reader.onload = function (e:any) {
+        const img = new Image();
+        img.src = e.target.result;
+    
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width; // Keep original width
+          canvas.height = img.height; // Keep original height
+    
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0);
+    
+          // Compress using lower quality
+          canvas.toBlob(
+          (blob:any) => {
+            const compressedFile = new File([blob], file.name, {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+            });
+            
+            const originalSize = (file.size / 1024).toFixed(2);
+            const compressedSize = (compressedFile.size / 1024).toFixed(2);
+    
+            const formData = new FormData();
+            if(originalSize > compressedSize){
+              formData.append('file', compressedFile);
+            }else{
+            formData.append('file', file);
+            }
+            
+            fetch('https://buzzmehi.com/upload', {
+            method: 'POST',
+            body: formData
+            }).then((res:any) => res.json()).then((data:any) => {
+            if(data.error) return;
+            
+            const url = data.url;
+            const type = 'image';
+            // this.socketService.sendMessage('message_to_agent', { message: url, type });
 
-          collapseNativeElement.classList.remove('show');
-          // do something...
-        }
-        const time = new Date();
+            });
+          },
+          'image/jpeg',
+          0.6 // Adjust quality (0.6 = good compression, try 0.4 for stronger)
+          );
+        };
+        }; 
+      }else{
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('https://buzzmehi.com/upload', {
+        method: 'POST',
+        body: formData
+        }).then(res => res.json()).then(data => {
+        if(data.error) return;
+        
+        const url = data.url;
+        const type = file.type.startsWith('image') ? 'image' :
+               file.type.startsWith('video') ? 'video' : 'isfile';
+      
+               this.socketService.sendMessage('message_to_agent', { message: url, type });
+        });
+      }
+      fileInput.value = '';
 
-        this.uploadImgResponse =
-        {
-          type: "multimedia",
-          fileUrl: response.fileUrl,
-          fileName: response.fileName,
-          messageId: "web_" + time.getTime(),
-          detailType: fileExtension,
-          sentAt: new Date(),
-          receiver: this.userDetails?.user?.support,
-          attachmentId: response.attachmentId,
-          originalName: this.selectedFile?.name,
-          size: this.selectedFile?.size,
-          docType: this.selectedFile?.type
-        }
 
-        this.sendMessage();
+      // fileInput?.addEventListener('change', () => {
+     
+      // });
+    
 
-      });
+
+      // this.backendService.uploadfile(fileObj).subscribe(response => {
+      //   // Handle the response from the server
+      //   const targetElement = event.target as HTMLElement;
+      //   const collapseNativeElement = this.collapseElement.nativeElement;
+      //   // Check if the clicked element is outside the collapse and if the collapse is currently shown
+      //   if (collapseNativeElement.classList.contains('show')) {
+
+      //     collapseNativeElement.classList.remove('show');
+      //     // do something...
+      //   }
+      //   const time = new Date();
+
+      //   this.uploadImgResponse =
+      //   {
+      //     type: "multimedia",
+      //     fileUrl: response.fileUrl,
+      //     fileName: response.fileName,
+      //     messageId: "web_" + time.getTime(),
+      //     detailType: fileExtension,
+      //     sentAt: new Date(),
+      //     receiver: this.userDetails?.user?.support,
+      //     attachmentId: response.attachmentId,
+      //     originalName: this.selectedFile?.name,
+      //     size: this.selectedFile?.size,
+      //     docType: this.selectedFile?.type
+      //   }
+
+      //   this.sendMessage();
+
+      // });
     }
   }
+
+
+
+
 
   // onUpload(): void {
   //   if (this.selectedFile) {
