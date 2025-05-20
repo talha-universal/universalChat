@@ -7,7 +7,7 @@ import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { first } from 'rxjs';
 import { SocketMessage } from '../Serives/message-interface';
-import { MessageHandlingService, WebSocketService } from '../Serives';
+import { WebSocketService } from '../Serives';
 import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 declare var $: any; @Component({
@@ -73,8 +73,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private recordingService: RecordingService,
     private sanitizer: DomSanitizer,
     private socketService: WebSocketService,
-    private ngZone: NgZone,
-    private messageHandlingService: MessageHandlingService, private el: ElementRef) {
+    private ngZone: NgZone, private el: ElementRef) {
 
  
 
@@ -121,6 +120,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.websocketService.closeSocket();
     this.messages = [];
     document.body.style.overflowY = 'auto';
+    document.documentElement.style.overflow = 'auto';
   }
   ngAfterViewInit(): void {
 
@@ -241,6 +241,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   CloseChatBox() {
     this.isVisible = false
     this.chatBoxClose.emit();
+    
   }
 
 
@@ -324,7 +325,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.messages = this.messages.sort((a: any, b: any) => a.sentAt - b.sentAt);
       // Send the file message using MessageHandlingService
-      this.messageHandlingService.sendMessage(this.uploadImgResponse);
+      // this.messageHandlingService.sendMessage(this.uploadImgResponse);
       this.uploadImgResponse = {};
     }
   }
@@ -356,7 +357,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
               receiver: this.userDetails?.user?.id,
               id: message._id,
             }
-            this.messageHandlingService.sendMessage(isReadReceiverObj);
+            // this.messageHandlingService.sendMessage(isReadReceiverObj);
           }
         }
       }, 900);
@@ -477,6 +478,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.isMobile) {
       document.body.style.overflowY = 'hidden';
+     const messageList = document.getElementsByClassName("message-list")[0] as HTMLElement;
+     messageList.style.touchAction = "none";
     }
     let targetHeight;
     if (windowHeight <= 720) {
