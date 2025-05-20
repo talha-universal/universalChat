@@ -501,8 +501,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
       const file = fileInput?.files?.[0];
-      if (!file) return;
-      if (file.type.startsWith('image/')) {
+      const filepdf = fileInputPDF?.files?.[0];
+      if (!file && !filepdf) return;
+      if (file?.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
       
@@ -550,7 +551,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       else{
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', filepdf! );
         
         fetch('https://buzzmehi.com/upload', {
         method: 'POST',
@@ -559,8 +560,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         if(data.error) return;
         
         const url = data.url;
-        const type = file.type.startsWith('image') ? 'image' :
-               file.type.startsWith('video') ? 'video' : 'isfile';
+        const type = filepdf?.type.startsWith('image') ? 'image' :
+        filepdf?.type.startsWith('video') ? 'video' : 'isfile';
       
                this.socketService.sendMessage('message_to_agent', { message: url, type });
         });

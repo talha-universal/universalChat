@@ -55,8 +55,9 @@
                             [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 )}">
 
 
-                            <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                            <!-- <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
+                                aria-expanded="false"> -->
+                            <div class="position-relative">
                                 <span class="messageOptions down-context">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         fill="#000000" version="1.1" id="Capa_1" width="10px" height="10px"
@@ -102,7 +103,7 @@
                                                     [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                                 <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
                                                     target="_blank">
-                                                    {{ message?.message }}</a>
+                                                    {{ message?.message.replace('/uploads/', '') }}</a>
                                             </span>
 
                                         </ng-container>
@@ -200,7 +201,7 @@
                                                 [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                             <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
                                                 target="_blank">
-                                                {{ message?.message }}</a>
+                                                {{ message?.message.replace('/uploads/', '') }}</a>
                                         </span>
 
                                     </ng-container>
@@ -226,7 +227,7 @@
     <div class="collapse collapseBottom" id="collapseExample" #collapseElement>
         <div class="card card-body p-2">
             <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput('document')">
-                <input type="file" #fileInput  id="fileInput" style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
+                <input type="file" #fileInput id="fileInput" style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     (change)="onFileSelected($event,'document')">
 
