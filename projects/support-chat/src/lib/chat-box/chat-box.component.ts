@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CONFIG } from '../../Config';
+import { CONFIG,BASE_URL } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
 import { WebsocketService } from '../Serives/websocket.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -53,6 +53,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   SupporterStatus: any = "Offline";
   uploadImgResponse: any;
   audioSrc: any;
+  baseURL:any= BASE_URL;
 
   isRecording = false;
   dataArray: Uint8Array | undefined;
@@ -76,7 +77,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private ngZone: NgZone, private el: ElementRef) {
 
  
-
+      this.baseURL= BASE_URL;
 
     this.isDesktop = this.devicedetector.isDesktop();
     // Check if the current device is a mobile
@@ -376,75 +377,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     return -1;
   }
 
-  getMessageFromSocket() {
-    this.counter = 0;
-    this.websocketService.getMarketData().subscribe((data: any) => {
-      if (data !== "connected") {
-        const socketData = JSON.parse(data)
-
-        if (socketData?.type == "message") {
-
-          // const index = this.binarySearch(this.messages, socketData.messageId);
-          const index = this.messages.findIndex((msg: any) => msg.messageId == socketData.messageId);
-
-          setTimeout(() => {
-            if (index !== -1) {
-              // Do something with the found object, e.g., update it
-              this.showAnimation = false;
-              this.messages[index] = socketData;
-            } else {
-              // If the message with the same messageId is not found, add it to the array
-              this.showAnimation = true;
-
-              const localDate = new Date(socketData.sentAt); // Creating a new Date object
-              // console.log('UTC Date:', socketData.sentAt);
-              // console.log('Local Date:', localDate.toLocaleString());
-              // socketData.sentAt = localDate;
-              this.messages.push(socketData);
-
-              // Assuming the messages array remains sorted, if not, you may need to sort it.
-              this.messages = this.messages.sort((a: any, b: any) => a.sentAt.localeCompare(b.sentAt));
-              // this.messages = this.messages.sort((a: any, b: any) => a.sentAt.toLocaleString() - b.sentAt.toLocaleString());
-
-
-              //Send Read status to other fellow
-              if (this.userDetails?.user?.email !== socketData?.sender.email) {
-                const isReadReceiverObj = {
-                  type: "read_at",
-                  sender: this.userDetails?.user?.support,
-                  receiver: this.userDetails?.user?.id,
-                  id: socketData._id,
-                }
-                this.websocketService.send(isReadReceiverObj);
-              }
-            }
-          }, 900);
-
-
-        }
-        if (socketData?.type == "all_user_status") {
-          this.backendService.getSupporterStatusByGet(CONFIG.getUserStatus, this.userDetails?.user?.support).pipe(first())
-            .subscribe((res: any) => {
-              if (res.status == "success") {
-                this.SupporterStatus = res?.data?.status
-              }
-
-            });
-        }
-        if (socketData?.type == "action") {
-          if (socketData.action == "dirty" && socketData.flag == 'yes') {
-            this.SupporterStatus = 'typing...'
-          }
-          else if (socketData.action == "dirty" && socketData.flag == 'no') {
-            this.SupporterStatus = 'Online'
-          }
-        }
-
-      }
-
-    })
-  }
-
   onfocusText() {
     this.isKeyboardMbl = false;
     if (!this.opnKeybord && this.isMobile) {
@@ -562,6 +494,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       debugger
       const fileInput = document.getElementById('mediaInput') as HTMLInputElement ;
+      const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement ;
 
       const fileName = this.selectedFile.name;
       const fileExtension = fileName.split('.').pop();

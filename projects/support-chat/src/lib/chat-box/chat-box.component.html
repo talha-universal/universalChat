@@ -67,18 +67,29 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="messagetext">
+                                <span class="messagetext" *ngIf="message?.type == 'text'">
                                     {{ message.message }}
                                 </span>
 
 
 
-                                <span *ngIf="message.type == 'image' || message.type == 'video'" class="messagetext">
-                                    <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
+                                <span
+                                    *ngIf="message.type == 'image' || message.type == 'video' || message.type == 'isfile'"
+                                    class="messagetext">
+                                    <ng-container *ngIf="message?.type == 'image'">
 
-                                        <a href="{{ message?.attachments[0].url}}" target="_blank">
-                                            <img [src]="message?.attachments[0]?.url ? message?.attachments[0]?.url : message?.attachments[0].fileUrl"
+                                        <a href="{{ message?.viewurl + message.message}}" target="_blank">
+                                            <img [src]="message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"
                                                 alt="" style="width: 100%;">
+                                        </a>
+                                    </ng-container>
+                                    <ng-container *ngIf="message?.type == 'video'">
+
+                                        <a href="{{ message?.viewurl + message.message}}" target="_blank">
+                                            <video controls
+                                                [src]="message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"
+                                                style="max-width: 300px;">
+                                            </video>
                                         </a>
                                     </ng-container>
                                     <span class="chat-message">
@@ -88,9 +99,10 @@
                                         <ng-container *ngIf="message.type == 'isfile' ">
                                             <span class="fileView">
                                                 <span class="fileViewBasic"
-                                                    [ngClass]="message.attachments[0].type  == 'pdf' ? 'fileViewpdf' : 'fileViewOther' "></span>
-                                                <a href="{{ message?.attachments[0].url}}" target="_blank">
-                                                    {{ message?.attachments[0]?.originalName }}</a>
+                                                    [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
+                                                <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
+                                                    target="_blank">
+                                                    {{ message?.message }}</a>
                                             </span>
 
                                         </ng-container>
@@ -155,17 +167,27 @@
                     <div class="w-100 d-flex justify-content-start">
                         <div class="message receiverMessage "
                             [ngClass]="{'messageAnimation': showAnimation, 'flex-column': (message.message.length > 30  )}">
-                            <span class="messagetext">
+                            <span class="messagetext" *ngIf="message.type == 'text'">
                                 {{ message.message }}
                             </span>
 
 
-                            <span *ngIf="message.type == 'image' || message.type == 'video'" class="messagetext">
-                                <ng-container *ngIf="message?.attachments[0]?.docType?.includes('image')">
+                            <span *ngIf="message.type == 'image' || message.type == 'video'|| message.type == 'isfile'"
+                                class="messagetext">
+                                <ng-container *ngIf="message?.type == 'image'">
 
-                                    <a href="{{ message?.attachments[0].url}}" target="_blank">
-                                        <img [src]="message?.attachments[0].url ? message?.attachments[0].url : message?.attachments[0].fileUrl"
+                                    <a href="{{ message?.viewurl + message.message}}" target="_blank">
+                                        <img [src]="message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"
                                             alt="" style="width: 100%;">
+                                    </a>
+                                </ng-container>
+                                <ng-container *ngIf="message?.type == 'video'">
+
+                                    <a href="{{ message?.viewurl + message.message}}" target="_blank">
+                                        <video controls
+                                            [src]="message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"
+                                            style="max-width: 300px;">
+                                        </video>
                                     </a>
                                 </ng-container>
                                 <span class="chat-message">
@@ -175,9 +197,10 @@
                                     <ng-container *ngIf="message.type == 'isfile' ">
                                         <span class="fileView">
                                             <span class="fileViewBasic"
-                                                [ngClass]="message.attachments[0].type  == 'pdf' ? 'fileViewpdf' : 'fileViewOther' "></span>
-                                            <a href="{{ message?.attachments[0].url}}" target="_blank">
-                                                {{ message?.attachments[0]?.originalName }}</a>
+                                                [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
+                                            <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
+                                                target="_blank">
+                                                {{ message?.message }}</a>
                                         </span>
 
                                     </ng-container>
@@ -203,7 +226,7 @@
     <div class="collapse collapseBottom" id="collapseExample" #collapseElement>
         <div class="card card-body p-2">
             <div class="d-flex align-items-center p-1 attachments" (click)="openFileInput('document')">
-                <input type="file" #fileInput style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
+                <input type="file" #fileInput  id="fileInput" style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     (change)="onFileSelected($event,'document')">
 

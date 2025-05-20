@@ -5,7 +5,7 @@
 // const BASE_URL = 'http://10.10.0.14:3000'
 // const socketurl = 'ws://10.10.0.14:8080'
 
-const BASE_URL = 'https://buzzmehi.com'
+export const BASE_URL = 'https://buzzmehi.com'
 const socketurl ='';
 // export const BASE_URL_WS = "ws://101.0.20.132:3000";
 export const BASE_URL_WS = "wss://buzzmehi.com";
