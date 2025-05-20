@@ -556,19 +556,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       else {
         const formData = new FormData();
-        formData.append('file', filepdf! );
+        formData.append('file', filepdf!);
 
         fetch('https://buzzmehi.com/upload', {
           method: 'POST',
           body: formData
         }).then(res => res.json()).then(data => {
-          if(data.error) return;
-        
-        const url = data.url;
-        const type = filepdf?.type.startsWith('image') ? 'image' :
-        filepdf?.type.startsWith('video') ? 'video' : 'isfile';
-      
-               this.socketService.sendMessage('message_to_agent', { message: url, type });
+          if (data.error) return;
+
+          const url = data.url;
+          const type = filepdf?.type.startsWith('image') ? 'image' :
+            filepdf?.type.startsWith('video') ? 'video' : 'isfile';
+
+          this.socketService.sendMessage('message_to_agent', { message: url, type });
+
         });
       }
       fileInput.value = '';
