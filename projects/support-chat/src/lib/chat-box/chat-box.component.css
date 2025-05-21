@@ -249,7 +249,7 @@ svg {
   color: #111b21 !important;
 }
 
-::ng-deep .collapse:not(.show) {
+::ng-deep .media .collapse:not(.show) {
   display: flex !important;
   height: 0px !important;
   width: 0px !important;
@@ -258,15 +258,34 @@ svg {
   transition: all 300ms !important;
   transform-origin: bottom;
 }
-::ng-deep .collapsing {
+::ng-deep .media .collapsing {
   transform-origin: bottom;
   transition: all 300ms !important;
   bottom: 67px !important;
   overflow: hidden !important;
-
   width: 169px;
-  height: 91px;
+  height: 91px !important;
   /* z-index: -10; */
+}
+
+.collapseBottomEmoji {
+  position: absolute;
+  bottom: 67px;
+  left: 8px;
+  height: 0px !important;
+  width: 0px !important;
+  bottom: 67 !important;
+  overflow: hidden;
+  transition: all 300ms !important;
+  transform-origin: bottom;
+}
+.emoji-show {
+  transform-origin: bottom;
+  transition: all 300ms !important;
+  bottom: 67px !important;
+  overflow: scroll !important;
+  width: 190px !important;
+  height: 75px !important;
 }
 .popup-slide {
   border: 1px solid #e2e3e5;
@@ -274,6 +293,15 @@ svg {
   border-radius: 10px;
   background-color: #fff;
 }
+.emoji {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+/* .emoji:hover {
+  transform: scale(1.2);
+} */
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -26,10 +26,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   visualizerCanvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('waveformCanvas', { static: true }) waveformCanvasRef!: ElementRef<HTMLCanvasElement>;
 
-
+  @ViewChild('emojiPanel') emojiPanel!: ElementRef;
   @ViewChild('collapseElement', { static: false }) collapseElement!: ElementRef;
   isSendButtonVisible: boolean = false;
   audioRecording: any = false;
+  isEmojiPickerOpen = false;
 
   userName: string = '';
   chatUserName: any = '';
@@ -788,4 +789,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   //   context.lineWidth = 2;
   //   context.stroke();
   // }
+
+  // messageText: string = '';
+  emojis: string[] = ['😀', '😂', '😍', '😎', '😢', '😡', '👍', '🙏', '🎉', '❤️'];
+  // isSendButtonVisible = false;
+
+  addEmojiToMessage(emoji: string) {
+    this.messageText += emoji;
+    this.onInputChange(); // optional, if you show/hide send button
+  }
+  toggleEmojiPicker(event: MouseEvent) {
+    event.stopPropagation(); // prevent auto close
+    this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
+  }
 }
