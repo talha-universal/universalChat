@@ -27,7 +27,13 @@
   height: 20px;
 }
 
-.sendButton svg {
+.sendButton svg:last-child {
+  color: #00a884;
+  transform: translateY(0.5px);
+  /* height: 28px;
+  width: 37px; */
+}
+.sendButton svg:first-child {
   color: #00a884;
   transform: translateY(-1.5px);
   /* height: 28px;
