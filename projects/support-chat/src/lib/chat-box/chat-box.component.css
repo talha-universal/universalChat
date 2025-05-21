@@ -259,8 +259,14 @@ svg {
   overflow: hidden !important;
 
   width: 169px;
-  height: 82px;
+  height: 91px;
   /* z-index: -10; */
+}
+.popup-slide {
+  border: 1px solid #e2e3e5;
+  padding: 8px 13px 10px 13px;
+  border-radius: 10px;
+  background-color: #fff;
 }
 @keyframes fadeIn {
   from {

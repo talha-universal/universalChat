@@ -535,18 +535,25 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
                 fetch('https://buzzmehi.com/upload', {
                   method: 'POST',
                   body: formData
-                }).then((res: any) => res.json()).then((data: any) => {
-                  // debugger
-                  if (data.error) return;
+                })
+                  .then((res: any) => res.json())
+                  .then((data: any) => {
+                    // debugger
+                    if (data.error) return;
 
-                  const url = data.url;
-                  const type = 'image';
-                  this.socketService.sendMessage('message_to_agent', { message: url, type });
-                  const collapseNativeElement = this.collapseElement?.nativeElement;
-                  if (collapseNativeElement && collapseNativeElement.classList.contains('show')) {
-                    collapseNativeElement.classList.remove('show');
-                  }
-                });
+                    const url = data.url;
+                    const type = 'image';
+                    this.socketService.sendMessage('message_to_agent', { message: url, type });
+                  })
+                  .catch(err => {
+                    console.error('Upload error:', err);
+                  })
+                  .finally(() => {
+                    const collapseNativeElement = this.collapseElement?.nativeElement;
+                    if (collapseNativeElement?.classList.contains('show')) {
+                      collapseNativeElement.classList.remove('show');
+                    }
+                  });
               },
               'image/jpeg',
               0.6
@@ -561,16 +568,26 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         fetch('https://buzzmehi.com/upload', {
           method: 'POST',
           body: formData
-        }).then(res => res.json()).then(data => {
-          if (data.error) return;
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) return;
 
-          const url = data.url;
-          const type = filepdf?.type.startsWith('image') ? 'image' :
-            filepdf?.type.startsWith('video') ? 'video' : 'isfile';
+            const url = data.url;
+            const type = filepdf?.type.startsWith('image') ? 'image' :
+              filepdf?.type.startsWith('video') ? 'video' : 'isfile';
 
-          this.socketService.sendMessage('message_to_agent', { message: url, type });
-
-        });
+            this.socketService.sendMessage('message_to_agent', { message: url, type });
+          })
+          .catch(err => {
+            console.error('Upload error:', err);
+          })
+          .finally(() => {
+            const collapseNativeElement = this.collapseElement?.nativeElement;
+            if (collapseNativeElement?.classList.contains('show')) {
+              collapseNativeElement.classList.remove('show');
+            }
+          });
       }
       fileInput.value = '';
 
