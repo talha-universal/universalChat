@@ -520,7 +520,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     const maxVideoSize = 10 * 1024 * 1024; // 10MB
 
     if (file.size > maxVideoSize) {
-      alert('Video is too large. Please upload a video under 3MB.');
+      alert('Video is too large. Please upload a video under 10MB.');
       return;
     }
 
