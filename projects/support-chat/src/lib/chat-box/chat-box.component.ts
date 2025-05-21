@@ -10,6 +10,7 @@ import { SocketMessage } from '../Serives/message-interface';
 import { WebSocketService } from '../Serives';
 import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
@@ -75,6 +76,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private recordingService: RecordingService,
     private sanitizer: DomSanitizer,
     private socketService: WebSocketService,
+    private http: HttpClient,
     private ngZone: NgZone, private el: ElementRef) {
 
 
@@ -484,153 +486,342 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  onFileSelected(event: any, typeFile: string): void {
-    this.selectedFile = event.target.files[0];
-    if (this.selectedFile) {
-      const current = new Date();
-      const timestamp = current.getTime();
-      const fileObj = {
-        file: this.selectedFile,
-        attachmentId: timestamp
-      }
 
-      const fileInput = document.getElementById('mediaInput') as HTMLInputElement;
-      const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement;
+  readonly MAX_INPUT_MB = 2;
+  readonly MAX_OUTPUT_MB = 1.5;
+  readonly TARGET_WIDTH = 1280;
 
-      const fileName = this.selectedFile.name;
-      const fileExtension = fileName.split('.').pop();
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
 
-
-      const file = fileInput?.files?.[0];
-      const filepdf = fileInputPDF?.files?.[0];
-      if (!file && !filepdf) return;
-      if (file?.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-
-        reader.onload = (e: any) => {
-          const img = new Image();
-          img.src = e.target.result;
-
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            const ctx = canvas.getContext('2d');
-            ctx?.drawImage(img, 0, 0);
-
-            canvas.toBlob(
-              (blob: any) => {
-                const compressedFile = new File([blob], file.name, {
-                  type: 'image/jpeg',
-                  lastModified: Date.now(),
-                });
-
-                const originalSize = (file.size / 1024).toFixed(2);
-                const compressedSize = (compressedFile.size / 1024).toFixed(2);
-
-                const formData = new FormData();
-                formData.append('file', originalSize > compressedSize ? compressedFile : file);
-
-                fetch('https://buzzmehi.com/upload', {
-                  method: 'POST',
-                  body: formData
-                })
-                  .then((res: any) => res.json())
-                  .then((data: any) => {
-                    // debugger
-                    if (data.error) return;
-
-                    const url = data.url;
-                    const type = 'image';
-                    this.socketService.sendMessage('message_to_agent', { message: url, type });
-                  })
-                  .catch(err => {
-                    console.error('Upload error:', err);
-                  })
-                  .finally(() => {
-                    const collapseNativeElement = this.collapseElement?.nativeElement;
-                    if (collapseNativeElement?.classList.contains('show')) {
-                      collapseNativeElement.classList.remove('show');
-                    }
-                  });
-              },
-              'image/jpeg',
-              0.6
-            );
-          };
-        };
-      }
-      else {
-        const formData = new FormData();
-        formData.append('file', filepdf!);
-
-        fetch('https://buzzmehi.com/upload', {
-          method: 'POST',
-          body: formData
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.error) return;
-
-            const url = data.url;
-            const type = filepdf?.type.startsWith('image') ? 'image' :
-              filepdf?.type.startsWith('video') ? 'video' : 'isfile';
-
-            this.socketService.sendMessage('message_to_agent', { message: url, type });
-          })
-          .catch(err => {
-            console.error('Upload error:', err);
-          })
-          .finally(() => {
-            const collapseNativeElement = this.collapseElement?.nativeElement;
-            if (collapseNativeElement?.classList.contains('show')) {
-              collapseNativeElement.classList.remove('show');
-            }
-          });
-      }
-      fileInput.value = '';
-
-
-      // fileInput?.addEventListener('change', () => {
-
-      // });
-
-
-
-      // this.backendService.uploadfile(fileObj).subscribe(response => {
-      //   // Handle the response from the server
-      //   const targetElement = event.target as HTMLElement;
-      //   const collapseNativeElement = this.collapseElement.nativeElement;
-      //   // Check if the clicked element is outside the collapse and if the collapse is currently shown
-      //   if (collapseNativeElement.classList.contains('show')) {
-
-      //     collapseNativeElement.classList.remove('show');
-      //     // do something...
-      //   }
-      //   const time = new Date();
-
-      //   this.uploadImgResponse =
-      //   {
-      //     type: "multimedia",
-      //     fileUrl: response.fileUrl,
-      //     fileName: response.fileName,
-      //     messageId: "web_" + time.getTime(),
-      //     detailType: fileExtension,
-      //     sentAt: new Date(),
-      //     receiver: this.userDetails?.user?.support,
-      //     attachmentId: response.attachmentId,
-      //     originalName: this.selectedFile?.name,
-      //     size: this.selectedFile?.size,
-      //     docType: this.selectedFile?.type
-      //   }
-
-      //   this.sendMessage();
-
-      // });
+    const file = input.files[0];
+    if (file.name.toLowerCase().endsWith('.heic')) {
+      alert('HEIC images are not supported. Please upload JPG or PNG.');
+      return;
     }
+    const type = file.type;
+
+    if (type.startsWith('image/') && !type.includes('heic')) {
+      this.processAndUploadImage(file); // Your image compression + upload logic
+    }
+    else if (type.startsWith('video/')) {
+      this.uploadVideoWithValidation(file);
+    }
+    else if (!type.startsWith('video/') || !type.startsWith('image/')) {
+      this.uploadNonImageFile(file);
+    }
+
+    // Reset input
+    input.value = '';
   }
+
+  private uploadVideoWithValidation(file: File): void {
+    const maxVideoSize = 10 * 1024 * 1024; // 10MB
+
+    if (file.size > maxVideoSize) {
+      alert('Video is too large. Please upload a video under 3MB.');
+      return;
+    }
+
+    // Optionally: read metadata, duration, resolution here with a <video> element
+
+    this.uploadNonImageFile(file);
+  }
+
+  // FILE UPLOAD CODE
+
+  private uploadNonImageFile(file: File): void {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('https://buzzmehi.com/upload', {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) return;
+
+        const url = data.url;
+        const type = file.type.startsWith('image')
+          ? 'image'
+          : file.type.startsWith('video')
+            ? 'video'
+            : 'isfile';
+
+        this.socketService.sendMessage('message_to_agent', { message: url, type });
+      })
+      .catch(err => {
+        console.error('Upload error:', err);
+      })
+      .finally(() => {
+        const collapseNativeElement = this.collapseElement?.nativeElement;
+        if (collapseNativeElement?.classList.contains('show')) {
+          collapseNativeElement.classList.remove('show');
+        }
+      });
+  }
+
+  private async processAndUploadImage(file: File): Promise<void> {
+    const fileMB = file.size / (1024 * 1024);
+    const img = await this.loadImage(file);
+
+    // Resize dimensions
+    let { width, height } = img;
+    if (width > this.TARGET_WIDTH) {
+      const ratio = this.TARGET_WIDTH / width;
+      width = this.TARGET_WIDTH;
+      height = height * ratio;
+    }
+
+    // Draw on canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx?.drawImage(img, 0, 0, width, height);
+
+    const formData = new FormData();
+
+    if (fileMB > this.MAX_INPUT_MB) {
+      const blob = await this.compressCanvas(canvas, this.MAX_OUTPUT_MB);
+      const compressedFile = new File([blob], file.name, {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      });
+      formData.append('file', compressedFile);
+    } else {
+      formData.append('file', file);
+    }
+
+    this.upload(formData);
+  }
+
+  private loadImage(file: File): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  private compressCanvas(canvas: HTMLCanvasElement, maxSizeMB: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      let quality = 0.9;
+
+      const tryCompress = () => {
+        canvas.toBlob(blob => {
+          if (!blob) return reject(new Error('Compression failed'));
+          const sizeMB = blob.size / 1024 / 1024;
+          if (sizeMB <= maxSizeMB || quality <= 0.1) return resolve(blob);
+          quality -= 0.05;
+          tryCompress();
+        }, 'image/jpeg', quality);
+      };
+
+      tryCompress();
+    });
+  }
+
+  private upload(formData: FormData): void {
+    this.http.post<{ url: string; error?: any }>('https://buzzmehi.com/upload', formData)
+      .subscribe({
+        next: (data) => {
+          if (data.error) return;
+          const url = data.url;
+          const type = 'image';
+          // send via socket service or handle the result
+          this.socketService.sendMessage('message_to_agent', { message: url, type });
+          // console.log('Uploaded:', url);
+        },
+        error: err => console.error('Upload error:', err),
+        complete: () => {
+          // collapse UI or show success
+          // const nativeEl = this.fileInput?.nativeElement;
+          // nativeEl?.classList?.remove('show');
+          const collapseNativeElement = this.collapseElement?.nativeElement;
+          if (collapseNativeElement?.classList.contains('show')) {
+            collapseNativeElement.classList.remove('show');
+          }
+        }
+      });
+  }
+
+
+
+  //   onFileSelected(event: any, typeFile: string): void {
+  //     this.selectedFile = event.target.files[0];
+  //     if (this.selectedFile) {
+  //       const current = new Date();
+  //       const timestamp = current.getTime();
+  //       const fileObj = {
+  //         file: this.selectedFile,
+  //         attachmentId: timestamp
+  //       }
+
+  //       const fileInput = document.getElementById('mediaInput') as HTMLInputElement;
+  //       const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement;
+
+  //       const fileName = this.selectedFile.name;
+  //       const fileExtension = fileName.split('.').pop();
+
+
+  //       const file = fileInput?.files?.[0];
+  //       const filepdf = fileInputPDF?.files?.[0];
+  //       if (!file && !filepdf) return;
+  //       if (file?.type.startsWith('image/')) {
+  //         const reader = new FileReader();
+  //         reader.readAsDataURL(file);
+
+  //         reader.onload = (e: any) => {
+  //           const img = new Image();
+  //           img.src = e.target.result;
+  // debugger
+  //           const MAX_ORIGINAL_MB = 2;
+  //           const MAX_COMPRESSED_MB = 1.5;
+  //           const TARGET_WIDTH = 1280;
+
+  //           const isLarge = file.size / (1024 * 1024) > MAX_ORIGINAL_MB;
+  //           img.onload = async () => {
+  //             let width = img.width;
+  //             let height = img.height;
+
+  //             if (width > TARGET_WIDTH) {
+  //               const ratio = TARGET_WIDTH / width;
+  //               width = TARGET_WIDTH;
+  //               height = height * ratio;
+  //             }
+
+  //             const canvas = document.createElement('canvas');
+  //             canvas.width = width;
+  //             canvas.height = height;
+  //             canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+
+
+  //             const compressToMaxSize = async (): Promise<Blob | null> => {
+  //               let quality = 0.8;
+
+  //               return new Promise((resolve) => {
+  //                 const tryCompress = () => {
+  //                   canvas.toBlob((blob) => {
+  //                     if (!blob) return resolve(null); // OK now
+  //                     const sizeMB = blob.size / (1024 * 1024);
+  //                     if (sizeMB <= MAX_COMPRESSED_MB || quality <= 0.1) return resolve(blob);
+  //                     quality -= 0.05;
+  //                     tryCompress();
+  //                   }, 'image/jpeg', quality);
+  //                 };
+  //                 tryCompress();
+  //               });
+  //             };
+
+  //             const formData = new FormData();
+  //             if (isLarge) {
+  //               const blob = await compressToMaxSize();
+  //               if (blob) {
+  //                 const compressedFile = new File([blob], file.name, {
+  //                   type: 'image/jpeg',
+  //                   lastModified: Date.now(),
+  //                 });
+  //                 formData.append('file', compressedFile);
+  //               } else {
+  //                 // fallback to original if compression failed
+  //                 formData.append('file', file);
+  //               }
+  //             } else {
+  //               formData.append('file', file);
+  //             }
+
+  //             fetch('https://buzzmehi.com/upload', {
+  //               method: 'POST',
+  //               body: formData
+  //             })
+  //               .then(res => res.json())
+  //               .then(data => {
+  //                 if (!data.error) {
+  //                   const url = data.url;
+  //                   const type = 'image';
+  //                   this.socketService.sendMessage('message_to_agent', { message: url, type });
+  //                 }
+  //               })
+  //               .catch(err => console.error('Upload error:', err))
+  //               .finally(() => {
+  //                 this.collapseElement?.nativeElement?.classList.remove('show');
+  //               });
+  //           };
+  //         };
+  //       }
+  // else {
+  //   const formData = new FormData();
+  //   formData.append('file', filepdf!);
+
+  //   fetch('https://buzzmehi.com/upload', {
+  //     method: 'POST',
+  //     body: formData
+  //   })
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       if (data.error) return;
+
+  //       const url = data.url;
+  //       const type = filepdf?.type.startsWith('image') ? 'image' :
+  //         filepdf?.type.startsWith('video') ? 'video' : 'isfile';
+
+  //       this.socketService.sendMessage('message_to_agent', { message: url, type });
+  //     })
+  //     .catch(err => {
+  //       console.error('Upload error:', err);
+  //     })
+  //     .finally(() => {
+  //       const collapseNativeElement = this.collapseElement?.nativeElement;
+  //       if (collapseNativeElement?.classList.contains('show')) {
+  //         collapseNativeElement.classList.remove('show');
+  //       }
+  //     });
+  // }
+  // fileInput.value = '';
+
+
+  //       // fileInput?.addEventListener('change', () => {
+
+  //       // });
+
+
+
+  //       // this.backendService.uploadfile(fileObj).subscribe(response => {
+  //       //   // Handle the response from the server
+  //       //   const targetElement = event.target as HTMLElement;
+  //       //   const collapseNativeElement = this.collapseElement.nativeElement;
+  //       //   // Check if the clicked element is outside the collapse and if the collapse is currently shown
+  //       //   if (collapseNativeElement.classList.contains('show')) {
+
+  //       //     collapseNativeElement.classList.remove('show');
+  //       //     // do something...
+  //       //   }
+  //       //   const time = new Date();
+
+  //       //   this.uploadImgResponse =
+  //       //   {
+  //       //     type: "multimedia",
+  //       //     fileUrl: response.fileUrl,
+  //       //     fileName: response.fileName,
+  //       //     messageId: "web_" + time.getTime(),
+  //       //     detailType: fileExtension,
+  //       //     sentAt: new Date(),
+  //       //     receiver: this.userDetails?.user?.support,
+  //       //     attachmentId: response.attachmentId,
+  //       //     originalName: this.selectedFile?.name,
+  //       //     size: this.selectedFile?.size,
+  //       //     docType: this.selectedFile?.type
+  //       //   }
+
+  //       //   this.sendMessage();
+
+  //       // });
+  //     }
+  //   }
 
 
 

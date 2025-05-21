@@ -234,7 +234,7 @@
                     <div class="popup-slide">
                         <input type="file" #fileInput id="fileInput" style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            (change)="onFileSelected($event,'document')">
+                            (change)="onFileSelected($event)">
 
                         <svg height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -249,7 +249,7 @@
                     style="cursor: pointer; width: 78.68px;">
                     <div class="popup-slide">
                         <input type="file" #mediaInput id="mediaInput" style="display: none" accept="image/*,video/*"
-                            (change)="onFileSelected($event,'media')">
+                            (change)="onFileSelected($event)">
                         <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
                     <path
                         d="M8 11C9.10457 11 10 10.1046 10 9C10 7.89543 9.10457 7 8 7C6.89543 7 6 7.89543 6 9C6 10.1046 6.89543 11 8 11Z"
@@ -319,7 +319,7 @@
             }" style="cursor: pointer;" (click)="isEmojiPickerOpen = false">
                 <input type="file" #fileInput style="display: none" accept=".zip, .pdf, application/pdf, application/zip, application/vnd.ms-excel,
                          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    (change)="onFileSelected($event,'media')">
+                    (change)="onFileSelected($event)">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"
                     height="24" width="24" preserveAspectRatio="xMidYMid meet" class="x1cbnkk4" fill="none">
                     <title>camera-filled-refreshed</title>
