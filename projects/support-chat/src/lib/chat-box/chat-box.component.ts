@@ -516,22 +516,39 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     input.value = '';
   }
 
-  private uploadVideoWithValidation(file: File): void {
-    const maxVideoSize = 10 * 1024 * 1024; // 10MB
+  private async uploadVideoWithValidation(file: File): Promise<void> {
+    const maxVideoSize = 12 * 1024 * 1024; // 10MB
 
-    if (file.size > maxVideoSize) {
-      alert('Video is too large. Please upload a video under 10MB.');
+    if (file.size <= maxVideoSize) {
+      try {
+        const compressed = await this.compressVideo(file);
+        const compressedFile = new File([compressed], 'compressed.webm', { type: 'video/webm' });
+
+        if (compressedFile.size > maxVideoSize) {
+          alert('Compressed video is still too large. Please use a shorter or lower-quality video.');
+          return;
+        }
+
+        this.uploadNonImageFile(compressedFile); // Upload only compressed
+      } catch (err) {
+        console.error('Compression failed', err);
+        alert('Video compression failed. Please try a smaller video.');
+      }
+    }
+    else {
+
+      alert('Video is too large. Please upload a video under 12MB');
       return;
     }
 
-    // Optionally: read metadata, duration, resolution here with a <video> element
 
-    this.uploadNonImageFile(file);
   }
+
 
   // FILE UPLOAD CODE
 
   private uploadNonImageFile(file: File): void {
+    console.log('call')
     const formData = new FormData();
     formData.append('file', file);
 
@@ -562,6 +579,63 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
   }
+
+
+  private async compressVideo(file: File): Promise<Blob> {
+    return new Promise<Blob>(async (resolve, reject) => {
+      const video = document.createElement('video');
+      video.src = URL.createObjectURL(file);
+      video.crossOrigin = 'anonymous';
+      video.muted = true;
+      video.playsInline = true;
+
+      // Wait for metadata to load
+      await new Promise<void>((res) => {
+        video.onloadedmetadata = () => res();
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 640; // Resize to 640x360 (or keep original if smaller)
+      canvas.height = 360;
+
+      const ctx = canvas.getContext('2d');
+      const stream = canvas.captureStream(15); // 15 FPS
+      const chunks: Blob[] = [];
+
+      const recorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp8'
+      });
+
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = () => {
+        resolve(new Blob(chunks, { type: 'video/webm' }));
+      };
+
+      recorder.start();
+
+      // Seek and draw frames
+      const duration = video.duration;
+      const frameInterval = 1000 / 15;
+      let currentTime = 0;
+
+      const drawFrame = () => {
+        if (currentTime >= duration) {
+          recorder.stop();
+          return;
+        }
+
+        video.currentTime = currentTime;
+        video.onseeked = () => {
+          ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+          currentTime += frameInterval / 1000;
+          setTimeout(drawFrame, frameInterval);
+        };
+      };
+
+      drawFrame();
+    });
+  }
+
 
   private async processAndUploadImage(file: File): Promise<void> {
     const fileMB = file.size / (1024 * 1024);
