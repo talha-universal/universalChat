@@ -494,6 +494,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onFileSelected(event: Event): void {
     this.isUploading = true;
+    const collapseNativeElement = this.collapseElement?.nativeElement;
+    if (collapseNativeElement?.classList.contains('show')) {
+      collapseNativeElement.classList.remove('show');
+    }
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
