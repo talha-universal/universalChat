@@ -523,7 +523,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async uploadVideoWithValidation(file: File): Promise<void> {
-    const maxVideoSize = 12 * 1024 * 1024; // 12MB
+    const maxVideoSize = 6 * 1024 * 1024; // 6MB
 
     if (file.size <= maxVideoSize) {
       try {
@@ -543,7 +543,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     else {
 
-      alert('Video is too large. Please upload a video under 12MB');
+      alert('Video is too large. Please upload a video under 6MB');
       return;
     }
 
