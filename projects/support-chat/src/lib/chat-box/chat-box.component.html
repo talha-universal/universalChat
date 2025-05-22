@@ -44,6 +44,12 @@
     <div class="body" [ngClass]="{'bodyheight':!isKeyboardMbl,'':isKeyboardMbl}">
 
         <div class="message-list">
+            <div *ngIf="isUploading" class="d-flex justify-content-end">
+                <div class="d-flex flex-column justify-content-center align-items-center loaderrr">
+                    <div class="loader"></div>
+                    Uploading...
+                </div>
+            </div>
 
             <ng-container *ngFor="let message of messages.slice().reverse();let i =index;">
                 <ng-container *ngIf="message.sender == 'client' || message?.myMessage">
