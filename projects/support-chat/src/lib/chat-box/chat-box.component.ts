@@ -56,6 +56,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   uploadImgResponse: any;
   audioSrc: any;
   baseURL: any = BASE_URL;
+  isUploading: boolean = false;
 
   isRecording = false;
   dataArray: Uint8Array | undefined;
@@ -492,6 +493,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly TARGET_WIDTH = 1280;
 
   onFileSelected(event: Event): void {
+    this.isUploading = true;
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
@@ -517,7 +519,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async uploadVideoWithValidation(file: File): Promise<void> {
-    const maxVideoSize = 12 * 1024 * 1024; // 10MB
+    const maxVideoSize = 12 * 1024 * 1024; // 12MB
 
     if (file.size <= maxVideoSize) {
       try {
@@ -573,6 +575,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         console.error('Upload error:', err);
       })
       .finally(() => {
+        this.isUploading = false;
         const collapseNativeElement = this.collapseElement?.nativeElement;
         if (collapseNativeElement?.classList.contains('show')) {
           collapseNativeElement.classList.remove('show');
