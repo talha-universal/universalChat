@@ -722,6 +722,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           this.isUploading = false;
         },
         complete: () => {
+          this.isUploading = false;
           // collapse UI or show success
           // const nativeEl = this.fileInput?.nativeElement;
           // nativeEl?.classList?.remove('show');
