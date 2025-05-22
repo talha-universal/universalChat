@@ -717,7 +717,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           this.socketService.sendMessage('message_to_agent', { message: url, type });
           // console.log('Uploaded:', url);
         },
-        error: err => console.error('Upload error:', err),
+        error: (err) => {
+          console.error('Upload error:', err)
+          this.isUploading = false;
+        },
         complete: () => {
           // collapse UI or show success
           // const nativeEl = this.fileInput?.nativeElement;
