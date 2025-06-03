@@ -401,19 +401,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       messageList.style.touchAction = "none";
     }
     let targetHeight;
-    if (windowHeight <= 915) {
-      //  targetHeight = Math.floor(windowHeight * 0.52); //done
-      targetHeight = Math.floor(windowHeight * 0.586);
-    }
-    else if (this.isMobileInfo == 'iOS') {
+    // if (windowHeight <= 915) {
+    //   //  targetHeight = Math.floor(windowHeight * 0.52); //done
+    //   targetHeight = Math.floor(windowHeight * 0.586);
+    // }
+    // else 
+    if (this.isMobileInfo == 'iOS') {
       targetHeight = Math.floor(windowHeight * 0.625);
     }
-    else if (windowHeight <= 720) {
-      targetHeight = Math.floor(windowHeight * 0.61);
-    }
-    else {
-      targetHeight = Math.floor(windowHeight * 0.62);
-    }
+    // else if (windowHeight <= 720) {
+    //   targetHeight = Math.floor(windowHeight * 0.61);
+    // }
+    // else {
+    //   targetHeight = Math.floor(windowHeight * 0.62);
+    // }
 
     if (checkBoxElement) {
       checkBoxElement.style.height = `${targetHeight}px`;
