@@ -494,7 +494,7 @@ svg {
   }
 
   .bodyheight {
-    height: 85% !important;
+    /* height: 85% !important; */
   }
 }
 .messageOptions {
