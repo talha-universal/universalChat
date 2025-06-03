@@ -137,19 +137,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateIncomingMessage(newMessage: any): void {
-    const index = this.messages.findIndex(
-      (msg: any) => msg.message === newMessage.message
-    );
+    // const index = this.messages.findIndex(
+    //   (msg: any) => msg.message === newMessage.message
+    // );
 
-    if (index >= 0) {
-      // Replace the existing message
-      this.messages.splice(index, 1, newMessage);
-      this.scrollChat();
-    } else {
-      // Add new message
-      this.messages.push(newMessage);
-      this.scrollChat();
-    }
+    // if (index >= 0) {
+    //   // Replace the existing message
+    //   this.messages.splice(index, 1, newMessage);
+    //   this.scrollChat();
+    // } else {
+    //   // Add new message
+    //   this.messages.push(newMessage);
+    //   this.scrollChat();
+    // }
+    this.messages.push(newMessage);
     this.scrollChat();
   }
   scrollChat() {
