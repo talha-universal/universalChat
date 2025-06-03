@@ -79,6 +79,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private socketService: WebSocketService,
     private http: HttpClient,
     private ngZone: NgZone, private el: ElementRef) {
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !('MSStream' in window);
+    this.isIOSChrome = isIOS && /CriOS/.test(ua); // CriOS = Chrome on iOS
 
 
     this.baseURL = BASE_URL;
@@ -1083,4 +1086,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     event.stopPropagation(); // prevent auto close
     this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
   }
+  isIOSChrome: boolean;
+
 }

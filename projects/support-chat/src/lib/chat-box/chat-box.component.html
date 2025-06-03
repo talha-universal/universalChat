@@ -358,7 +358,9 @@
             <textarea class="chatInput" type="text" id="chatMessage" name="chatMessage" [(ngModel)]="messageText"
                 [ngClass]="{ 'chatInputDiv-1': !isSendButtonVisible }" autocomplete="off" height="40px"
                 (ngModelChange)="onInputChange()" (keyup.enter)="sendMessage()" (focus)="onfocusText();"
-                (focusout)="onBlurText($event)" (click)="isEmojiPickerOpen = false"></textarea>
+                (focusout)="onBlurText($event)" (click)="isEmojiPickerOpen = false"
+                [attr.autocorrect]="isIOSChrome ? 'off' : null" [attr.autocapitalize]="isIOSChrome ? 'off' : null"
+                [attr.spellcheck]="isIOSChrome ? 'false' : null"></textarea>
         </div>
         <!-- -->
         <div class="chatInputDiv" [ngClass]="audioRecording ? 'd-block' : 'd-none'">
