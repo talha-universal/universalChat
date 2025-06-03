@@ -410,7 +410,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     // }
     // else 
     if (this.isMobileInfo == 'iOS') {
-      targetHeight = Math.floor(windowHeight * 0.625);
+      targetHeight = Math.floor(windowHeight * 0.615);
     }
     // else if (windowHeight <= 720) {
     //   targetHeight = Math.floor(windowHeight * 0.61);
