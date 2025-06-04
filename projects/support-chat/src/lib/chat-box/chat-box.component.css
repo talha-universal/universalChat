@@ -171,10 +171,9 @@
   fill: #54656f !important;
 }
 
-/* .sendButton {
-  height: 26px;
-  width: 36px;
-} */
+.trfff {
+  transform: translate(1px, 1px);
+}
 
 /* .btnww {
   width: 20px;
