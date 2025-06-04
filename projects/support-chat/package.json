@@ -1,6 +1,6 @@
 {
   "name": "support-chat",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "peerDependencies": {
     "@angular/common": "^19.0.6",
     "@angular/core": "^19.0.6",
