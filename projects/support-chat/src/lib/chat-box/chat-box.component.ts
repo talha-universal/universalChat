@@ -61,6 +61,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // isRecording = false;
   dataArray: Uint8Array | undefined;
   private animationFrameId: number | undefined;
+  audiofileType: boolean = false;
 
   private canvasVisible = false;
   // private mediaRecorder: MediaRecorder | null = null;
@@ -132,6 +133,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
     }
+    clearInterval(this.timerInterval);
   }
   ngAfterViewInit(): void {
 
@@ -565,7 +567,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // FILE UPLOAD CODE
 
   private uploadNonImageFile(file: File): void {
-    console.log('call')
+    // console.log('call')
     const formData = new FormData();
     formData.append('file', file);
 
@@ -591,6 +593,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       .finally(() => {
         this.isUploading = false;
+        if (this.audiofileType) {
+          this.audiofileType = false
+          this.clearRecording();
+        }
         const collapseNativeElement = this.collapseElement?.nativeElement;
         if (collapseNativeElement?.classList.contains('show')) {
           collapseNativeElement.classList.remove('show');
@@ -1102,20 +1108,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   stream!: MediaStream;
   recordedAudioURL: string | null = null;
   recordedAudioBlob: Blob | null = null;
-  recordingStartTime!: number;
-  recordingTimerInterval: any;
-  recordingDuration: string = '00:00';
+  recordingTime = 0;
+  private timerInterval: any = null;
 
 
-  async toggleRecording() {
+  toggleRecording(): void {
     if (!this.isRecording) {
-      await this.startRecording();
+      this.startRecording();
     } else {
       this.stopRecording();
     }
   }
 
-  async startRecording() {
+  async startRecording(): Promise<void> {
+    this.audiofileType = true;
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this.recordingError = null;
@@ -1135,66 +1141,35 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.ngZone.run(() => {
           this.isPreviewing = true;
+          this.recordingTime = 0;
+          clearInterval(this.timerInterval);
         });
       };
 
       this.mediaRecorder.start();
       this.isRecording = true;
       this.showRecordingIndicator = true;
-      this.recordingStartTime = Date.now();
       this.startTimer();
-
     } catch (error) {
       this.recordingError = 'Microphone access denied or not available.';
       console.error('Microphone access error:', error);
     }
   }
 
-  startTimer() {
-    this.recordingTimerInterval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - this.recordingStartTime) / 1000);
-      const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
-      const seconds = String(elapsed % 60).padStart(2, '0');
-      this.recordingDuration = `${minutes}:${seconds}`;
-    }, 1000);
-  }
-  stopTimer() {
-    clearInterval(this.recordingTimerInterval);
-    this.recordingDuration = '00:00';
-  }
-
-  stopRecording() {
+  stopRecording(): void {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
       this.stream.getTracks().forEach(track => track.stop());
       this.isRecording = false;
       this.showRecordingIndicator = false;
-      this.stopTimer();
     }
   }
 
-  sendAudioToAPI() {
-    if (!this.recordedAudioBlob) return;
-
-    const formData = new FormData();
-    formData.append('audio', this.recordedAudioBlob, 'voice-message.webm');
-
-    this.http.post('https://your-api.com/upload-voice', formData).subscribe({
-      next: () => {
-        this.clearRecording();
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Failed to upload audio', error);
-        this.recordingError = 'Failed to upload audio. Please try again.';
-      }
-    });
-  }
-
-  cancelRecording() {
+  cancelRecording(): void {
     this.clearRecording();
   }
 
-  clearRecording() {
+  clearRecording(): void {
     if (this.recordedAudioURL) {
       URL.revokeObjectURL(this.recordedAudioURL);
     }
@@ -1203,7 +1178,59 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.audioChunks = [];
     this.recordingError = null;
     this.isPreviewing = false;
-    this.recordingDuration = '00:00';
+    this.recordingTime = 0;
+    clearInterval(this.timerInterval);
+  }
+
+  sendAudioToAPI(): void {
+    if (!this.recordedAudioBlob) return;
+
+    const audioFile = new File([this.recordedAudioBlob], 'voice-message.webm', { type: 'audio/webm' });
+    this.isUploading = true;
+    this.uploadNonImageFile(audioFile);
+  }
+
+  handleUploadedFile(file: File): void {
+    const type = file.type;
+
+    if (file.name.toLowerCase().endsWith('.heic')) {
+      alert('HEIC images are not supported. Please upload JPG or PNG.');
+      return;
+    }
+
+    if (type.startsWith('image/') && !type.includes('heic')) {
+      this.processAndUploadImage(file);
+    } else if (type.startsWith('video/')) {
+      this.uploadVideoWithValidation(file);
+    } else if (type.startsWith('audio/')) {
+      this.uploadAudio(file);
+    } else {
+      this.uploadNonImageFile(file);
+    }
+  }
+
+
+  uploadAudio(file: File): void {
+    console.log('Uploading audio', file);
+    const formData = new FormData();
+    formData.append('file', file); // or 'audio'
+
+    this.http.post('https://buzzmehi.com/upload', formData).subscribe({
+      next: () => {
+        this.clearRecording();
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Audio upload failed', error);
+        this.recordingError = 'Audio upload failed. Try again.';
+      }
+    });
+  }
+
+  startTimer(): void {
+    this.recordingTime = 0;
+    this.timerInterval = setInterval(() => {
+      this.recordingTime += 1000;
+    }, 1000);
   }
 
 
