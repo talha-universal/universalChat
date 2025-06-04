@@ -10,7 +10,7 @@ import { SocketMessage } from '../Serives/message-interface';
 import { WebSocketService } from '../Serives';
 import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
@@ -58,12 +58,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   baseURL: any = BASE_URL;
   isUploading: boolean = false;
 
-  isRecording = false;
+  // isRecording = false;
   dataArray: Uint8Array | undefined;
   private animationFrameId: number | undefined;
 
   private canvasVisible = false;
-  private mediaRecorder: MediaRecorder | null = null;
+  // private mediaRecorder: MediaRecorder | null = null;
   private chunks: Blob[] = [];
   blobAudio: any;
   editMessage: any;
@@ -129,6 +129,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.messages = [];
     document.body.style.overflowY = 'auto';
     document.documentElement.style.overflow = 'auto';
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+    }
   }
   ngAfterViewInit(): void {
 
@@ -941,17 +944,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
 
-  startRecording(): void {
-    this.audioRecording = true;
-    this.isSendButtonVisible = true;
-    this.recordingService.startRecording();
-    this.startAnimation()
-  }
+  // startRecording(): void {
+  //   this.audioRecording = true;
+  //   this.isSendButtonVisible = true;
+  //   this.recordingService.startRecording();
+  //   this.startAnimation()
+  // }
 
-  stopRecording(): void {
-    this.recordingService.stopRecording();
-    this.stopAnimation();
-  }
+  // stopRecording(): void {
+  //   this.recordingService.stopRecording();
+  //   this.stopAnimation();
+  // }
 
   // private startAnimation(): void {
   //   const canvasElement = this.waveformCanvasRef.nativeElement;
@@ -1087,5 +1090,121 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
   }
   isIOSChrome: boolean;
+
+  // audio recording
+
+  isRecording = false;
+  isPreviewing = false;
+  mediaRecorder!: MediaRecorder;
+  audioChunks: Blob[] = [];
+  recordingError: string | null = null;
+  showRecordingIndicator = false;
+  stream!: MediaStream;
+  recordedAudioURL: string | null = null;
+  recordedAudioBlob: Blob | null = null;
+  recordingStartTime!: number;
+  recordingTimerInterval: any;
+  recordingDuration: string = '00:00';
+
+
+  async toggleRecording() {
+    if (!this.isRecording) {
+      await this.startRecording();
+    } else {
+      this.stopRecording();
+    }
+  }
+
+  async startRecording() {
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.recordingError = null;
+      this.mediaRecorder = new MediaRecorder(this.stream);
+      this.audioChunks = [];
+
+      this.mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        this.recordedAudioBlob = audioBlob;
+        this.recordedAudioURL = URL.createObjectURL(audioBlob);
+
+        this.ngZone.run(() => {
+          this.isPreviewing = true;
+        });
+      };
+
+      this.mediaRecorder.start();
+      this.isRecording = true;
+      this.showRecordingIndicator = true;
+      this.recordingStartTime = Date.now();
+      this.startTimer();
+
+    } catch (error) {
+      this.recordingError = 'Microphone access denied or not available.';
+      console.error('Microphone access error:', error);
+    }
+  }
+
+  startTimer() {
+    this.recordingTimerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+      const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const seconds = String(elapsed % 60).padStart(2, '0');
+      this.recordingDuration = `${minutes}:${seconds}`;
+    }, 1000);
+  }
+  stopTimer() {
+    clearInterval(this.recordingTimerInterval);
+    this.recordingDuration = '00:00';
+  }
+
+  stopRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.stream.getTracks().forEach(track => track.stop());
+      this.isRecording = false;
+      this.showRecordingIndicator = false;
+      this.stopTimer();
+    }
+  }
+
+  sendAudioToAPI() {
+    if (!this.recordedAudioBlob) return;
+
+    const formData = new FormData();
+    formData.append('audio', this.recordedAudioBlob, 'voice-message.webm');
+
+    this.http.post('https://your-api.com/upload-voice', formData).subscribe({
+      next: () => {
+        this.clearRecording();
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to upload audio', error);
+        this.recordingError = 'Failed to upload audio. Please try again.';
+      }
+    });
+  }
+
+  cancelRecording() {
+    this.clearRecording();
+  }
+
+  clearRecording() {
+    if (this.recordedAudioURL) {
+      URL.revokeObjectURL(this.recordedAudioURL);
+    }
+    this.recordedAudioURL = null;
+    this.recordedAudioBlob = null;
+    this.audioChunks = [];
+    this.recordingError = null;
+    this.isPreviewing = false;
+    this.recordingDuration = '00:00';
+  }
+
 
 }

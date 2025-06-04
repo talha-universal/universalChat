@@ -306,7 +306,8 @@
 
 
     <div class="bottomChat">
-        <div *ngIf="!audioRecording" class="chatInputDiv chat-ii">
+        <div *ngIf="!audioRecording && !showRecordingIndicator && !isPreviewing && !recordedAudioURL"
+            class="chatInputDiv chat-ii">
             <div [ngClass]="{
                 'plusButton-1' : isSendButtonVisible
             }" (click)="isEmojiPickerOpen = false" class="plusButton" data-bs-toggle="collapse"
@@ -361,6 +362,36 @@
                 (focusout)="onBlurText($event)" (click)="isEmojiPickerOpen = false"
                 [attr.autocorrect]="isIOSChrome ? 'off' : null" [attr.autocapitalize]="isIOSChrome ? 'off' : null"
                 [attr.spellcheck]="isIOSChrome ? 'false' : null"></textarea>
+        </div>
+        <div *ngIf="showRecordingIndicator" class=" after-record">
+            <span class="recording-indicator d-flex align-items-center">
+                <div class="sendButton mik fade-in">
+                    <svg style="transform: unset;" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 19 26" height="28" width="21"
+                        preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px"
+                        enable-background="new 0 0 19 26">
+                        <title>ptt-status</title>
+                        <path fill="transparent" class="ptt-status-background"
+                            d="M9.217,24.401c-1.158,0-2.1-0.941-2.1-2.1v-2.366c-2.646-0.848-4.652-3.146-5.061-5.958L2.004,13.62 l-0.003-0.081c-0.021-0.559,0.182-1.088,0.571-1.492c0.39-0.404,0.939-0.637,1.507-0.637h0.3c0.254,0,0.498,0.044,0.724,0.125v-6.27 C5.103,2.913,7.016,1,9.367,1c2.352,0,4.265,1.913,4.265,4.265v6.271c0.226-0.081,0.469-0.125,0.723-0.125h0.3 c0.564,0,1.112,0.233,1.501,0.64s0.597,0.963,0.571,1.526c0,0.005,0.001,0.124-0.08,0.6c-0.47,2.703-2.459,4.917-5.029,5.748v2.378 c0,1.158-0.942,2.1-2.1,2.1H9.217V24.401z">
+                        </path>
+                        <path fill="red" class="ptt-status-icon"
+                            d="M9.367,15.668c1.527,0,2.765-1.238,2.765-2.765V5.265c0-1.527-1.238-2.765-2.765-2.765 S6.603,3.738,6.603,5.265v7.638C6.603,14.43,7.84,15.668,9.367,15.668z M14.655,12.91h-0.3c-0.33,0-0.614,0.269-0.631,0.598 c0,0,0,0-0.059,0.285c-0.41,1.997-2.182,3.505-4.298,3.505c-2.126,0-3.904-1.521-4.304-3.531C5.008,13.49,5.008,13.49,5.008,13.49 c-0.016-0.319-0.299-0.579-0.629-0.579h-0.3c-0.33,0-0.591,0.258-0.579,0.573c0,0,0,0,0.04,0.278 c0.378,2.599,2.464,4.643,5.076,4.978v3.562c0,0.33,0.27,0.6,0.6,0.6h0.3c0.33,0,0.6-0.27,0.6-0.6V18.73 c2.557-0.33,4.613-2.286,5.051-4.809c0.057-0.328,0.061-0.411,0.061-0.411C15.243,13.18,14.985,12.91,14.655,12.91z">
+                        </path>
+                    </svg>
+                </div>
+            </span>
+            <span style="padding-left: 10px;"> {{ recordingDuration }} </span>
+        </div>
+        <div *ngIf="isPreviewing && recordedAudioURL" class="preview-container after-record">
+            <audio [src]="recordedAudioURL" controls></audio>
+        </div>
+        <div *ngIf="isPreviewing && recordedAudioURL" class="action-buttons">
+            <button class="cancel-button" (click)="cancelRecording()">
+                <svg width="20px" height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                    <path fill="#000"
+                        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z" />
+                </svg>
+            </button>
         </div>
         <!-- -->
         <div class="chatInputDiv" [ngClass]="audioRecording ? 'd-block' : 'd-none'">
@@ -437,7 +468,7 @@
             </ng-container>
             <!-- audio icon -->
             <ng-container *ngIf="!isSendButtonVisible">
-                <div class="sendButton mik fade-in" id="sendButton" (click)="sendMessage();isSendButtonClick=true">
+                <!-- <div class="sendButton mik fade-in" id="sendButton" (click)="sendMessage();isSendButtonClick=true">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                         viewBox="0 0 19 26" height="28" width="21" preserveAspectRatio="xMidYMid meet" class=""
                         version="1.1" x="0px" y="0px" enable-background="new 0 0 19 26">
@@ -449,7 +480,41 @@
                             d="M9.367,15.668c1.527,0,2.765-1.238,2.765-2.765V5.265c0-1.527-1.238-2.765-2.765-2.765 S6.603,3.738,6.603,5.265v7.638C6.603,14.43,7.84,15.668,9.367,15.668z M14.655,12.91h-0.3c-0.33,0-0.614,0.269-0.631,0.598 c0,0,0,0-0.059,0.285c-0.41,1.997-2.182,3.505-4.298,3.505c-2.126,0-3.904-1.521-4.304-3.531C5.008,13.49,5.008,13.49,5.008,13.49 c-0.016-0.319-0.299-0.579-0.629-0.579h-0.3c-0.33,0-0.591,0.258-0.579,0.573c0,0,0,0,0.04,0.278 c0.378,2.599,2.464,4.643,5.076,4.978v3.562c0,0.33,0.27,0.6,0.6,0.6h0.3c0.33,0,0.6-0.27,0.6-0.6V18.73 c2.557-0.33,4.613-2.286,5.051-4.809c0.057-0.328,0.061-0.411,0.061-0.411C15.243,13.18,14.985,12.91,14.655,12.91z">
                         </path>
                     </svg>
-                </div>
+                </div> -->
+                <button *ngIf="!isPreviewing" (click)="toggleRecording()" class="mic-button">
+                    <span *ngIf="!isRecording">
+                        <div class="sendButton mik fade-in">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                viewBox="0 0 19 26" height="28" width="21" preserveAspectRatio="xMidYMid meet" class=""
+                                version="1.1" x="0px" y="0px" enable-background="new 0 0 19 26">
+                                <title>ptt-status</title>
+                                <path fill="transparent" class="ptt-status-background"
+                                    d="M9.217,24.401c-1.158,0-2.1-0.941-2.1-2.1v-2.366c-2.646-0.848-4.652-3.146-5.061-5.958L2.004,13.62 l-0.003-0.081c-0.021-0.559,0.182-1.088,0.571-1.492c0.39-0.404,0.939-0.637,1.507-0.637h0.3c0.254,0,0.498,0.044,0.724,0.125v-6.27 C5.103,2.913,7.016,1,9.367,1c2.352,0,4.265,1.913,4.265,4.265v6.271c0.226-0.081,0.469-0.125,0.723-0.125h0.3 c0.564,0,1.112,0.233,1.501,0.64s0.597,0.963,0.571,1.526c0,0.005,0.001,0.124-0.08,0.6c-0.47,2.703-2.459,4.917-5.029,5.748v2.378 c0,1.158-0.942,2.1-2.1,2.1H9.217V24.401z">
+                                </path>
+                                <path fill="#000" class="ptt-status-icon"
+                                    d="M9.367,15.668c1.527,0,2.765-1.238,2.765-2.765V5.265c0-1.527-1.238-2.765-2.765-2.765 S6.603,3.738,6.603,5.265v7.638C6.603,14.43,7.84,15.668,9.367,15.668z M14.655,12.91h-0.3c-0.33,0-0.614,0.269-0.631,0.598 c0,0,0,0-0.059,0.285c-0.41,1.997-2.182,3.505-4.298,3.505c-2.126,0-3.904-1.521-4.304-3.531C5.008,13.49,5.008,13.49,5.008,13.49 c-0.016-0.319-0.299-0.579-0.629-0.579h-0.3c-0.33,0-0.591,0.258-0.579,0.573c0,0,0,0,0.04,0.278 c0.378,2.599,2.464,4.643,5.076,4.978v3.562c0,0.33,0.27,0.6,0.6,0.6h0.3c0.33,0,0.6-0.27,0.6-0.6V18.73 c2.557-0.33,4.613-2.286,5.051-4.809c0.057-0.328,0.061-0.411,0.061-0.411C15.243,13.18,14.985,12.91,14.655,12.91z">
+                                </path>
+                            </svg>
+                        </div>
+                    </span>
+                    <span *ngIf="isRecording">
+                        <svg style="transform: translateY(-2px);" width="20px" height="20px"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                            <path
+                                d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z" />
+                        </svg>
+                    </span>
+                </button>
+                <button *ngIf="isPreviewing && recordedAudioURL" class="send-button" (click)="sendAudioToAPI()">
+                    <div class="sendButton trfff fade-in btnww">
+                        <svg version="1.1" id="Layer_1" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24"
+                            style="enable-background:new 0 0 24 24;" xml:space="preserve">
+                            <path d="M1.9,22.2c-0.5,0.2-0.9,0.1-1.3-0.1C0.2,21.8,0,21.4,0,20.9v-6.2L11,12L0,9.2V3.1c0-0.5,0.2-0.9,0.6-1.2
+	C1,1.6,1.5,1.6,1.9,1.8l21.2,8.9C23.7,11,24,11.4,24,12c0,0.6-0.3,1-0.9,1.3L1.9,22.2z" />
+                        </svg>
+                    </div>
+                </button>
             </ng-container>
         </div>
 
