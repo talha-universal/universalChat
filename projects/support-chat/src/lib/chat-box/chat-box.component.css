@@ -172,7 +172,11 @@
 }
 
 .trfff {
-  transform: translate(1px, 1px);
+  transform: translate(1px, -1px);
+}
+
+.mik {
+  transform: translateY(1px);
 }
 
 /* .btnww {
@@ -463,6 +467,7 @@ svg {
   display: flex;
   justify-content: center;
   align-items: center;
+  transform: translateY(-3px);
 }
 
 @keyframes slideIn {
