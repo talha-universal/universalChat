@@ -193,7 +193,7 @@
 
                     <div class="w-100 d-flex justify-content-start">
                         <div class="message receiverMessage "
-                            [ngClass]="{'messageAnimation': showAnimation, 'flex-column': (message.message.length > 30  )}">
+                            [ngClass]="{'': showAnimation, 'flex-column': (message.message.length > 30  )}">
                             <span class="messagetext" *ngIf="message.type == 'text'">
                                 {{ message.message }}
                             </span>

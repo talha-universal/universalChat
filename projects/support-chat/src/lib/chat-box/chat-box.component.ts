@@ -1233,6 +1233,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 1000);
   }
 
+
+
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
 
