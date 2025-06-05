@@ -182,10 +182,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       id: msg._id,
     }
 
+
     this.backendService.allPostWithToken(CONFIG.deleteMessage, layload).pipe(first())
       .subscribe((res) => {
         if (res.status == 'success') {
           // this.socketService.emitDeleteMessage(msg._id);
+          this.msgAction = null;
 
           let actualIndex = (this.messages.length - 1) - index;
           this.messages.splice(actualIndex, 1);
@@ -195,6 +197,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateMessage(msg: any, index: any) {
+    this.msgAction = null;
     this.editMessage = msg.message;
     this.editMessageIndex = index;
     this.editMessageCom = msg;
@@ -1246,6 +1249,42 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.scrollContainer?.nativeElement) {
       this.scrollContainer.nativeElement.scrollTop = 0;
     }
+  }
+
+  msgAction: number | null = null;
+  private outsideClickListener: any = null;
+  private listenerTimeout: any = null;
+
+  ismsgDell(index: number) {
+    this.msgAction = this.msgAction === index ? null : index;
+
+    // Remove any previous listener
+    if (this.outsideClickListener) {
+      document.removeEventListener('click', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
+
+    // Clear previous timeout if exists
+    if (this.listenerTimeout) {
+      clearTimeout(this.listenerTimeout);
+    }
+
+    // Set timeout to attach listener after 1 second
+    this.listenerTimeout = setTimeout(() => {
+      this.outsideClickListener = (event: MouseEvent) => {
+        const clickedInside = (event.target as HTMLElement).closest('.message-actions');
+        if (!clickedInside) {
+          this.handleClickOutside();
+          document.removeEventListener('click', this.outsideClickListener);
+          this.outsideClickListener = null;
+        }
+      };
+      document.addEventListener('click', this.outsideClickListener);
+    }, 100);
+  }
+
+  handleClickOutside() {
+    this.msgAction = null;
   }
 
 

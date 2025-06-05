@@ -1,5 +1,6 @@
 <!-- [ngClass]="{'boxheight':!isKeyboardMbl,'mblKeyboardBlur':isKeyboardMbl}" -->
 <div [class.active]="isVisible" class="chatBox notranslate" id="checkBox">
+
     <div class="header" [ngClass]="{'headerTop':!isKeyboardMbl,'':isKeyboardMbl}">
         <div class="logo">
             <span><img class="logoImg" /> </span>
@@ -58,16 +59,16 @@
             <ng-container *ngFor="let message of messages.slice().reverse();let i =index;">
                 <ng-container *ngIf="message.sender == 'client' || message?.myMessage">
 
-                    <div class=" d-flex justify-content-end main-msg" style="width: 99%;">
+                    <div class=" d-flex justify-content-end main-msg position-relative" style="width: 99%;">
 
 
-                        <div class="message d-flex"
+                        <div class="message d-flex "
                             [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 )}">
 
 
-                            <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                <!-- <div class="position-relative"> -->
+                            <!-- <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
+                            aria-expanded="false"> -->
+                            <div class="position-relative" (click)="ismsgDell(i)">
 
                                 <span class="messageOptions down-context">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -115,13 +116,13 @@
                                                 <span class="fileViewBasic"
                                                     [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                                 <!-- <span class="fileViewBasic" [ngClass]="
-                                                message.url?.includes('webm') 
-                                                ? 'fileViewWebm' 
-                                                : message.type == 'isfile' 
-                                                    ? 'fileViewpdf' 
-                                                    : 'fileViewOther'
-                                                ">
-                                                </span> -->
+                                            message.url?.includes('webm') 
+                                            ? 'fileViewWebm' 
+                                            : message.type == 'isfile' 
+                                                ? 'fileViewpdf' 
+                                                : 'fileViewOther'
+                                            ">
+                                            </span> -->
 
                                                 <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
                                                     target="_blank">
@@ -173,6 +174,21 @@
 
 
                             </div>
+                            <div [ngClass]="{
+                                'active-Dropdown':msgAction === i
+                            }" class="top-dropdown message-actions" appClickOutside
+                                (appClickOutside)="msgAction = null">
+                                <ul class="ul-dropdown-menu">
+                                    <li><a class="dropdown-item" (click)="deleteMessage(message,i)">Delete</a></li>
+                                    <!-- (click)="updateMessage(msg,i)" -->
+                                    <li>
+                                        <a (click)="updateMessage(message,i)" class="dropdown-item"
+                                            data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                            Edit
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" (click)="deleteMessage(message,i)">Delete</a></li>
                                 <!-- (click)="updateMessage(msg,i)" -->
@@ -223,17 +239,12 @@
 
                                     <!-- Displaying the file link -->
                                     <ng-container *ngIf="message.type == 'isfile' ">
-                                        <span class="fileView" *ngIf="!message.message.includes('voice-message')">
+                                        <span class="fileView">
                                             <span class="fileViewBasic"
                                                 [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                             <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
                                                 target="_blank">
                                                 {{ message?.message.replace('/uploads/', '') }}</a>
-                                        </span>
-
-                                        <span *ngIf="message.message.includes('voice-message')">
-                                            <audio style="max-width: 280px;" controls controlsList="nodownload"
-                                                [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio>
                                         </span>
 
                                     </ng-container>

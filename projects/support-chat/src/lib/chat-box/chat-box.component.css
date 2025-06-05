@@ -97,6 +97,48 @@
   left: 117.5px;
   /* Adjust as needed */
 }
+.top-dropdown {
+  position: absolute;
+  bottom: 100%;
+  z-index: 100;
+  right: 15%;
+  display: flex !important;
+  height: 0px;
+  width: 0px;
+  /* bottom: 67 !important; */
+  overflow: hidden;
+  transition: all 300ms !important;
+  transform-origin: bottom;
+}
+/* ::ng-deep .media .collapse:not(.show) {
+  display: flex !important;
+  height: 0px !important;
+  width: 0px !important;
+  bottom: 67 !important;
+  overflow: hidden;
+  transition: all 300ms !important;
+  transform-origin: bottom;
+} */
+::ng-deep .active-Dropdown {
+  transform-origin: bottom;
+  transition: all 300ms !important;
+  bottom: 100% !important;
+  overflow: hidden !important;
+  width: 81px !important;
+  height: 80px !important;
+  /* z-index: -10; */
+}
+.ul-dropdown-menu {
+  background-color: white;
+  border-radius: 5px;
+  padding: 8px 0;
+  list-style: none;
+  margin: 0;
+  border: 1px solid #c5c0ba;
+}
+.ul-dropdown-menu li {
+  padding: 4px 16px;
+}
 
 @keyframes fadeInOut {
   0% {
@@ -378,6 +420,22 @@ svg {
   /* z-index: -10; */
 }
 
+ul {
+  transform-origin: top;
+  transition: all 0.3s ease;
+}
+
+.scale-y-0 {
+  transform: scaleY(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scale-y-100 {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
 .collapseBottomEmoji {
   position: absolute;
   bottom: 67px;
@@ -642,6 +700,14 @@ svg {
   position: absolute;
   right: 60px;
   top: 6px;
+  pointer-events: all;
+  transition-duration: 300ms;
+  z-index: 100;
+}
+.plusButton-arrow {
+  position: absolute;
+  right: 0px;
+  top: -12px;
   pointer-events: all;
   transition-duration: 300ms;
   z-index: 100;
