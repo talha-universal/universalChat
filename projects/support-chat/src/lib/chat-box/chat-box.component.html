@@ -223,12 +223,17 @@
 
                                     <!-- Displaying the file link -->
                                     <ng-container *ngIf="message.type == 'isfile' ">
-                                        <span class="fileView">
+                                        <span class="fileView" *ngIf="!message.message.includes('voice-message')">
                                             <span class="fileViewBasic"
                                                 [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                             <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"
                                                 target="_blank">
                                                 {{ message?.message.replace('/uploads/', '') }}</a>
+                                        </span>
+
+                                        <span *ngIf="message.message.includes('voice-message')">
+                                            <audio style="max-width: 280px;" controls controlsList="nodownload"
+                                                [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio>
                                         </span>
 
                                     </ng-container>
