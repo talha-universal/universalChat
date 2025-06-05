@@ -1143,7 +1143,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   startRecording() {
+    // Reset everything before starting
     this.audioChunks = [];
+    this.recordingTime = 0;
+    this.recordedAudioBlob = null;
+    this.recordedAudioURL = null;
+    this.isUploading = false;
+
     this.mediaRecorder = new MediaRecorder(this.stream);
 
     this.mediaRecorder.ondataavailable = (event) => {
@@ -1154,18 +1160,26 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.mediaRecorder.onstop = () => {
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
-      this.recordedAudioBlob = audioBlob;
-      this.recordedAudioURL = URL.createObjectURL(audioBlob);
 
+      // Only send if duration > 0 seconds
       this.ngZone.run(() => {
-        this.sendAudioToAPI();
+        if (this.recordingTime > 0) {
+          this.recordedAudioBlob = audioBlob;
+          this.recordedAudioURL = URL.createObjectURL(audioBlob);
+          this.sendAudioToAPI();
+        } else {
+          // Don't send, just clean
+          this.recordedAudioBlob = null;
+          this.recordedAudioURL = null;
+          console.log('Recording was too short, skipped.');
+        }
       });
     };
 
     this.mediaRecorder.start();
     this.isRecording = true;
 
-    // Start Timer, update every second
+    // Start timer
     this.timerInterval = setInterval(() => {
       this.ngZone.run(() => {
         this.recordingTime++;
@@ -1179,32 +1193,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.stream.getTracks().forEach(track => track.stop());
       this.isRecording = false;
 
-      // Stop Timer
       clearInterval(this.timerInterval);
     }
   }
-
-  // sendAudioToAPI() {
-  //   if (!this.recordedAudioBlob) return;
-
-  //   this.isUploading = true;
-
-  //   const formData = new FormData();
-  //   // Changed 'audio' to 'file' here:
-  //   formData.append('file', this.recordedAudioBlob, 'voice-message.mp3');
-
-  //   this.http.post('https://buzzmehi.com/upload', formData).subscribe({
-  //     next: () => {
-  //       this.clearRecording();
-  //     },
-  //     error: (error: HttpErrorResponse) => {
-  //       console.error('Failed to upload audio', error);
-  //       this.recordingError = 'Failed to upload audio. Please try again.';
-  //       this.isUploading = false;
-
-  //     }
-  //   });
-  // }
 
   sendAudioToAPI(): void {
     if (!this.recordedAudioBlob) return;

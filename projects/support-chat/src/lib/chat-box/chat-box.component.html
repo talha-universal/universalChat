@@ -68,9 +68,9 @@
 
                             <!-- <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
                             aria-expanded="false"> -->
-                            <div class="position-relative" (click)="ismsgDell(i)">
+                            <div class="position-relative">
 
-                                <span class="messageOptions down-context">
+                                <span class="messageOptions down-context" (click)="ismsgDell(i)">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         fill="#667781" version="1.1" id="Capa_1" width="10px" height="10px"
                                         viewBox="0 0 30.727 30.727" xml:space="preserve">
@@ -182,7 +182,7 @@
                                 <ul class="ul-dropdown-menu">
                                     <li><a class="dropdown-item" (click)="deleteMessage(message,i)">Delete</a></li>
                                     <!-- (click)="updateMessage(msg,i)" -->
-                                    <li>
+                                    <li *ngIf="message?.type == 'text'">
                                         <a (click)="updateMessage(message,i)" class="dropdown-item"
                                             data-bs-toggle="modal" data-bs-target="#exampleModal">
                                             Edit
