@@ -1209,7 +1209,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   sendAudioToAPI(): void {
     if (!this.recordedAudioBlob) return;
 
-    const audioFile = new File([this.recordedAudioBlob], 'voice-message.webm', { type: 'audio/webm' });
+    const audioFile = new File([this.recordedAudioBlob], 'voice-message.mp3', { type: 'audio/mp3' });
     this.isUploading = true;
     this.uploadNonImageFile(audioFile);
   }
