@@ -72,7 +72,7 @@
 
                                 <span class="messageOptions down-context">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                        fill="#000000" version="1.1" id="Capa_1" width="10px" height="10px"
+                                        fill="#667781" version="1.1" id="Capa_1" width="10px" height="10px"
                                         viewBox="0 0 30.727 30.727" xml:space="preserve">
                                         <g>
                                             <path
@@ -129,7 +129,8 @@
                                                     {{ message?.message.replace('/uploads/', '') }}</a>
                                             </span>
                                             <span *ngIf="message.message.includes('voice-message')">
-                                                <audio style="max-width: 280px;" controls controlsList="nodownload"
+                                                <audio style="max-width: 280px; padding-top: 10px;" controls
+                                                    controlsList="nodownload"
                                                     [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio>
                                             </span>
 
@@ -441,7 +442,9 @@
         </div>
 
         <!-- *ngIf="isSendButtonVisible" -->
-        <div class="bg-cls">
+        <div class="bg-cls" [ngClass]="{
+            'anime':isRecording
+        }">
             <ng-container *ngIf="isSendButtonVisible">
                 <!-- <ng-container *ngIf="audioRecording">
                 <span (click)="stopRecording()">
@@ -525,7 +528,7 @@
                     (mouseleave)="handlePressEnd($event)" (touchstart)="handlePressStart($event)"
                     (touchend)="handlePressEnd($event)" (touchcancel)="handlePressEnd($event)"
                     (contextmenu)="$event.preventDefault()" class="mic-button">
-                    <span *ngIf="!isRecording">
+                    <span>
                         <div class="sendButton mik fade-in">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                 viewBox="0 0 19 26" height="28" width="21" preserveAspectRatio="xMidYMid meet" class=""
@@ -540,13 +543,13 @@
                             </svg>
                         </div>
                     </span>
-                    <span *ngIf="isRecording">
+                    <!-- <span *ngIf="isRecording">
                         <svg style="transform: translateY(-2px);" width="20px" height="20px"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                             <path
                                 d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z" />
                         </svg>
-                    </span>
+                    </span> -->
                 </button>
                 <!-- <button *ngIf="isPreviewing && recordedAudioURL" class="send-button" (click)="sendAudioToAPI()">
                     <div class="sendButton trfff fade-in btnww">

@@ -679,8 +679,8 @@ ul {
   top: 8px; */
   display: block;
   position: absolute;
-  top: 8px;
-  top: -3px;
+  /* top: 8px; */
+  top: -10px;
   right: 6px;
 }
 
@@ -786,5 +786,23 @@ ul {
 @keyframes l23 {
   100% {
     transform: rotate(1turn);
+  }
+}
+.anime {
+  /* padding: 10px; */
+  /* border-radius: 20%; */
+  box-shadow: 0 0 10px rgb(188 35 139, 0.8);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0% {
+    box-shadow: 0 0 10px #1fc262;
+  }
+  50% {
+    box-shadow: 0 20 20px #1fc262;
+  }
+  100% {
+    box-shadow: 0 0 10px #1fc262;
   }
 }
