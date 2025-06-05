@@ -628,6 +628,7 @@ ul {
   background-color: #1fc262;
   border-radius: 50%;
   min-width: 40px;
+  max-width: 40px;
   height: 40px;
   display: flex;
   justify-content: center;
