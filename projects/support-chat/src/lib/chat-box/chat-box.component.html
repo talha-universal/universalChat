@@ -341,8 +341,7 @@
 
 
     <div class="bottomChat">
-        <div *ngIf="!audioRecording && !showRecordingIndicator && !isPreviewing && !recordedAudioURL"
-            class="chatInputDiv chat-ii">
+        <div *ngIf="!audioRecording && !isRecording" class="chatInputDiv chat-ii">
             <div [ngClass]="{
                 'plusButton-1' : isSendButtonVisible
             }" (click)="isEmojiPickerOpen = false" class="plusButton" data-bs-toggle="collapse"
@@ -399,7 +398,7 @@
                 [attr.spellcheck]="isIOSChrome ? 'false' : null"></textarea>
         </div>
         <!--============== recording ======================-->
-        <div *ngIf="showRecordingIndicator" class=" after-record justify-content-between">
+        <div *ngIf="isRecording" class=" after-record justify-content-between">
             <div class="d-flex align-items-center">
                 <span class="recording-indicator d-flex align-items-center">
                     <div class="sendButton mik fade-in">
@@ -417,12 +416,12 @@
                         </svg>
                     </div>
                 </span>
-                <span style="padding-left: 10px;"> {{ recordingTime | date:'mm:ss':'UTC' }}</span>
+                <span style="padding-left: 10px;"> {{ formattedTime }}</span>
             </div>
             <span class="recording-indicator"
                 style="text-align: end; padding-right: 20px; color: red;">Recording...</span>
         </div>
-        <div *ngIf="isPreviewing && recordedAudioURL" class="preview-container after-record">
+        <!-- <div *ngIf="isPreviewing && recordedAudioURL" class="preview-container after-record">
             <audio controlsList="nodownload" [src]="recordedAudioURL" controls></audio>
         </div>
         <div *ngIf="isPreviewing && recordedAudioURL" class="action-buttons">
@@ -432,7 +431,7 @@
                         d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z" />
                 </svg>
             </button>
-        </div>
+        </div> -->
         <!--============== recording ======================-->
         <!-- -->
         <div class="chatInputDiv" [ngClass]="audioRecording ? 'd-block' : 'd-none'">
@@ -522,7 +521,10 @@
                         </path>
                     </svg>
                 </div> -->
-                <button *ngIf="!isPreviewing" (click)="toggleRecording()" class="mic-button">
+                <button (mousedown)="handlePressStart($event)" (mouseup)="handlePressEnd($event)"
+                    (mouseleave)="handlePressEnd($event)" (touchstart)="handlePressStart($event)"
+                    (touchend)="handlePressEnd($event)" (touchcancel)="handlePressEnd($event)"
+                    (contextmenu)="$event.preventDefault()" class="mic-button">
                     <span *ngIf="!isRecording">
                         <div class="sendButton mik fade-in">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -546,7 +548,7 @@
                         </svg>
                     </span>
                 </button>
-                <button *ngIf="isPreviewing && recordedAudioURL" class="send-button" (click)="sendAudioToAPI()">
+                <!-- <button *ngIf="isPreviewing && recordedAudioURL" class="send-button" (click)="sendAudioToAPI()">
                     <div class="sendButton trfff fade-in btnww">
                         <svg version="1.1" id="Layer_1" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24"
@@ -555,7 +557,7 @@
 	C1,1.6,1.5,1.6,1.9,1.8l21.2,8.9C23.7,11,24,11.4,24,12c0,0.6-0.3,1-0.9,1.3L1.9,22.2z" />
                         </svg>
                     </div>
-                </button>
+                </button> -->
             </ng-container>
         </div>
 

@@ -1103,87 +1103,108 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // audio recording
 
   isRecording = false;
-  isPreviewing = false;
-  mediaRecorder!: MediaRecorder;
-  audioChunks: Blob[] = [];
+  // isUploading = false;
+  recordingTime = 0; // in seconds
   recordingError: string | null = null;
-  showRecordingIndicator = false;
-  stream!: MediaStream;
   recordedAudioURL: string | null = null;
   recordedAudioBlob: Blob | null = null;
-  recordingTime = 0;
-  private timerInterval: any = null;
+  audioChunks: Blob[] = [];
+  mediaRecorder!: MediaRecorder;
+  stream!: MediaStream;
+  timerInterval: any;
 
 
-  toggleRecording(): void {
-    if (!this.isRecording) {
+  // Convert seconds to mm:ss format
+  get formattedTime(): string {
+    const minutes = Math.floor(this.recordingTime / 60);
+    const seconds = this.recordingTime % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  }
+
+  async handlePressStart(event: Event) {
+    event.preventDefault();
+    this.recordingError = null;
+    this.recordingTime = 0;
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this.startRecording();
-    } else {
+    } catch (err) {
+      this.recordingError = '🎙️ Microphone permission denied. Please allow mic access.';
+      console.error('Microphone error:', err);
+    }
+  }
+
+  handlePressEnd(event: Event) {
+    event.preventDefault();
+    if (this.isRecording) {
       this.stopRecording();
     }
   }
 
-  async startRecording(): Promise<void> {
-    this.audiofileType = true;
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.recordingError = null;
-      this.mediaRecorder = new MediaRecorder(this.stream);
-      this.audioChunks = [];
+  startRecording() {
+    this.audioChunks = [];
+    this.mediaRecorder = new MediaRecorder(this.stream);
 
-      this.mediaRecorder.ondataavailable = event => {
-        if (event.data.size > 0) {
-          this.audioChunks.push(event.data);
-        }
-      };
+    this.mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        this.audioChunks.push(event.data);
+      }
+    };
 
-      this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-        this.recordedAudioBlob = audioBlob;
-        this.recordedAudioURL = URL.createObjectURL(audioBlob);
+    this.mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
+      this.recordedAudioBlob = audioBlob;
+      this.recordedAudioURL = URL.createObjectURL(audioBlob);
 
-        this.ngZone.run(() => {
-          this.isPreviewing = true;
-          this.recordingTime = 0;
-          clearInterval(this.timerInterval);
-        });
-      };
+      this.ngZone.run(() => {
+        this.sendAudioToAPI();
+      });
+    };
 
-      this.mediaRecorder.start();
-      this.isRecording = true;
-      this.showRecordingIndicator = true;
-      this.startTimer();
-    } catch (error) {
-      this.recordingError = 'Microphone access denied or not available.';
-      console.error('Microphone access error:', error);
-    }
+    this.mediaRecorder.start();
+    this.isRecording = true;
+
+    // Start Timer, update every second
+    this.timerInterval = setInterval(() => {
+      this.ngZone.run(() => {
+        this.recordingTime++;
+      });
+    }, 1000);
   }
 
-  stopRecording(): void {
+  stopRecording() {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
       this.stream.getTracks().forEach(track => track.stop());
       this.isRecording = false;
-      this.showRecordingIndicator = false;
+
+      // Stop Timer
+      clearInterval(this.timerInterval);
     }
   }
 
-  cancelRecording(): void {
-    this.clearRecording();
-  }
+  // sendAudioToAPI() {
+  //   if (!this.recordedAudioBlob) return;
 
-  clearRecording(): void {
-    if (this.recordedAudioURL) {
-      URL.revokeObjectURL(this.recordedAudioURL);
-    }
-    this.recordedAudioURL = null;
-    this.recordedAudioBlob = null;
-    this.audioChunks = [];
-    this.recordingError = null;
-    this.isPreviewing = false;
-    this.recordingTime = 0;
-    clearInterval(this.timerInterval);
-  }
+  //   this.isUploading = true;
+
+  //   const formData = new FormData();
+  //   // Changed 'audio' to 'file' here:
+  //   formData.append('file', this.recordedAudioBlob, 'voice-message.mp3');
+
+  //   this.http.post('https://buzzmehi.com/upload', formData).subscribe({
+  //     next: () => {
+  //       this.clearRecording();
+  //     },
+  //     error: (error: HttpErrorResponse) => {
+  //       console.error('Failed to upload audio', error);
+  //       this.recordingError = 'Failed to upload audio. Please try again.';
+  //       this.isUploading = false;
+
+  //     }
+  //   });
+  // }
 
   sendAudioToAPI(): void {
     if (!this.recordedAudioBlob) return;
@@ -1193,48 +1214,25 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.uploadNonImageFile(audioFile);
   }
 
-  handleUploadedFile(file: File): void {
-    const type = file.type;
 
-    if (file.name.toLowerCase().endsWith('.heic')) {
-      alert('HEIC images are not supported. Please upload JPG or PNG.');
-      return;
+
+  clearRecording() {
+    if (this.recordedAudioURL) {
+      URL.revokeObjectURL(this.recordedAudioURL);
     }
-
-    if (type.startsWith('image/') && !type.includes('heic')) {
-      this.processAndUploadImage(file);
-    } else if (type.startsWith('video/')) {
-      this.uploadVideoWithValidation(file);
-    } else if (type.startsWith('audio/')) {
-      this.uploadAudio(file);
-    } else {
-      this.uploadNonImageFile(file);
-    }
-  }
-
-
-  uploadAudio(file: File): void {
-    console.log('Uploading audio', file);
-    const formData = new FormData();
-    formData.append('file', file); // or 'audio'
-
-    this.http.post('https://buzzmehi.com/upload', formData).subscribe({
-      next: () => {
-        this.clearRecording();
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Audio upload failed', error);
-        this.recordingError = 'Audio upload failed. Try again.';
-      }
-    });
-  }
-
-  startTimer(): void {
+    this.recordedAudioURL = null;
+    this.recordedAudioBlob = null;
+    this.audioChunks = [];
+    this.isUploading = false;
     this.recordingTime = 0;
-    this.timerInterval = setInterval(() => {
-      this.recordingTime += 1000;
-    }, 1000);
   }
+
+  // ngOnDestroy() {
+  //   if (this.stream) {
+  //     this.stream.getTracks().forEach(track => track.stop());
+  //   }
+  //   clearInterval(this.timerInterval);
+  // }
 
 
 
