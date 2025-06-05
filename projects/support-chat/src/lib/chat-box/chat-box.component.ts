@@ -136,7 +136,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     clearInterval(this.timerInterval);
   }
   ngAfterViewInit(): void {
-
+    this.scrollToTop();
   }
 
 
@@ -1231,6 +1231,19 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.timerInterval = setInterval(() => {
       this.recordingTime += 1000;
     }, 1000);
+  }
+
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+
+  ngAfterViewChecked() {
+    this.scrollToTop();
+  }
+
+  private scrollToTop(): void {
+    if (this.scrollContainer?.nativeElement) {
+      this.scrollContainer.nativeElement.scrollTop = 0;
+    }
   }
 
 

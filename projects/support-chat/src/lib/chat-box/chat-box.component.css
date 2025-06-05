@@ -133,6 +133,8 @@
   justify-content: space-between;
   align-items: center;
   touch-action: none;
+  max-height: 55px;
+  height: 100%;
 }
 
 .logo {
@@ -159,9 +161,11 @@
 }
 
 .CrossClose {
-  font-size: 26px;
-  line-height: 19px;
-  font-weight: 600;
+  /* font-size: 26px;
+  line-height: 19px; */
+  /* font-weight: 600; */
+  padding: 5px;
+
   color: #111b21;
 }
 
@@ -497,7 +501,7 @@ svg {
   flex-direction: column-reverse;
   width: 100%;
   /* height: 80%; */
-  height: calc(100% - 67px);
+  height: calc(100% - 55px);
   justify-content: flex-start;
   overflow-y: scroll;
 }
@@ -581,7 +585,7 @@ svg {
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(30px);
   }
 }
 
