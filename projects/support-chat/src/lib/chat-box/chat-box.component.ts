@@ -296,38 +296,73 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
+  // sendMessage() {
 
-  sendMessage() {
+
+  //   this.isSendButtonClick = true;
+  //   this.isSendButtonVisible = false;
+  //   const chatBox = document.getElementById('chatMessage');
+  //   chatBox?.focus();
+  //   const formatDate = (date: Date): string => {
+  //     return date.toISOString();
+  //   };
+  //   if (this.messageText.trim() !== '' && this.messageText !== undefined) {
+  //     const current = new Date();
+  //     let message = this.messageText;
+  //     this.socketService.sendMessage('message_to_agent', { message, type: 'text' });
 
 
+  //     const newMessage = {
+  //       type: "text",
+  //       sender: "client",
+  //       from: this.userDetails,
+  //       message: this.messageText,
+  //       timestamp: formatDate(current),
+  //       myMessage: true
+  //     };
+  //     // this.showAnimation = true;
+  //     // this.messages.push(newMessage);
+  //     // console.log(this.messages)
+
+  //     this.messageText = '';
+  //   }
+  // }
+
+
+  sendMessage(messageOverride?: string) {
     this.isSendButtonClick = true;
     this.isSendButtonVisible = false;
-    const chatBox = document.getElementById('chatMessage');
-    chatBox?.focus();
+    const messageToSend = messageOverride ?? this.messageText?.trim();
+    if (!messageToSend || messageToSend === '') return;
+    if (!messageOverride) {
+      const chatBox = document.getElementById('chatMessage');
+      chatBox?.focus();
+    }
+
     const formatDate = (date: Date): string => {
       return date.toISOString();
     };
-    if (this.messageText.trim() !== '' && this.messageText !== undefined) {
-      const current = new Date();
-      let message = this.messageText;
-      this.socketService.sendMessage('message_to_agent', { message, type: 'text' });
 
+    const current = new Date();
 
-      const newMessage = {
-        type: "text",
-        sender: "client",
-        from: this.userDetails,
-        message: this.messageText,
-        timestamp: formatDate(current),
-        myMessage: true
-      };
-      // this.showAnimation = true;
-      // this.messages.push(newMessage);
-      // console.log(this.messages)
+    this.socketService.sendMessage('message_to_agent', {
+      message: messageToSend,
+      type: 'text'
+    });
 
+    const newMessage = {
+      type: "text",
+      sender: "client",
+      from: this.userDetails,
+      message: messageToSend,
+      timestamp: formatDate(current),
+      myMessage: true
+    };
+    if (!messageOverride) {
       this.messageText = '';
     }
   }
+
 
   // Handle incoming messages
   private handleIncomingMessage(message: any): void {
@@ -1091,10 +1126,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // isSendButtonVisible = false;
 
   addEmojiToMessage(emoji: string) {
-    this.messageText = emoji;
-    this.sendMessage();
+    this.sendMessage(emoji);
     this.isEmojiPickerOpen = false;
   }
+
   toggleEmojiPicker(event: MouseEvent) {
     event.stopPropagation(); // prevent auto close
     this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
