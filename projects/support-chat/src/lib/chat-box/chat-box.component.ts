@@ -72,6 +72,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   editMessageCom: any;
   agentDetail: any;
   agentName: any = {};
+  deletedMessage: any;
   // messages: SocketMessage[] = [];
   constructor(private backendService: NetworkService, private websocketService: WebsocketService,
     private devicedetector: DeviceDetectorService,
@@ -120,6 +121,30 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.socketService.onEvent('message_history', (data) => {
       this.messages = data.messages;
       // console.log('Received message event:', data);
+    });
+
+    this.socketService.onEvent('message_edited', (data) => {
+      const { messageId, newContent } = data;
+
+      this.messages = this.messages.map((msg: any) => {
+        if (msg._id === messageId) {
+          return { ...msg, message: newContent, edited: true };
+        }
+        return msg;
+      });
+    });
+
+    this.socketService.onEvent('message_deleted', (data) => {
+      const { messageId } = data;
+
+      const index = this.messages.findIndex((msg: any) => msg._id === messageId);
+    
+      if (index !== -1) {
+        this.messages[index] = { deleted: true,message:'[deleted]' ,sender:'client' };
+        // If you need to trigger change detection (e.g. Angular), use:
+        this.messages = [...this.messages];
+        console.log(this.messages)
+      }
     });
   }
 
@@ -178,22 +203,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   deleteMessage(msg: any, index: any) {
-    let layload = {
-      id: msg._id,
-    }
+    this.deletedMessage = msg;
+  }
+  deleteSelectedMessage(deleteType: any) {
+    const messageId = this.deletedMessage._id;
 
-
-    this.backendService.allPostWithToken(CONFIG.deleteMessage, layload).pipe(first())
-      .subscribe((res) => {
-        if (res.status == 'success') {
-          // this.socketService.emitDeleteMessage(msg._id);
-          this.msgAction = null;
-
-          let actualIndex = (this.messages.length - 1) - index;
-          this.messages.splice(actualIndex, 1);
-        }
-      });
-
+    this.socketService.sendMessage('delete_message', { messageId });
   }
 
   updateMessage(msg: any, index: any) {
@@ -206,22 +221,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   editText(message: any) {
 
-    let layload = {
-      id: this.editMessageCom._id,
-      newMessage: message,
-    }
-
-    this.backendService.allPostWithToken(CONFIG.updateMessage, layload).pipe(first())
-      .subscribe((resp) => {
-        if (resp.status == 'success') {
-
-          // this.socketService.emitEditMessage(layload);
-          this.editMessageCom.message = message;
-          let actualIndex = (this.messages.length - 1) - this.editMessageIndex;
-
-          this.messages[actualIndex] = this.editMessageCom;
-        }
-      });
+    this.socketService.sendMessage('edit_message', {
+      messageId: this.editMessageCom._id,
+      newContent: message
+    });
 
   }
 

@@ -69,6 +69,12 @@
                             <!-- <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
                             aria-expanded="false"> -->
                             <div class="position-relative">
+                                <span class="messagetext" *ngIf="message.deleted" style="
+                                       display: inline-block;
+                                       color: #b9b9b9;
+                                       font-style: italic;">
+                                    &#9940; You deleted this message
+                                </span>
 
                                 <span class="messageOptions down-context" (click)="ismsgDell(i)">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -80,7 +86,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="messagetext" *ngIf="message?.type == 'text'">
+                                <span class="messagetext" *ngIf="message?.type == 'text' && !message.deleted">
                                     {{ message.message }}
                                 </span>
 
@@ -140,6 +146,7 @@
                                 </span>
 
                                 <div class="ps-2 d-flex justify-content-end align-items-center">
+                                    <span class="time me-1" *ngIf="message?.edited">Edited</span>
                                     <span class="time">{{message?.timestamp | date : 'h:mm a'}}</span>
                                     <span class="doubleTick" *ngIf="message?.delivered || message?.read">
 
@@ -180,7 +187,8 @@
                             }" class="top-dropdown message-actions" appClickOutside
                                 (appClickOutside)="msgAction = null">
                                 <ul class="ul-dropdown-menu">
-                                    <li><a class="dropdown-item" (click)="deleteMessage(message,i)">Delete</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            (click)="deleteMessage(message,i)">Delete</a></li>
                                     <!-- (click)="updateMessage(msg,i)" -->
                                     <li *ngIf="message?.type == 'text'">
                                         <a (click)="updateMessage(message,i)" class="dropdown-item"
@@ -191,7 +199,8 @@
                                 </ul>
                             </div>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" (click)="deleteMessage(message,i)">Delete</a></li>
+                                <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        (click)="deleteMessage(message,i)">Delete</a></li>
                                 <!-- (click)="updateMessage(msg,i)" -->
                                 <li>
                                     <a (click)="updateMessage(message,i)" class="dropdown-item" data-bs-toggle="modal"
@@ -604,6 +613,25 @@
                         <button class="btn btn-outline-primary" data-bs-dismiss="modal" aria-label="Close"
                             (click)="editText(editMessage)">Update</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade custom-modal" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal-content">
+            <div class="modal-body custom-modal-body">
+                <h5 class="custom-modal-title">Delete message?</h5>
+                <div class="custom-modal-actions">
+                    <button type="button" class="btn custom-modal-btn" data-bs-dismiss="modal"
+                        (click)="deleteSelectedMessage('everyOne')">Delete for everyone</button>
+                    <button type="button" class="btn custom-modal-btn" data-bs-dismiss="modal"
+                        (click)="deleteSelectedMessage('forMe')">Delete for me</button>
+                    <button type="button" class="btn custom-modal-btn" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
