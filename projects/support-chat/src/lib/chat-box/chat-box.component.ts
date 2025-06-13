@@ -97,6 +97,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   }
+
+  selectedMessage: any = null;
+
   ngOnInit(): void {
     this.socketService.connect();
 
@@ -120,8 +123,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.socketService.onEvent('message_history', (data) => {
       this.messages = data.messages;
+      console.log(this.messages, ' hiiiiiiiiiiiii');
+
       // console.log('Received message event:', data);
     });
+
+
 
     this.socketService.onEvent('message_edited', (data) => {
       const { messageId, newContent } = data;
@@ -138,9 +145,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       const { messageId } = data;
 
       const index = this.messages.findIndex((msg: any) => msg._id === messageId);
-    
+
       if (index !== -1) {
-        this.messages[index] = { deleted: true,message:'[deleted]' ,sender:'client' };
+        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client' };
         // If you need to trigger change detection (e.g. Angular), use:
         this.messages = [...this.messages];
         console.log(this.messages)
@@ -216,7 +223,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.editMessage = msg.message;
     this.editMessageIndex = index;
     this.editMessageCom = msg;
+    this.selectedMessage = msg; // 🔥 yeh line added ki hai
   }
+
 
 
   editText(message: any) {

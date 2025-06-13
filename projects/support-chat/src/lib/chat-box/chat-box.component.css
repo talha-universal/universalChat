@@ -916,3 +916,9 @@ ul {
 .modal-bg-style-edit {
   background-color: #00000099;
 }
+.msg-time {
+  position: absolute;
+  right: 10px;
+  bottom: 3px;
+  font-size: 12px;
+}
