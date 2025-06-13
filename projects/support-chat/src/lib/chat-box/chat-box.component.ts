@@ -73,6 +73,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   agentDetail: any;
   agentName: any = {};
   deletedMessage: any;
+  shouldShowEditButton: boolean = false;
   // messages: SocketMessage[] = [];
   constructor(private backendService: NetworkService, private websocketService: WebsocketService,
     private devicedetector: DeviceDetectorService,
@@ -113,22 +114,18 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.LoginGuestUser(this.userDetails);
     }
 
+  //============ GET DATA FROM SOCKET =============//
 
     this.socketService.onEvent('client_joined', (data) => {
       this.clientDetail(data)
-      // console.log('Received message event:', data);
     });
 
     this.socketService.onEvent('message', (data) => {
       this.updateIncomingMessage(data);
-      // console.log('Received message event:', data);
     });
 
     this.socketService.onEvent('message_history', (data) => {
       this.messages = data.messages;
-      console.log(this.messages, ' hiiiiiiiiiiiii');
-
-      // console.log('Received message event:', data);
     });
 
 
@@ -138,6 +135,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.messages = this.messages.map((msg: any) => {
         if (msg._id === messageId) {
+          debugger
           return { ...msg, message: newContent, edited: true };
         }
         return msg;
@@ -150,10 +148,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       const index = this.messages.findIndex((msg: any) => msg._id === messageId);
 
       if (index !== -1) {
-        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client' };
+        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client' ,  timestamp:this.deletedMessage.timestamp  };
         // If you need to trigger change detection (e.g. Angular), use:
         this.messages = [...this.messages];
-        console.log(this.messages)
       }
     });
   }
@@ -180,19 +177,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateIncomingMessage(newMessage: any): void {
-    // const index = this.messages.findIndex(
-    //   (msg: any) => msg.message === newMessage.message
-    // );
-
-    // if (index >= 0) {
-    //   // Replace the existing message
-    //   this.messages.splice(index, 1, newMessage);
-    //   this.scrollChat();
-    // } else {
-    //   // Add new message
-    //   this.messages.push(newMessage);
-    //   this.scrollChat();
-    // }
     this.messages.push(newMessage);
     this.scrollChat();
   }
@@ -310,38 +294,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     timestamp: 1747648934425,
 
   }
-
-  // sendMessage() {
-
-
-  //   this.isSendButtonClick = true;
-  //   this.isSendButtonVisible = false;
-  //   const chatBox = document.getElementById('chatMessage');
-  //   chatBox?.focus();
-  //   const formatDate = (date: Date): string => {
-  //     return date.toISOString();
-  //   };
-  //   if (this.messageText.trim() !== '' && this.messageText !== undefined) {
-  //     const current = new Date();
-  //     let message = this.messageText;
-  //     this.socketService.sendMessage('message_to_agent', { message, type: 'text' });
-
-
-  //     const newMessage = {
-  //       type: "text",
-  //       sender: "client",
-  //       from: this.userDetails,
-  //       message: this.messageText,
-  //       timestamp: formatDate(current),
-  //       myMessage: true
-  //     };
-  //     // this.showAnimation = true;
-  //     // this.messages.push(newMessage);
-  //     // console.log(this.messages)
-
-  //     this.messageText = '';
-  //   }
-  // }
 
 
   sendMessage(messageOverride?: string) {
@@ -804,197 +756,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-
-
-  //   onFileSelected(event: any, typeFile: string): void {
-  //     this.selectedFile = event.target.files[0];
-  //     if (this.selectedFile) {
-  //       const current = new Date();
-  //       const timestamp = current.getTime();
-  //       const fileObj = {
-  //         file: this.selectedFile,
-  //         attachmentId: timestamp
-  //       }
-
-  //       const fileInput = document.getElementById('mediaInput') as HTMLInputElement;
-  //       const fileInputPDF = document.getElementById('fileInput') as HTMLInputElement;
-
-  //       const fileName = this.selectedFile.name;
-  //       const fileExtension = fileName.split('.').pop();
-
-
-  //       const file = fileInput?.files?.[0];
-  //       const filepdf = fileInputPDF?.files?.[0];
-  //       if (!file && !filepdf) return;
-  //       if (file?.type.startsWith('image/')) {
-  //         const reader = new FileReader();
-  //         reader.readAsDataURL(file);
-
-  //         reader.onload = (e: any) => {
-  //           const img = new Image();
-  //           img.src = e.target.result;
-  // debugger
-  //           const MAX_ORIGINAL_MB = 2;
-  //           const MAX_COMPRESSED_MB = 1.5;
-  //           const TARGET_WIDTH = 1280;
-
-  //           const isLarge = file.size / (1024 * 1024) > MAX_ORIGINAL_MB;
-  //           img.onload = async () => {
-  //             let width = img.width;
-  //             let height = img.height;
-
-  //             if (width > TARGET_WIDTH) {
-  //               const ratio = TARGET_WIDTH / width;
-  //               width = TARGET_WIDTH;
-  //               height = height * ratio;
-  //             }
-
-  //             const canvas = document.createElement('canvas');
-  //             canvas.width = width;
-  //             canvas.height = height;
-  //             canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
-
-
-  //             const compressToMaxSize = async (): Promise<Blob | null> => {
-  //               let quality = 0.8;
-
-  //               return new Promise((resolve) => {
-  //                 const tryCompress = () => {
-  //                   canvas.toBlob((blob) => {
-  //                     if (!blob) return resolve(null); // OK now
-  //                     const sizeMB = blob.size / (1024 * 1024);
-  //                     if (sizeMB <= MAX_COMPRESSED_MB || quality <= 0.1) return resolve(blob);
-  //                     quality -= 0.05;
-  //                     tryCompress();
-  //                   }, 'image/jpeg', quality);
-  //                 };
-  //                 tryCompress();
-  //               });
-  //             };
-
-  //             const formData = new FormData();
-  //             if (isLarge) {
-  //               const blob = await compressToMaxSize();
-  //               if (blob) {
-  //                 const compressedFile = new File([blob], file.name, {
-  //                   type: 'image/jpeg',
-  //                   lastModified: Date.now(),
-  //                 });
-  //                 formData.append('file', compressedFile);
-  //               } else {
-  //                 // fallback to original if compression failed
-  //                 formData.append('file', file);
-  //               }
-  //             } else {
-  //               formData.append('file', file);
-  //             }
-
-  //             fetch('https://buzzmehi.com/upload', {
-  //               method: 'POST',
-  //               body: formData
-  //             })
-  //               .then(res => res.json())
-  //               .then(data => {
-  //                 if (!data.error) {
-  //                   const url = data.url;
-  //                   const type = 'image';
-  //                   this.socketService.sendMessage('message_to_agent', { message: url, type });
-  //                 }
-  //               })
-  //               .catch(err => console.error('Upload error:', err))
-  //               .finally(() => {
-  //                 this.collapseElement?.nativeElement?.classList.remove('show');
-  //               });
-  //           };
-  //         };
-  //       }
-  // else {
-  //   const formData = new FormData();
-  //   formData.append('file', filepdf!);
-
-  //   fetch('https://buzzmehi.com/upload', {
-  //     method: 'POST',
-  //     body: formData
-  //   })
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       if (data.error) return;
-
-  //       const url = data.url;
-  //       const type = filepdf?.type.startsWith('image') ? 'image' :
-  //         filepdf?.type.startsWith('video') ? 'video' : 'isfile';
-
-  //       this.socketService.sendMessage('message_to_agent', { message: url, type });
-  //     })
-  //     .catch(err => {
-  //       console.error('Upload error:', err);
-  //     })
-  //     .finally(() => {
-  //       const collapseNativeElement = this.collapseElement?.nativeElement;
-  //       if (collapseNativeElement?.classList.contains('show')) {
-  //         collapseNativeElement.classList.remove('show');
-  //       }
-  //     });
-  // }
-  // fileInput.value = '';
-
-
-  //       // fileInput?.addEventListener('change', () => {
-
-  //       // });
-
-
-
-  //       // this.backendService.uploadfile(fileObj).subscribe(response => {
-  //       //   // Handle the response from the server
-  //       //   const targetElement = event.target as HTMLElement;
-  //       //   const collapseNativeElement = this.collapseElement.nativeElement;
-  //       //   // Check if the clicked element is outside the collapse and if the collapse is currently shown
-  //       //   if (collapseNativeElement.classList.contains('show')) {
-
-  //       //     collapseNativeElement.classList.remove('show');
-  //       //     // do something...
-  //       //   }
-  //       //   const time = new Date();
-
-  //       //   this.uploadImgResponse =
-  //       //   {
-  //       //     type: "multimedia",
-  //       //     fileUrl: response.fileUrl,
-  //       //     fileName: response.fileName,
-  //       //     messageId: "web_" + time.getTime(),
-  //       //     detailType: fileExtension,
-  //       //     sentAt: new Date(),
-  //       //     receiver: this.userDetails?.user?.support,
-  //       //     attachmentId: response.attachmentId,
-  //       //     originalName: this.selectedFile?.name,
-  //       //     size: this.selectedFile?.size,
-  //       //     docType: this.selectedFile?.type
-  //       //   }
-
-  //       //   this.sendMessage();
-
-  //       // });
-  //     }
-  //   }
-
-
-
-
-
-  // onUpload(): void {
-  //   if (this.selectedFile) {
-  //     const formData = new FormData();
-  //     formData.append('file', this.selectedFile);
-
-  //     this.http.post('http://your-api-endpoint/upload', formData)
-  //       .subscribe(response => {
-  //         // Handle the response from the server
-  //         console.log(response);
-  //       });
-  //   }
-  // }
-
   dropdownVisible: boolean = false;
 
   openDropDow() {
@@ -1002,43 +763,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-
-  // startRecording(): void {
-  //   this.audioRecording = true;
-  //   this.isSendButtonVisible = true;
-  //   this.recordingService.startRecording();
-  //   this.startAnimation()
-  // }
-
-  // stopRecording(): void {
-  //   this.recordingService.stopRecording();
-  //   this.stopAnimation();
-  // }
-
-  // private startAnimation(): void {
-  //   const canvasElement = this.waveformCanvasRef.nativeElement;
-  //   const context = canvasElement.getContext('2d');
-
-  //   if (context) {
-  //     const animationLoop = () => {
-  //       // Update dataArray and draw visualization
-  //       this.updateAndDraw(context);
-
-  //       // Continue the animation loop
-  //       this.animationFrameId = requestAnimationFrame(animationLoop);
-  //     };
-
-  //     // Start the animation loop
-  //     animationLoop();
-  //   }
-  // }
-
-  // private stopAnimation(): void {
-  //   if (this.animationFrameId !== undefined) {
-  //     cancelAnimationFrame(this.animationFrameId);
-  //     this.animationFrameId = undefined;
-  //   }
-  // }
 
   private startAnimation(): void {
     this.ngZone.runOutsideAngular(() => {
@@ -1102,39 +826,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       context.fillRect(i * barWidth, canvasElement.height - barHeight, barWidth, barHeight);
     }
   }
-
-  // private updateAndDraw(context: CanvasRenderingContext2D): void {
-
-  //   const dataArray = this.recordingService.getAudioDataArray();
-  //   const canvasElement = this.waveformCanvasRef.nativeElement;
-
-  //   // console.log('dataArray:', dataArray)
-  //   // Clear the canvas
-  //   context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-  //   // Draw the visualization based on dataArray
-  //   context.beginPath();
-  //   const sliceWidth = canvasElement.width / dataArray.length;
-  //   let x = 0;
-
-  //   for (const value of dataArray) {
-  //     const normalizedValue = value / 218; // Normalize the value to be within [0, 1]
-  //     const y = normalizedValue * canvasElement.height;
-
-  //     if (x === 0) {
-  //       context.moveTo(x, y);
-  //     } else {
-  //       context.lineTo(x, y);
-  //     }
-
-  //     x += sliceWidth;
-  //   }
-
-
-  //   context.strokeStyle = 'blue';
-  //   context.lineWidth = 2;
-  //   context.stroke();
-  // }
 
   // messageText: string = '';
   emojis: string[] = ['😀', '😂', '😍', '😎', '😢', '😡', '👍', '🙏', '🎉', '❤️'];
@@ -1235,27 +926,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // sendAudioToAPI() {
-  //   if (!this.recordedAudioBlob) return;
-
-  //   this.isUploading = true;
-
-  //   const formData = new FormData();
-  //   // Changed 'audio' to 'file' here:
-  //   formData.append('file', this.recordedAudioBlob, 'voice-message.mp3');
-
-  //   this.http.post('https://buzzmehi.com/upload', formData).subscribe({
-  //     next: () => {
-  //       this.clearRecording();
-  //     },
-  //     error: (error: HttpErrorResponse) => {
-  //       console.error('Failed to upload audio', error);
-  //       this.recordingError = 'Failed to upload audio. Please try again.';
-  //       this.isUploading = false;
-
-  //     }
-  //   });
-  // }
 
   sendAudioToAPI(): void {
     if (!this.recordedAudioBlob) return;
@@ -1278,13 +948,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recordingTime = 0;
   }
 
-  // ngOnDestroy() {
-  //   if (this.stream) {
-  //     this.stream.getTracks().forEach(track => track.stop());
-  //   }
-  //   clearInterval(this.timerInterval);
-  // }
-
 
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
@@ -1304,7 +967,16 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   private outsideClickListener: any = null;
   private listenerTimeout: any = null;
 
-  ismsgDell(index: number) {
+  ismsgDell(index: number, message: any) {
+
+    
+    const TWENTY_MINUTES_IN_MS = 20 * 60 * 1000;
+    const currentTime = Date.now();
+
+    const timeDifference = currentTime - message.timestamp;
+
+    this.shouldShowEditButton =  timeDifference <= TWENTY_MINUTES_IN_MS;
+
     this.msgAction = this.msgAction === index ? null : index;
 
     // Remove any previous listener

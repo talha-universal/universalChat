@@ -70,7 +70,7 @@
                             aria-expanded="false"> -->
                             <div class="position-relative">
                                 <span class="messagetext" *ngIf="message.deleted" style="
-                                       display: inline-block;
+                                       display: flex;
                                        color: #869680;
                                        font-style: italic;
                                        font-size: 14px;">
@@ -84,7 +84,7 @@
                                     </svg> You deleted this message
                                 </span>
 
-                                <span class="messageOptions down-context" (click)="ismsgDell(i)"
+                                <span class="messageOptions down-context" (click)="ismsgDell(i,message)"
                                     *ngIf="!message.deleted">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         fill="#667781" version="1.1" id="Capa_1" width="10px" height="10px"
@@ -102,7 +102,7 @@
 
 
                                 <span
-                                    *ngIf="message.type == 'image' || message.type == 'video' || message.type == 'isfile'"
+                                    *ngIf="(message.type == 'image' || message.type == 'video' || message.type == 'isfile') && !message.deleted"
                                     class="messagetext">
                                     <ng-container *ngIf="message?.type == 'image'">
 
@@ -199,7 +199,7 @@
                                     <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal"
                                             (click)="deleteMessage(message,i)">Delete</a></li>
                                     <!-- (click)="updateMessage(msg,i)" -->
-                                    <li *ngIf="message?.type == 'text'">
+                                    <li *ngIf="message?.type == 'text' && shouldShowEditButton">
                                         <a (click)="updateMessage(message,i)" class="dropdown-item"
                                             data-bs-toggle="modal" data-bs-target="#exampleModal">
                                             Edit
