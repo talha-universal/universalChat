@@ -114,7 +114,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.LoginGuestUser(this.userDetails);
     }
 
-  //============ GET DATA FROM SOCKET =============//
+    //============ GET DATA FROM SOCKET =============//
 
     this.socketService.onEvent('client_joined', (data) => {
       this.clientDetail(data)
@@ -148,7 +148,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       const index = this.messages.findIndex((msg: any) => msg._id === messageId);
 
       if (index !== -1) {
-        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client' ,  timestamp:this.deletedMessage.timestamp  };
+        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client', timestamp: this.deletedMessage.timestamp };
         // If you need to trigger change detection (e.g. Angular), use:
         this.messages = [...this.messages];
       }
@@ -222,6 +222,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       newContent: message
     });
 
+  }
+  removeNamePdf(filename: any) {
+    return filename.replace(/^[^-]*-/, "");
   }
 
   playRecording(): void {
@@ -969,13 +972,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ismsgDell(index: number, message: any) {
 
-    
+
     const TWENTY_MINUTES_IN_MS = 20 * 60 * 1000;
     const currentTime = Date.now();
 
     const timeDifference = currentTime - message.timestamp;
 
-    this.shouldShowEditButton =  timeDifference <= TWENTY_MINUTES_IN_MS;
+    this.shouldShowEditButton = timeDifference <= TWENTY_MINUTES_IN_MS;
 
     this.msgAction = this.msgAction === index ? null : index;
 
