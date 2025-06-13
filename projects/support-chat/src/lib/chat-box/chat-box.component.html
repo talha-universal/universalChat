@@ -72,9 +72,10 @@
                                 <span class="messagetext" *ngIf="message.deleted" style="
                                        display: inline-block;
                                        color: #869680;
-                                       font-style: italic;">
+                                       font-style: italic;
+                                       font-size: 14px;">
 
-                                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet"
+                                    <svg viewBox="0 0 24 24" height="20" width="20" preserveAspectRatio="xMidYMid meet"
                                         class="" fill="currentColor">
                                         <title>recalled</title>
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -154,7 +155,7 @@
                                 </span>
 
                                 <div class="ps-2 d-flex justify-content-end align-items-center">
-                                    <span class="time me-1" *ngIf="message?.edited">Edited</span>
+                                    <span class="time me-1" *ngIf="message?.edited &&  !message.deleted">Edited</span>
                                     <span class="time">{{message?.timestamp | date : 'h:mm a'}}</span>
                                     <span class="doubleTick" *ngIf="message?.delivered || message?.read">
 
@@ -167,7 +168,7 @@
                                                 fill="currentColor"></path>
                                         </svg>
                                     </span>
-                                    <span class="singleTick" *ngIf="message?.viewurl  && message?.sender == 'client'">
+                                    <span class="singleTick" *ngIf="message?.viewurl  && message?.sender == 'client' &&  !message.deleted">
                                         <!-- *ngIf="!message?.delivered && !message?.read  && message?.sender == 'client'" -->
                                         <svg viewBox="0 0 12 11" height="11" width="16"
                                             preserveAspectRatio="xMidYMid meet" class="" fill="none">
