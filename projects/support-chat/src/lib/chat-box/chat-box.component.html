@@ -71,12 +71,20 @@
                             <div class="position-relative">
                                 <span class="messagetext" *ngIf="message.deleted" style="
                                        display: inline-block;
-                                       color: #b9b9b9;
+                                       color: #869680;
                                        font-style: italic;">
-                                    &#9940; You deleted this message
+
+                                    <svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet"
+                                        class="" fill="currentColor">
+                                        <title>recalled</title>
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M7.75897 6.43054C8.93584 5.533 10.4057 5 12 5C15.866 5 19 8.13401 19 12C19 13.5943 18.467 15.0642 17.5695 16.241L7.75897 6.43054ZM6.35707 7.85707C5.50399 9.01706 5 10.4497 5 12C5 15.866 8.13401 19 12 19C13.5503 19 14.9829 18.496 16.1429 17.6429L6.35707 7.85707ZM12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3Z"
+                                            fill="currentColor"></path>
+                                    </svg> You deleted this message
                                 </span>
 
-                                <span class="messageOptions down-context" (click)="ismsgDell(i)">
+                                <span class="messageOptions down-context" (click)="ismsgDell(i)"
+                                    *ngIf="!message.deleted">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         fill="#667781" version="1.1" id="Capa_1" width="10px" height="10px"
                                         viewBox="0 0 30.727 30.727" xml:space="preserve">
@@ -597,21 +605,33 @@
 
 
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade modal-bg-style-edit" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header p-2">
-                <span class="modal-title" id="exampleModalLabel">Edit Message</span>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0">
+            <div class="modal-header edit-modal p-2">
+                <button type="button" class="btn-close edit-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <span class="modal-title edit-text" id="exampleModalLabel">Edit Message</span>
             </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <input id="editText" class="form-control" type="text" [(ngModel)]="editMessage">
+            <div class="modal-body edit-body">
+                <div class="edit-msg">
+                    <div class="edit-msg-in">
+                        {{editMessage}}
                     </div>
-                    <div class="form-group" style="text-align: center;margin-top: 25px;">
-                        <button class="btn btn-outline-primary" data-bs-dismiss="modal" aria-label="Close"
-                            (click)="editText(editMessage)">Update</button>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mt-3 border-line">
+                    <div class="form-group w-100 ">
+                        <input id="editText" class="form-control outn" type="text" [(ngModel)]="editMessage">
+                    </div>
+                    <div class="form-group" style="text-align: center;;">
+                        <button class="btn edit-msg-update" data-bs-dismiss="modal" aria-label="Close"
+                            (click)="editText(editMessage)"><svg viewBox="0 0 24 24" height="24" width="24"
+                                preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px"
+                                enable-background="new 0 0 24 24">
+                                <title>checkmark-medium</title>
+                                <path fill="white" d="M8,17.1l-5.2-5.2l-1.7,1.7l6.9,7L22.9,5.7L21.2,4L8,17.1z">
+                                </path>
+                            </svg></button>
                     </div>
                 </div>
             </div>
