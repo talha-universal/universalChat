@@ -99,7 +99,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   selectedMessage: any = null;
-
+  submitEdit(closeBtn: HTMLElement) {
+    this.editText(this.editMessage); // Call the function
+    closeBtn.click();                // Close the modal
+  }
   ngOnInit(): void {
     this.socketService.connect();
 
