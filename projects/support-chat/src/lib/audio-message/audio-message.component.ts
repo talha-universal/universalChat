@@ -1,12 +1,13 @@
 import { NgIf } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'lib-audio-message',
   standalone: true,
   imports: [NgIf],
   templateUrl: './audio-message.component.html',
-  styleUrl: './audio-message.component.css'
+  styleUrl: './audio-message.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class AudioMessageComponent implements AfterViewInit, OnDestroy {
   @Input() message!: any;

@@ -983,7 +983,32 @@ ul {
 }
 .voice-msg {
   position: absolute !important;
-  bottom: 0;
-  right: 57px;
+  bottom: -2px;
+  right: -3px;
+  height: 15px;
+}
+.for-voice-note {
+  height: 67px;
+  padding: 6px !important;
+  overflow: hidden;
+}
+.voice-msg-agent {
+  position: absolute !important;
+  bottom: -2px;
+  right: 85px;
   transform: translateY(1px);
+}
+::ng-deep .client-site .client-order-1 {
+  order: 1;
+}
+::ng-deep .client-site .client-order-0 {
+  order: 0;
+}
+::ng-deep .client-site .client-time {
+  left: 108px;
+  bottom: -2px;
+}
+::ng-deep .agent-site .client-time {
+  left: 42px;
+  bottom: -2px;
 }

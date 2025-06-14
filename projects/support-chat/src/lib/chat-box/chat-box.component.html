@@ -62,8 +62,9 @@
                     <div class=" d-flex justify-content-end main-msg position-relative" style="width: 99%;">
 
 
-                        <div class="message d-flex "
-                            [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 )}">
+                        <div class="message d-flex" [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 ),
+                                'for-voice-note' : message.message.includes('voice-message')
+                            }">
 
 
                             <!-- <div class="dropdown-toggle position-relative" data-bs-toggle="dropdown"
@@ -143,7 +144,7 @@
                                                     target="_blank" class="fileLinkText">
                                                     {{ removeNamePdf(message?.message.replace('/uploads/', '')) }}</a>
                                             </span>
-                                            <span *ngIf="message.message.includes('voice-message')">
+                                            <span class="client-site" *ngIf="message.message.includes('voice-message')">
                                                 <!-- <audio style="max-width: 280px; padding-top: 10px;" controls
                                                     controlsList="nodownload"
                                                     [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio> -->
@@ -250,8 +251,8 @@
                 <ng-container *ngIf="message.sender == 'agent' ">
 
                     <div class="w-100 d-flex justify-content-start">
-                        <div class="message receiverMessage "
-                            [ngClass]="{'': showAnimation, 'flex-column': (message.message.length > 30  )}">
+                        <div class="message receiverMessage position-relative"
+                            [ngClass]="{'': showAnimation, 'flex-column': (message.message.length > 30  ),'for-voice-note' : message.message.includes('voice-message')}">
                             <span class="messagetext" *ngIf="message.type == 'text'">
                                 {{ message.message }}
                             </span>
@@ -289,7 +290,7 @@
                                                 {{ removeNamePdf(message?.message.replace('/uploads/', '')) }}</a>
                                         </span>
 
-                                        <span *ngIf="message.message.includes('voice-message')">
+                                        <span class="agent-site" *ngIf="message.message.includes('voice-message')">
                                             <!-- <audio style="max-width: 280px; padding-top: 10px;" controls
                                                 controlsList="nodownload"
                                                 [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio> -->
@@ -302,7 +303,9 @@
 
                                 </span>
                             </span>
-                            <div class="d-flex justify-content-end align-items-center">
+                            <div class="d-flex justify-content-end align-items-center" [ngClass]="{
+                                'voice-msg-agent' : message.message.includes('voice-message')
+                            }">
                                 <span class="time" style="height: 23px;">{{message?.timestamp | date : 'h:mm a'}}</span>
 
                             </div>

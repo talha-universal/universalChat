@@ -1,20 +1,22 @@
 <div class="audio-message position-relative">
-  <button class="play-btn" (click)="togglePlayPause()">
+  <div class="d-flex align-items-center client-order client-order-1" style="transform: translateY(-2px);">
+    <button class="play-btn" (click)="togglePlayPause()">
 
-    <svg *ngIf="!message.isPlaying" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-      fill="currentColor">
-      <path d="M3 2v20l18-10L3 2z" />
-    </svg>
+      <svg *ngIf="!message.isPlaying" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        fill="currentColor">
+        <path d="M3 2v20l18-10L3 2z" />
+      </svg>
 
-    <svg *ngIf="message.isPlaying" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-      fill="currentColor">
-      <path d="M4 2h6v20H4V2zm10 0h6v20h-6V2z" />
-    </svg>
-  </button>
-  <canvas #waveformCanvas class="waveform-canvas" width="144" height="32"></canvas>
-  <audio #audioElement [src]="message.content" (timeupdate)="onTimeUpdate()" preload="metadata"></audio>
+      <svg *ngIf="message.isPlaying" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        fill="currentColor">
+        <path d="M4 2h6v20H4V2zm10 0h6v20h-6V2z" />
+      </svg>
+    </button>
+    <canvas #waveformCanvas class="waveform-canvas" width="144" height="32"></canvas>
+    <audio #audioElement [src]="message.content" (timeupdate)="onTimeUpdate()" preload="metadata"></audio>
+  </div>
   <!-- <span class="audio-time"></span> -->
-  <div class="user">
+  <div class="user client-order-0">
     <img class="logoImg" />
     <span>
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 19 26" height="28"
@@ -29,7 +31,7 @@
       </svg>
     </span>
   </div>
-  <div class="data-Time">
-    <div class="current-time">{{ formatTime(message.currentTime) }}</div>
+  <div class="data-Time client-time">
+    <div class="current-time ">{{ formatTime(message.currentTime) }}</div>
   </div>
 </div>
