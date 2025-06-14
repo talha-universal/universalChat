@@ -142,8 +142,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
         return msg;
       });
-
-      console.log(this.messages)
     });
 
 
@@ -153,7 +151,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.messages = this.messages.map((msg: any) => {
         if (msg._id === messageId) {
-          debugger
           return { ...msg, message: newContent, edited: true };
         }
         return msg;
@@ -207,7 +204,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   toggleAudio(message: any): void {
-    debugger
     if (!message.audio) return;
 
     if (message.isPlaying) {
