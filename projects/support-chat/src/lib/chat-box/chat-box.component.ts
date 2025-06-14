@@ -1025,7 +1025,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     setTimeout(() => {
       this.shouldScrollToTop = false;
-    }, 2000); // Disable after 2 seconds
+    }, 1000); // Disable after 2 seconds
   }
 
   msgAction: number | null = null;
