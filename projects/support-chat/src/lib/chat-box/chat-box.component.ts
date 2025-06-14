@@ -15,7 +15,7 @@ import { AudioMessageComponent } from '../audio-message/audio-message.component'
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe,AudioMessageComponent],
+  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe, AudioMessageComponent],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css',
 })
@@ -133,13 +133,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           const link = msg.viewurl?.includes('localhost')
             ? this.baseURL + msg.message
             : msg.viewurl + msg.message;
-    
+
           msg.audio = new Audio(link);
           msg.isPlaying = false;
           msg.currentTime = 0;
           msg.content = link;
         }
-    
+
         return msg;
       });
 
@@ -942,6 +942,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   startRecording() {
     this.audioChunks = [];
     this.mediaRecorder = new MediaRecorder(this.stream);
+    this.recordingTime = 0; // reset timer
 
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -955,7 +956,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.recordedAudioURL = URL.createObjectURL(audioBlob);
 
       this.ngZone.run(() => {
-        this.sendAudioToAPI();
+        // Only send if recording time is >= 1 second
+        if (this.recordingTime >= 1) {
+          this.sendAudioToAPI();
+        } else {
+          console.warn("Recording discarded (too short)");
+        }
       });
     };
 
