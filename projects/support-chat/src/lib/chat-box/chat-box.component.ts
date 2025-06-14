@@ -195,6 +195,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateIncomingMessage(newMessage: any): void {
+    this.enableScrollToTopTemporarily();
     if (newMessage.message.includes('voice-message')) {
       let link = newMessage?.viewurl.includes('localhost') ? this.baseURL + newMessage?.message : newMessage?.viewurl + newMessage.message
       newMessage.audio = new Audio(link);
