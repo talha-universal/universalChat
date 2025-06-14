@@ -85,9 +85,9 @@
                                 </span>
 
                                 <span class="messageOptions down-context" (click)="ismsgDell(i,message)"
-                                    *ngIf="!message.deleted">
+                                    *ngIf="!message.deleted" style="cursor: pointer;">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                        fill="#667781" version="1.1" id="Capa_1" width="10px" height="10px"
+                                        fill="#667781" version="1.1" id="Capa_1" width="12px" height="12px"
                                         viewBox="0 0 30.727 30.727" xml:space="preserve">
                                         <g>
                                             <path
@@ -168,7 +168,8 @@
                                                 fill="currentColor"></path>
                                         </svg>
                                     </span>
-                                    <span class="singleTick" *ngIf="message?.viewurl  && message?.sender == 'client' &&  !message.deleted">
+                                    <span class="singleTick"
+                                        *ngIf="message?.viewurl  && message?.sender == 'client' &&  !message.deleted">
                                         <!-- *ngIf="!message?.delivered && !message?.read  && message?.sender == 'client'" -->
                                         <svg viewBox="0 0 12 11" height="11" width="16"
                                             preserveAspectRatio="xMidYMid meet" class="" fill="none">
@@ -258,7 +259,7 @@
 
                                     <!-- Displaying the file link -->
                                     <ng-container *ngIf="message.type == 'isfile' ">
-                                        <span class="fileView"  *ngIf="!message.message.includes('voice-message')">
+                                        <span class="fileView" *ngIf="!message.message.includes('voice-message')">
                                             <span class="fileViewBasic"
                                                 [ngClass]="message.type  == 'isfile' ? 'fileViewpdf' : 'fileViewOther' "></span>
                                             <a href="{{ message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message}}"

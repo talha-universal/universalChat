@@ -300,6 +300,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   sendMessage(messageOverride?: string) {
+    this.enableScrollToTopTemporarily();
     this.isSendButtonClick = true;
     this.isSendButtonVisible = false;
     const messageToSend = messageOverride ?? this.messageText?.trim();
@@ -514,6 +515,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly TARGET_WIDTH = 1280;
 
   onFileSelected(event: Event): void {
+    this.enableScrollToTopTemporarily();
     this.isUploading = true;
     const collapseNativeElement = this.collapseElement?.nativeElement;
     if (collapseNativeElement?.classList.contains('show')) {
@@ -601,6 +603,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       .finally(() => {
         this.isUploading = false;
+        this.enableScrollToTopTemporarily();
         if (this.audiofileType) {
           this.audiofileType = false
           this.clearRecording();
@@ -931,6 +934,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   sendAudioToAPI(): void {
+    this.enableScrollToTopTemporarily();
     if (!this.recordedAudioBlob) return;
 
     const audioFile = new File([this.recordedAudioBlob], 'voice-message.mp3', { type: 'audio/mp3' });
@@ -950,20 +954,26 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isUploading = false;
     this.recordingTime = 0;
   }
-
-
-
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
-
+  private shouldScrollToTop: boolean = false;
 
   ngAfterViewChecked() {
-    this.scrollToTop();
+    if (this.shouldScrollToTop) {
+      this.scrollToTop();
+    }
   }
-
   private scrollToTop(): void {
     if (this.scrollContainer?.nativeElement) {
       this.scrollContainer.nativeElement.scrollTop = 0;
     }
+  }
+
+  private enableScrollToTopTemporarily(): void {
+    this.shouldScrollToTop = true;
+
+    setTimeout(() => {
+      this.shouldScrollToTop = false;
+    }, 2000); // Disable after 2 seconds
   }
 
   msgAction: number | null = null;
