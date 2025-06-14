@@ -1,0 +1,37 @@
+.audio-message {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  padding: 8px 16px;
+  max-width: 340px;
+  gap: 10px;
+}
+
+.play-btn {
+  border: none;
+  background: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.waveform-canvas {
+  background: transparent;
+  margin-right: 10px;
+  display: block;
+  width: 144px;
+  height: 32px;
+}
+
+.audio-time {
+  font-size: 16px;
+  color: #222;
+  font-weight: 500;
+  min-width: 36px;
+}

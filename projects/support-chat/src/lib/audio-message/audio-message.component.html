@@ -1,0 +1,17 @@
+<div class="audio-message">
+  <button class="play-btn" (click)="togglePlayPause()">
+    <svg *ngIf="!message.isPlaying" width="22" height="22" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" fill="#f3f3f3"/>
+      <polygon points="10,8 16,12 10,16" fill="#6B7280"/>
+    </svg>
+    <svg *ngIf="message.isPlaying" width="22" height="22" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" fill="#f3f3f3"/>
+      <rect x="9" y="8" width="2" height="8" fill="#6B7280"/>
+      <rect x="13" y="8" width="2" height="8" fill="#6B7280"/>
+    </svg>
+  </button>
+  <canvas #waveformCanvas class="waveform-canvas" width="144" height="32"></canvas>
+  <audio #audioElement [src]="message.content"
+         (timeupdate)="onTimeUpdate()" preload="metadata"></audio>
+  <span class="audio-time">{{ formatTime(message.currentTime) }}</span>
+</div>

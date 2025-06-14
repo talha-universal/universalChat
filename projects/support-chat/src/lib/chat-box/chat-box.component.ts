@@ -11,10 +11,11 @@ import { WebSocketService } from '../Serives';
 import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { AudioMessageComponent } from '../audio-message/audio-message.component';
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe],
+  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe,AudioMessageComponent],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css',
 })
@@ -125,7 +126,24 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.socketService.onEvent('message_history', (data) => {
-      this.messages = data.messages;
+      // this.messages = data.messages;
+
+      this.messages = data.messages.map((msg: any) => {
+        if (msg.message?.includes('voice-message')) {
+          const link = msg.viewurl?.includes('localhost')
+            ? this.baseURL + msg.message
+            : msg.viewurl + msg.message;
+    
+          msg.audio = new Audio(link);
+          msg.isPlaying = false;
+          msg.currentTime = 0;
+          msg.content = link;
+        }
+    
+        return msg;
+      });
+
+      console.log(this.messages)
     });
 
 
@@ -177,9 +195,40 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateIncomingMessage(newMessage: any): void {
+    if (newMessage.message.includes('voice-message')) {
+      let link = newMessage?.viewurl.includes('localhost') ? this.baseURL + newMessage?.message : newMessage?.viewurl + newMessage.message
+      newMessage.audio = new Audio(link);
+      newMessage.isPlaying = false;
+      newMessage.currentTime = 0;
+      newMessage.content = link;
+    }
     this.messages.push(newMessage);
     this.scrollChat();
   }
+
+  toggleAudio(message: any): void {
+    debugger
+    if (!message.audio) return;
+
+    if (message.isPlaying) {
+      message.audio.pause();
+    } else {
+      this.messages.forEach((msg: any) => {
+        if (msg.audio && msg !== message) {
+          msg.audio.pause();
+          msg.isPlaying = false;
+        }
+      });
+      message.audio.play();
+    }
+
+    message.isPlaying = !message.isPlaying;
+
+    message.audio.onended = () => {
+      message.isPlaying = false;
+    };
+  }
+
   scrollChat() {
     setTimeout(() => {
       const parent = document.querySelector('.message');
