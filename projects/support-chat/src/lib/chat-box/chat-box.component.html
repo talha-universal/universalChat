@@ -290,9 +290,12 @@
                                         </span>
 
                                         <span *ngIf="message.message.includes('voice-message')">
-                                            <audio style="max-width: 280px; padding-top: 10px;" controls
+                                            <!-- <audio style="max-width: 280px; padding-top: 10px;" controls
                                                 controlsList="nodownload"
-                                                [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio>
+                                                [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio> -->
+                                            <lib-audio-message [message]="message">
+                                            </lib-audio-message>
+
                                         </span>
 
                                     </ng-container>
