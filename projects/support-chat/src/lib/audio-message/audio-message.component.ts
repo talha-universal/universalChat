@@ -8,7 +8,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } fro
   templateUrl: './audio-message.component.html',
   styleUrl: './audio-message.component.css'
 })
-export class AudioMessageComponent  implements AfterViewInit, OnDestroy {
+export class AudioMessageComponent implements AfterViewInit, OnDestroy {
   @Input() message!: any;
   @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
   @ViewChild('waveformCanvas') waveformCanvas!: ElementRef<HTMLCanvasElement>;
@@ -86,10 +86,10 @@ export class AudioMessageComponent  implements AfterViewInit, OnDestroy {
     const progress = audio.duration ? audio.currentTime / audio.duration : 0;
 
     // Draw waveform bars
-    bars.forEach((bar:any, i:any) => {
+    bars.forEach((bar: any, i: any) => {
       const x = i * barWidth;
       const barHeight = bar * height;
-      ctx.fillStyle = (i / barCount < progress) ? '#34B7F1' : '#E1E8ED';
+      ctx.fillStyle = (i / barCount < progress) ? '#34B7F1' : '#54656f';
       ctx.fillRect(x + 1, (height - barHeight) / 2, barWidth - 2, barHeight);
     });
 

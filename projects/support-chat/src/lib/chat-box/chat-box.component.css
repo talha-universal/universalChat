@@ -941,7 +941,6 @@ ul {
   font-size: 12px;
 }
 
-
 /* PLAY AUDIO */
 
 .audio-message {
@@ -950,7 +949,7 @@ ul {
   background: #fff;
   padding: 8px 12px;
   border-radius: 15px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   max-width: 300px;
 }
 
@@ -981,4 +980,10 @@ ul {
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
+}
+.voice-msg {
+  position: absolute !important;
+  bottom: 0;
+  right: 57px;
+  transform: translateY(1px);
 }

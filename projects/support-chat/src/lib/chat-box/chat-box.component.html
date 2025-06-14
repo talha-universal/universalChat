@@ -144,9 +144,9 @@
                                                     {{ removeNamePdf(message?.message.replace('/uploads/', '')) }}</a>
                                             </span>
                                             <span *ngIf="message.message.includes('voice-message')">
-                                                <audio style="max-width: 280px; padding-top: 10px;" controls
+                                                <!-- <audio style="max-width: 280px; padding-top: 10px;" controls
                                                     controlsList="nodownload"
-                                                    [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio>
+                                                    [src]=" message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"></audio> -->
 
 
                                                 <lib-audio-message [message]="message">
@@ -174,7 +174,9 @@
                                     </span>
                                 </span>
 
-                                <div class="ps-2 d-flex justify-content-end align-items-center">
+                                <div class="ps-2 d-flex justify-content-end align-items-center" [ngClass]="{
+                                    'voice-msg' : message.message.includes('voice-message')
+                                }">
                                     <span class="time me-1" *ngIf="message?.edited &&  !message.deleted">Edited</span>
                                     <span class="time">{{message?.timestamp | date : 'h:mm a'}}</span>
                                     <span class="doubleTick" *ngIf="message?.delivered || message?.read">
