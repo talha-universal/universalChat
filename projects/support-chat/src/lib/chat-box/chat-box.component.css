@@ -1011,6 +1011,9 @@ ul {
   left: 108px;
   bottom: -2px;
 }
+::ng-deep .client-site .mike-icon {
+  left: 47px;
+}
 ::ng-deep .agent-site .client-time {
   left: 42px;
   bottom: -2px;
