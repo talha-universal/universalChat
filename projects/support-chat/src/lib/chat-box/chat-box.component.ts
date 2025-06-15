@@ -204,16 +204,30 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateIncomingMessage(newMessage: any): void {
-    // this.enableScrollToTopTemporarily();
     if (newMessage.message.includes('voice-message')) {
-      let link = newMessage?.viewurl.includes('localhost') ? this.baseURL + newMessage?.message : newMessage?.viewurl + newMessage.message
+      let link = newMessage?.viewurl.includes('localhost')
+        ? this.baseURL + newMessage?.message
+        : newMessage?.viewurl + newMessage.message;
       newMessage.audio = new Audio(link);
       newMessage.isPlaying = false;
       newMessage.currentTime = 0;
       newMessage.content = link;
     }
+
+    // Mark the message as new for animation
+    newMessage.isNew = true;
     this.messages.push(newMessage);
-    this.scrollChat();
+
+    // Remove the animation class after it finishes
+    setTimeout(() => {
+      const index = this.messages.findIndex((msg: any) => msg === newMessage);
+      if (index !== -1) {
+        delete this.messages[index].isNew;
+      }
+    }, 300);
+
+    // Scroll after a slight delay to allow rendering
+    setTimeout(() => this.scrollChat(), 50);
   }
 
   toggleAudio(message: any): void {
@@ -246,8 +260,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       if (parent) {
         parent.scrollIntoView({
           behavior: 'smooth',
-          block: 'end',
-          inline: 'nearest',
+          // block: 'end',
+          // inline: 'nearest',
         });
       }
     }, 500);

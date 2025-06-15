@@ -1018,3 +1018,47 @@ ul {
   left: 42px;
   bottom: -2px;
 }
+/* Add these styles to your component's CSS file */
+
+/* Message container (ensures proper stacking) */
+.message-container {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Adjust spacing between messages */
+}
+
+/* Base message styling */
+.messagel {
+  transition: opacity 0.3s ease-out;
+  opacity: 1;
+  overflow: hidden;
+  min-height: 74px;
+}
+
+.hide-scrollbar {
+  overflow: auto; /* or scroll */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  /* Chrome, Safari, Opera */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* New message animation */
+.messagel.new-message {
+  animation: smoothSlideIn 0.3s ease-out forwards;
+}
+
+@keyframes smoothSlideIn {
+  from {
+    opacity: 0;
+    min-height: 0;
+  }
+  to {
+    opacity: 1;
+    min-height: 74px;
+  }
+}

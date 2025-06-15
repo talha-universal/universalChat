@@ -59,10 +59,11 @@
             <ng-container *ngFor="let message of messages.slice().reverse();let i =index;">
                 <ng-container *ngIf="message.sender == 'client' || message?.myMessage">
 
-                    <div class=" d-flex justify-content-end main-msg position-relative" style="width: 99%;">
+                    <div class=" d-flex justify-content-end main-msg position-relative messagel" style="width: 99%;"
+                        [class.new-message]="message.isNew">
 
 
-                        <div class="message d-flex" [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 ),
+                        <div class="message d-flex hide-scrollbar" [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 ),
                                 'for-voice-note' : message.message.includes('voice-message')
                             }">
 
@@ -250,8 +251,8 @@
 
                 <ng-container *ngIf="message.sender == 'agent' ">
 
-                    <div class="w-100 d-flex justify-content-start">
-                        <div class="message receiverMessage position-relative"
+                    <div class="w-100 d-flex justify-content-start messagel" [class.new-message]="message.isNew">
+                        <div class="message  receiverMessage position-relative hide-scrollbar"
                             [ngClass]="{'': showAnimation, 'flex-column': (message.message.length > 30  ),'for-voice-note' : message.message.includes('voice-message')}">
                             <span class="messagetext" *ngIf="message.type == 'text'">
                                 {{ message.message }}
