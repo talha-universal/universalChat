@@ -966,7 +966,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.audioChunks = [];
     this.mediaRecorder = new MediaRecorder(this.stream);
     this.recordingTime = 0; // reset timer
-
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         this.audioChunks.push(event.data);
@@ -1007,6 +1009,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Stop Timer
       clearInterval(this.timerInterval);
+      this.timerInterval = null; // reset
+
     }
   }
 
