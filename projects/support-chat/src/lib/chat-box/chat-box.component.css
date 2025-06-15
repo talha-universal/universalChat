@@ -1032,8 +1032,8 @@ ul {
 .messagel {
   transition: opacity 0.3s ease-out;
   opacity: 1;
-  overflow: hidden;
-  min-height: 74px;
+  /* overflow: hidden; */
+  /* min-height: 74px; */
 }
 
 .hide-scrollbar {
