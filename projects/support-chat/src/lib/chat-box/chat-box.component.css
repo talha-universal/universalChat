@@ -1036,13 +1036,7 @@ ul {
   /* min-height: 74px; */
 }
 
-.hide-scrollbar {
-  overflow: auto; /* or scroll */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-
-  /* Chrome, Safari, Opera */
-}
+/* .h */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
