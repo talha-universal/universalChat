@@ -914,6 +914,9 @@ ul {
   min-width: 150px;
   padding: 6px 7px 8px 9px;
   border-radius: 10px;
+  max-height: 271px;
+  overflow-y: scroll;
+  font-size: 14.2px;
 }
 .border-line {
   border-bottom: 2px solid #1cac61;
@@ -938,9 +941,10 @@ ul {
   background-color: #00000099;
 }
 .msg-time {
-  position: absolute;
+  /* position: absolute;
   right: 10px;
-  bottom: 3px;
+  bottom: 3px; */
+  text-align: end;
   font-size: 12px;
 }
 

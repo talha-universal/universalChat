@@ -15,7 +15,7 @@ import { AudioMessageComponent } from '../audio-message/audio-message.component'
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe, AudioMessageComponent],
+  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe, AudioMessageComponent, CommonModule],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css',
 })
@@ -1109,5 +1109,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.msgAction = null;
   }
 
+
+  showFullMessage: boolean = false;
+
+  toggleMessage() {
+    this.showFullMessage = !this.showFullMessage;
+  }
 
 }

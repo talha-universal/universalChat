@@ -273,7 +273,8 @@
                             </span>
 
 
-                            <span *ngIf="(message.type == 'image' || message.type == 'video'|| message.type == 'isfile') && !message.deleted"
+                            <span
+                                *ngIf="(message.type == 'image' || message.type == 'video'|| message.type == 'isfile') && !message.deleted"
                                 class="messagetext">
                                 <ng-container *ngIf="message?.type == 'image'">
 
@@ -667,7 +668,11 @@
             <div class="modal-body edit-body">
                 <div class="edit-msg">
                     <div class="edit-msg-in position-relative">
-                        {{selectedMessage?.message}}
+                        {{ showFullMessage ? selectedMessage?.message : (selectedMessage?.message | slice:0:120) +
+                        (selectedMessage?.message.length > 120 ? ' ...' : '') }}
+                        <span style="color: #027eb5; cursor: pointer;" *ngIf="selectedMessage?.message.length > 80"
+                            (click)="toggleMessage()">{{ showFullMessage
+                            ? '' : 'Read more' }}</span>
                         <p class="m-0 msg-time" *ngIf="selectedMessage">
                             {{selectedMessage?.timestamp | date : 'h:mm a'}}
                             <svg viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class=""
