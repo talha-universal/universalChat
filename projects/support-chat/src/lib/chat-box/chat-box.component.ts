@@ -160,10 +160,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.socketService.onEvent('message_deleted', (data) => {
       const { messageId } = data;
 
-      const index = this.messages.findIndex((msg: any) => msg._id === messageId);
+      const index = this.messages.findIndex((msg: any) => msg._id == messageId);
 
       if (index !== -1) {
         const sender = this.messages[index].sender;
+        if(this.deletedMessage ==undefined){
+          this.deletedMessage = this.messages[index]
+        }
         this.messages[index] = { deleted: true, message: '[deleted]', sender: sender, timestamp: this.deletedMessage.timestamp };
         // If you need to trigger change detection (e.g. Angular), use:
         this.messages = [...this.messages];
