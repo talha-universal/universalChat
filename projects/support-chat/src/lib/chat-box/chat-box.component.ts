@@ -1113,7 +1113,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   showFullMessage: boolean = false;
 
   toggleMessage() {
-    this.showFullMessage = !this.showFullMessage;
+    this.showFullMessage = true;
+  }
+
+  ismsgFalse() {
+    this.showFullMessage = false
   }
 
 }
