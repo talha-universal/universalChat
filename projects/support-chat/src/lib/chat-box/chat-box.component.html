@@ -322,7 +322,8 @@
                             <div class="d-flex justify-content-end align-items-center" [ngClass]="{
                                 'voice-msg-agent' : message.message.includes('voice-message')
                             }">
-                                <span class="time" style="height: 23px;">{{message?.timestamp | date : 'h:mm a'}}</span>
+                                <span class="time me-1" *ngIf="message?.edited &&  !message.deleted">Edited</span>
+                                <span class="time">{{message?.timestamp | date : 'h:mm a'}}</span>
 
                             </div>
                         </div>
