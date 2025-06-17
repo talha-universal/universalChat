@@ -12,6 +12,7 @@ import { RecordingService } from '../Serives/recording.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AudioMessageComponent } from '../audio-message/audio-message.component';
+declare var bootstrap: any;
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
@@ -58,6 +59,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   audioSrc: any;
   baseURL: any = BASE_URL;
   isUploading: boolean = false;
+  isUploadingImg: boolean = false;
 
   // isRecording = false;
   dataArray: Uint8Array | undefined;
@@ -164,7 +166,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (index !== -1) {
         const sender = this.messages[index].sender;
-        if(this.deletedMessage ==undefined){
+        if (this.deletedMessage == undefined) {
           this.deletedMessage = this.messages[index]
         }
         this.messages[index] = { deleted: true, message: '[deleted]', sender: sender, timestamp: this.deletedMessage.timestamp };
@@ -592,7 +594,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onFileSelected(event: Event): void {
     // this.enableScrollToTopTemporarily();
-    this.isUploading = true;
+
     const collapseNativeElement = this.collapseElement?.nativeElement;
     if (collapseNativeElement?.classList.contains('show')) {
       collapseNativeElement.classList.remove('show');
@@ -608,9 +610,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     const type = file.type;
 
     if (type.startsWith('image/') && !type.includes('heic')) {
+      this.isUploadingImg = true;
+
       this.processAndUploadImage(file); // Your image compression + upload logic
     }
     else if (type.startsWith('video/')) {
+      this.isUploading = true;
       this.uploadVideoWithValidation(file);
     }
     else if (!type.startsWith('video/') || !type.startsWith('image/')) {
@@ -680,6 +685,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       .finally(() => {
         this.isUploading = false;
         this.voiceLoading = false;
+        this.isUploadingImg = false;
+        console.log(this.isUploadingImg);
+
         // this.enableScrollToTopTemporarily();
         if (this.audiofileType) {
           this.audiofileType = false
@@ -825,9 +833,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         error: (err) => {
           console.error('Upload error:', err)
           this.isUploading = false;
+          this.isUploadingImg = false;
         },
         complete: () => {
           this.isUploading = false;
+          this.isUploadingImg = false;
           // collapse UI or show success
           // const nativeEl = this.fileInput?.nativeElement;
           // nativeEl?.classList?.remove('show');
@@ -1115,4 +1125,38 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showFullMessage = false
   }
 
+
+
+  // image preview modal
+  isModalOpen: boolean = false;
+  selectedImageSrc: string = '';
+
+  openModal(message: any) {
+    this.selectedImageSrc = message?.viewurl.includes('localhost')
+      ? this.baseURL + message?.message
+      : message?.viewurl + message?.message;
+    this.isModalOpen = true;
+  }
+
+  downloadImage() {
+    fetch(this.selectedImageSrc)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Univercal-Chat.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(err => {
+        console.error('Image download failed', err);
+      });
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
 }
