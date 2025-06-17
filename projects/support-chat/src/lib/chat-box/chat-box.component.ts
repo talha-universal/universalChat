@@ -603,6 +603,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+
     if (file.name.toLowerCase().endsWith('.heic')) {
       alert('HEIC images are not supported. Please upload JPG or PNG.');
       return;
@@ -625,6 +626,41 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     // Reset input
     input.value = '';
   }
+
+  getFileExtension(filename: string): string {
+    return filename.split('.').pop()?.toLowerCase() || '';
+  }
+  getFileName(filePath: string): string {
+    return filePath?.split('/').pop() || 'file';
+  }
+  downloadFile(message: any): void {
+    const fileUrl = message?.viewurl.includes('localhost')
+      ? this.baseURL + message.message
+      : message.viewurl + message.message;
+
+    const fileName = this.getFileName(message.message);
+
+    fetch(fileUrl)
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a); // Firefox compatibility
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Download failed:', error);
+        alert('Download failed');
+      });
+  }
+
 
   private async uploadVideoWithValidation(file: File): Promise<void> {
     const maxVideoSize = 6 * 1024 * 1024; // 6MB
@@ -658,44 +694,40 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // FILE UPLOAD CODE
 
   private uploadNonImageFile(file: File): void {
-    // console.log('call')
     const formData = new FormData();
     formData.append('file', file);
+    this.uploadDoc = true;
 
-    fetch('https://buzzmehi.com/upload', {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) return;
+    this.http.post<{ url: string; error?: any }>('https://buzzmehi.com/upload', formData)
+      .subscribe({
+        next: (data) => {
+          if (data.error) return;
+          const url = data.url;
+          const type = file.type.startsWith('image')
+            ? 'image'
+            : file.type.startsWith('video')
+              ? 'video'
+              : 'isfile';
 
-        const url = data.url;
-        const type = file.type.startsWith('image')
-          ? 'image'
-          : file.type.startsWith('video')
-            ? 'video'
-            : 'isfile';
+          this.socketService.sendMessage('message_to_agent', { message: url, type });
+        },
+        error: (err) => {
+          console.error('Upload error:', err);
+        },
+        complete: () => {
+          this.isUploading = false;
+          this.voiceLoading = false;
+          this.isUploadingImg = false;
+          this.uploadDoc = false;
 
-        this.socketService.sendMessage('message_to_agent', { message: url, type });
-      })
-      .catch(err => {
-        console.error('Upload error:', err);
-      })
-      .finally(() => {
-        this.isUploading = false;
-        this.voiceLoading = false;
-        this.isUploadingImg = false;
-        console.log(this.isUploadingImg);
-
-        // this.enableScrollToTopTemporarily();
-        if (this.audiofileType) {
-          this.audiofileType = false
-          this.clearRecording();
-        }
-        const collapseNativeElement = this.collapseElement?.nativeElement;
-        if (collapseNativeElement?.classList.contains('show')) {
-          collapseNativeElement.classList.remove('show');
+          if (this.audiofileType) {
+            this.audiofileType = false;
+            this.clearRecording();
+          }
+          const collapseNativeElement = this.collapseElement?.nativeElement;
+          if (collapseNativeElement?.classList.contains('show')) {
+            collapseNativeElement.classList.remove('show');
+          }
         }
       });
   }
@@ -785,6 +817,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         lastModified: Date.now(),
       });
       formData.append('file', compressedFile);
+      this.isUploading = true;
     } else {
       formData.append('file', file);
     }
@@ -948,6 +981,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   stream!: MediaStream;
   timerInterval: any;
   voiceLoading: boolean = false
+  uploadDoc: boolean = false
 
 
   // Convert seconds to mm:ss format
