@@ -671,18 +671,21 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         const compressedFile = new File([compressed], 'compressed.webm', { type: 'video/webm' });
 
         if (compressedFile.size > maxVideoSize) {
+          this.isUploadingImg = false;
           alert('Compressed video is still too large. Please use a shorter or lower-quality video.');
           return;
         }
 
         this.uploadNonImageFile(compressedFile); // Upload only compressed
       } catch (err) {
+        this.isUploadingImg = false;
+
         console.error('Compression failed', err);
         alert('Video compression failed. Please try a smaller video.');
       }
     }
     else {
-
+      this.isUploadingImg = false;
       alert('Video is too large. Please upload a video under 6MB');
       return;
     }
@@ -696,7 +699,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   private uploadNonImageFile(file: File): void {
     const formData = new FormData();
     formData.append('file', file);
-    if(!this.voiceLoading && !this.isUploadingImg){
+    if (!this.voiceLoading && !this.isUploadingImg) {
       this.uploadDoc = true;
 
     }
