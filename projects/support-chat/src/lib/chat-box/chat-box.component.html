@@ -55,6 +55,49 @@
                     Uploading...
                 </div>
             </div>
+            <div *ngIf="voiceLoading" class="d-flex justify-content-end ">
+                <div class="d-flex align-items-center voice-msg-loader position-relative">
+                    <div class="d-flex align-items-center" style="column-gap: 10px;">
+                        <div class="position-relative">
+                            <img class="logoImg-loader" alt="">
+                            <span class="mike-icon-loader">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    viewBox="0 0 19 26" height="28" width="21" preserveAspectRatio="xMidYMid meet"
+                                    version="1.1" x="0px" y="0px" enable-background="new 0 0 19 26">
+                                    <title>ptt-status</title>
+                                    <path fill="transparent"
+                                        d="M9.217,24.401c-1.158,0-2.1-0.941-2.1-2.1v-2.366c-2.646-0.848-4.652-3.146-5.061-5.958L2.004,13.62 l-0.003-0.081c-0.021-0.559,0.182-1.088,0.571-1.492c0.39-0.404,0.939-0.637,1.507-0.637h0.3c0.254,0,0.498,0.044,0.724,0.125v-6.27 C5.103,2.913,7.016,1,9.367,1c2.352,0,4.265,1.913,4.265,4.265v6.271c0.226-0.081,0.469-0.125,0.723-0.125h0.3 c0.564,0,1.112,0.233,1.501,0.64s0.597,0.963,0.571,1.526c0,0.005,0.001,0.124-0.08,0.6c-0.47,2.703-2.459,4.917-5.029,5.748v2.378 c0,1.158-0.942,2.1-2.1,2.1H9.217V24.401z"
+                                        class="ptt-status-background"></path>
+                                    <path fill="currentColor"
+                                        d="M9.367,15.668c1.527,0,2.765-1.238,2.765-2.765V5.265c0-1.527-1.238-2.765-2.765-2.765 S6.603,3.738,6.603,5.265v7.638C6.603,14.43,7.84,15.668,9.367,15.668z M14.655,12.91h-0.3c-0.33,0-0.614,0.269-0.631,0.598 c0,0,0,0-0.059,0.285c-0.41,1.997-2.182,3.505-4.298,3.505c-2.126,0-3.904-1.521-4.304-3.531C5.008,13.49,5.008,13.49,5.008,13.49 c-0.016-0.319-0.299-0.579-0.629-0.579h-0.3c-0.33,0-0.591,0.258-0.579,0.573c0,0,0,0,0.04,0.278 c0.378,2.599,2.464,4.643,5.076,4.978v3.562c0,0.33,0.27,0.6,0.6,0.6h0.3c0.33,0,0.6-0.27,0.6-0.6V18.73 c2.557-0.33,4.613-2.286,5.051-4.809c0.057-0.328,0.061-0.411,0.061-0.411C15.243,13.18,14.985,12.91,14.655,12.91z"
+                                        class="ptt-status-icon"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div style="padding:0px 9px 0px 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="20" fill="none" stroke="#54656F" stroke-width="5"
+                                    stroke-linecap="round" stroke-dasharray="31.4 188.4" transform="rotate(0 25 25)">
+                                    <animateTransform attributeName="transform" type="rotate" from="0 25 25"
+                                        to="360 25 25" dur="1s" repeatCount="indefinite" />
+                                </circle>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="linee-voice-loader"></div>
+                    <div style="position: absolute; bottom: 5px; right: 8px; font-size: 11px; color: #667781;">00:00 PM
+                        <span class="singleTick">
+                            <svg viewBox="0 0 12 11" height="11" width="16" preserveAspectRatio="xMidYMid meet" class=""
+                                fill="none">
+                                <title>msg-check</title>
+                                <path
+                                    d="M11.1549 0.652832C11.0745 0.585124 10.9729 0.55127 10.8502 0.55127C10.7021 0.55127 10.5751 0.610514 10.4693 0.729004L4.28038 8.36523L1.87461 6.09277C1.8323 6.04622 1.78151 6.01025 1.72227 5.98486C1.66303 5.95947 1.60166 5.94678 1.53819 5.94678C1.407 5.94678 1.29275 5.99544 1.19541 6.09277L0.884379 6.40381C0.79128 6.49268 0.744731 6.60482 0.744731 6.74023C0.744731 6.87565 0.79128 6.98991 0.884379 7.08301L3.88047 10.0791C4.02859 10.2145 4.19574 10.2822 4.38194 10.2822C4.48773 10.2822 4.58929 10.259 4.68663 10.2124C4.78396 10.1659 4.86436 10.1003 4.92784 10.0156L11.5738 1.59863C11.6458 1.5013 11.6817 1.40186 11.6817 1.30029C11.6817 1.14372 11.6183 1.01888 11.4913 0.925781L11.1549 0.652832Z"
+                                    fill="currentcolor"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
 
             <ng-container *ngFor="let message of messages.slice().reverse();let i =index;">
                 <ng-container *ngIf="message.sender == 'client' || message?.myMessage">
@@ -64,7 +107,8 @@
 
 
                         <div class="message d-flex hide-scrollbar" [ngClass]="{'messageAnimation': showAnimation && message.myMessage, 'flex-column': (message.message.length > 30 ),
-                                'for-voice-note' : message.message.includes('voice-message')
+                                'for-voice-note' : message.message.includes('voice-message'),
+                                'for-img' : (message.type == 'image' || message.type == 'video') && !message.deleted
                             }">
 
 
@@ -110,7 +154,7 @@
 
                                         <a href="{{ message?.viewurl + message.message}}" target="_blank">
                                             <img [src]="message?.viewurl.includes('localhost')  ? baseURL + message?.message : message?.viewurl + message.message"
-                                                alt="" style="width: 100%;">
+                                                alt="" style="width: 100%;max-height: 338px;object-fit: cover;">
                                         </a>
                                     </ng-container>
                                     <ng-container *ngIf="message?.type == 'video'">
@@ -578,11 +622,8 @@
                         </path>
                     </svg>
                 </div> -->
-                <button (mousedown)="handlePressStart($event)" (mouseup)="handlePressEnd($event)"
-                    (mouseleave)="handlePressEnd($event)" (touchstart)="handlePressStart($event)"
-                    (touchend)="handlePressEnd($event)" (touchcancel)="handlePressEnd($event)"
-                    (contextmenu)="$event.preventDefault()" class="mic-button">
-                    <span>
+                <button (click)="toggleRecording()" class="mic-button">
+                    <span *ngIf="!isRecording">
                         <div class="sendButton mik fade-in">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                 viewBox="0 0 19 26" height="28" width="21" preserveAspectRatio="xMidYMid meet" class=""
@@ -597,14 +638,21 @@
                             </svg>
                         </div>
                     </span>
-                    <!-- <span *ngIf="isRecording">
-                        <svg style="transform: translateY(-2px);" width="20px" height="20px"
+                    <span *ngIf="isRecording">
+                        <!-- <svg style="transform: translateY(-2px);" width="20px" height="20px"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                             <path
                                 d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z" />
+                        </svg> -->
+                        <svg version="1.1" id="Layer_1" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24"
+                            style="enable-background:new 0 0 24 24;" xml:space="preserve">
+                            <path d="M1.9,22.2c-0.5,0.2-0.9,0.1-1.3-0.1C0.2,21.8,0,21.4,0,20.9v-6.2L11,12L0,9.2V3.1c0-0.5,0.2-0.9,0.6-1.2
+	C1,1.6,1.5,1.6,1.9,1.8l21.2,8.9C23.7,11,24,11.4,24,12c0,0.6-0.3,1-0.9,1.3L1.9,22.2z" />
                         </svg>
-                    </span> -->
+                    </span>
                 </button>
+
                 <!-- <button *ngIf="isPreviewing && recordedAudioURL" class="send-button" (click)="sendAudioToAPI()">
                     <div class="sendButton trfff fade-in btnww">
                         <svg version="1.1" id="Layer_1" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg"

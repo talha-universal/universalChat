@@ -33,7 +33,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   isSendButtonVisible: boolean = false;
   audioRecording: any = false;
   isEmojiPickerOpen = false;
-
+  uploadingMessageId: string | null = null; // ID ya koi unique field
   userName: string = '';
   chatUserName: any = '';
   messages: any = [];
@@ -675,6 +675,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       .finally(() => {
         this.isUploading = false;
+        this.voiceLoading = false;
         // this.enableScrollToTopTemporarily();
         if (this.audiofileType) {
           this.audiofileType = false
@@ -932,6 +933,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   mediaRecorder!: MediaRecorder;
   stream!: MediaStream;
   timerInterval: any;
+  voiceLoading: boolean = false
 
 
   // Convert seconds to mm:ss format
@@ -941,8 +943,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   }
 
-  async handlePressStart(event: Event) {
-    event.preventDefault();
+  toggleRecording() {
+    if (!this.isRecording) {
+      this.startTapToRecord();
+    } else {
+      this.stopRecordingAndSend();
+    }
+  }
+
+  async startTapToRecord() {
     this.recordingError = null;
     this.recordingTime = 0;
 
@@ -955,20 +964,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  handlePressEnd(event: Event) {
-    event.preventDefault();
-    if (this.isRecording) {
-      this.stopRecording();
-    }
-  }
-
   startRecording() {
     this.audioChunks = [];
-    this.mediaRecorder = new MediaRecorder(this.stream);
-    this.recordingTime = 0; // reset timer
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-    }
+    this.mediaRecorder = new MediaRecorder(this.stream!);
+    this.recordingTime = 0;
+
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         this.audioChunks.push(event.data);
@@ -979,21 +979,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
       this.recordedAudioBlob = audioBlob;
       this.recordedAudioURL = URL.createObjectURL(audioBlob);
-
-      this.ngZone.run(() => {
-        // Only send if recording time is >= 1 second
-        if (this.recordingTime >= 1) {
-          this.sendAudioToAPI();
-        } else {
-          console.warn("Recording discarded (too short)");
-        }
-      });
     };
 
     this.mediaRecorder.start();
     this.isRecording = true;
 
-    // Start Timer, update every second
     this.timerInterval = setInterval(() => {
       this.ngZone.run(() => {
         this.recordingTime++;
@@ -1001,30 +991,32 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 1000);
   }
 
-  stopRecording() {
+  stopRecordingAndSend() {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
-      this.stream.getTracks().forEach(track => track.stop());
+      this.stream?.getTracks().forEach(track => track.stop());
       this.isRecording = false;
 
-      // Stop Timer
       clearInterval(this.timerInterval);
-      this.timerInterval = null; // reset
+      this.timerInterval = null;
 
+      setTimeout(() => {
+        if (this.recordingTime >= 1 && this.recordedAudioBlob) {
+          this.sendAudioToAPI();
+          this.clearRecording();
+        }
+      }, 200); // slight delay to ensure blob is ready
     }
   }
-
 
   sendAudioToAPI(): void {
     // this.enableScrollToTopTemporarily();
     if (!this.recordedAudioBlob) return;
 
     const audioFile = new File([this.recordedAudioBlob], 'voice-message.mp3', { type: 'audio/mp3' });
-    this.isUploading = true;
+    this.voiceLoading = true;
     this.uploadNonImageFile(audioFile);
   }
-
-
 
   clearRecording() {
     if (this.recordedAudioURL) {
@@ -1033,7 +1025,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recordedAudioURL = null;
     this.recordedAudioBlob = null;
     this.audioChunks = [];
-    this.isUploading = false;
+    // this.voiceLoading = false;
     this.recordingTime = 0;
   }
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
