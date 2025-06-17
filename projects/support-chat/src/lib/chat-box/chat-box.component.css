@@ -1212,3 +1212,18 @@ ul {
     transform: scale(1);
   }
 }
+
+.loaderrr-imgg {
+  height: 264px;
+  width: 100%;
+  color: #111b21;
+  box-shadow: 1px 1px 8px -3px #111b21;
+  max-width: 300px;
+  background-color: #d9fdd3;
+  padding: 10px 10px 1px;
+  margin-bottom: 10px;
+  margin-right: 6px;
+  border-radius: 10px;
+  word-wrap: break-word;
+  overflow-x: hidden;
+}

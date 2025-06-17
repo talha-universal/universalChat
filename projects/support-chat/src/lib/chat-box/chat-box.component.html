@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div *ngIf="isUploadingImg" class="d-flex justify-content-end">
-                <div class="d-flex flex-column justify-content-center align-items-center loaderrr "
+                <div class="d-flex flex-column justify-content-center align-items-center loaderrr-imgg "
                     style="padding-bottom: 10px;">
                     <div class="logoImg-loader-33">
                         <div class="loader"></div>
@@ -818,7 +818,7 @@
             </div>
             <div class="d-flex flex-column text-white">
                 <span style="font-size: 14px;">You</span>
-                <span style="color: #ffffff99; font-size: 13px;">Time</span>
+                <span style="color: #ffffff99; font-size: 13px;">{{ formattedTimee }}</span>
             </div>
         </div>
         <div class="d-flex column-gap-2" style="margin-right: 18px;" (click)="$event.stopPropagation()">

@@ -1130,11 +1130,22 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   // image preview modal
   isModalOpen: boolean = false;
   selectedImageSrc: string = '';
+  formattedTimee: string = '';
 
   openModal(message: any) {
     this.selectedImageSrc = message?.viewurl.includes('localhost')
       ? this.baseURL + message?.message
       : message?.viewurl + message?.message;
+
+    const timestamp = message?.timestamp || new Date();
+    const date = new Date(timestamp);
+
+    const datePart = date.toLocaleDateString(); // e.g. 6/14/2025
+    const hours = date.getHours().toString().padStart(2, '0');   // 18
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 18
+
+    this.formattedTimee = `${datePart} at ${hours}:${minutes}`;
+
     this.isModalOpen = true;
   }
 
