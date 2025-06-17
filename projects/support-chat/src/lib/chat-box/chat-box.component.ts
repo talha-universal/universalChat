@@ -15,7 +15,7 @@ import { AudioMessageComponent } from '../audio-message/audio-message.component'
 declare var $: any; @Component({
   selector: 'lib-chat-box',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe, AudioMessageComponent],
+  imports: [FormsModule, NgIf, NgFor, NgClass, DatePipe, AudioMessageComponent, CommonModule],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.css',
 })
@@ -160,10 +160,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.socketService.onEvent('message_deleted', (data) => {
       const { messageId } = data;
 
-      const index = this.messages.findIndex((msg: any) => msg._id === messageId);
+      const index = this.messages.findIndex((msg: any) => msg._id == messageId);
 
       if (index !== -1) {
-        this.messages[index] = { deleted: true, message: '[deleted]', sender: 'client', timestamp: this.deletedMessage.timestamp };
+        const sender = this.messages[index].sender;
+        if(this.deletedMessage ==undefined){
+          this.deletedMessage = this.messages[index]
+        }
+        this.messages[index] = { deleted: true, message: '[deleted]', sender: sender, timestamp: this.deletedMessage.timestamp };
         // If you need to trigger change detection (e.g. Angular), use:
         this.messages = [...this.messages];
       }
@@ -1100,5 +1104,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.msgAction = null;
   }
 
+
+  showFullMessage: boolean = false;
+
+  toggleMessage() {
+    this.showFullMessage = true;
+  }
+
+  ismsgFalse() {
+    this.showFullMessage = false
+  }
 
 }
