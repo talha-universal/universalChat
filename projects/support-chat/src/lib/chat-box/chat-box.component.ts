@@ -616,7 +616,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.processAndUploadImage(file); // Your image compression + upload logic
     }
     else if (type.startsWith('video/')) {
-      this.isUploading = true;
+      this.isUploadingImg = true;
       this.uploadVideoWithValidation(file);
     }
     else if (!type.startsWith('video/') || !type.startsWith('image/')) {
@@ -696,7 +696,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   private uploadNonImageFile(file: File): void {
     const formData = new FormData();
     formData.append('file', file);
-    this.uploadDoc = true;
+    if(!this.voiceLoading && !this.isUploadingImg){
+      this.uploadDoc = true;
+
+    }
 
     this.http.post<{ url: string; error?: any }>('https://buzzmehi.com/upload', formData)
       .subscribe({
