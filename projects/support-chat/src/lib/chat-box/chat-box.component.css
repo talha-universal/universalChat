@@ -1033,12 +1033,6 @@ ul {
 }
 
 /* Base message styling */
-.messagel {
-  transition: opacity 0.3s ease-out;
-  opacity: 1;
-  /* overflow: hidden; */
-  /* min-height: 74px; */
-}
 
 /* .h */
 .hide-scrollbar::-webkit-scrollbar {
@@ -1050,6 +1044,10 @@ ul {
   animation: smoothSlideIn 0.3s ease-out forwards;
 }
 
+.messagel {
+  transition: opacity 0.3s ease-out;
+  opacity: 1;
+}
 @keyframes smoothSlideIn {
   from {
     opacity: 0;
