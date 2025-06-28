@@ -719,6 +719,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         },
         error: (err) => {
           console.error('Upload error:', err);
+          this.isUploading = false;
+          this.voiceLoading = false;
+          this.isUploadingImg = false;
+          this.uploadDoc = false;
         },
         complete: () => {
           this.isUploading = false;
@@ -1003,6 +1007,18 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.stopRecordingAndSend();
     }
+  }
+
+  deleteRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.stream?.getTracks().forEach(track => track.stop());
+      this.isRecording = false;
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+
+    this.clearRecording();
   }
 
   async startTapToRecord() {

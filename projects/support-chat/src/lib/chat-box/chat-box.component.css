@@ -413,7 +413,7 @@ svg {
 .collapseBottom {
   position: absolute;
   bottom: 67px;
-  width: 45%;
+  width: 169px;
   right: 40px;
   color: #111b21 !important;
 }
@@ -1253,4 +1253,7 @@ ul {
   left: 5px;
   font-weight: 600;
   color: white;
+}
+.del-recording {
+  cursor: pointer;
 }
