@@ -5,12 +5,13 @@
     "@angular/common": "^19.0.6",
     "@angular/core": "^19.0.6",
     "ngx-device-detector": "^7.0.0",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "firebase": "^9.0.0",
+    "@angular/fire": "^7.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
-    
   },
   "sideEffects": false,
-  "types": "dist/index.d.ts" 
+  "types": "dist/index.d.ts"
 }

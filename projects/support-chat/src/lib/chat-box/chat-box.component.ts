@@ -340,7 +340,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   CloseChatBox() {
     this.isVisible = false
     this.chatBoxClose.emit();
-
+    this.socketService.disconnect();
   }
 
 

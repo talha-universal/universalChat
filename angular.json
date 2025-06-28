@@ -23,7 +23,12 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "firebase-messaging-sw.js",
+                "input": "src/",
+                "output": ""
+              }
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
@@ -105,7 +110,6 @@
       "root": "projects/support-chat",
       "sourceRoot": "projects/support-chat/src",
       "prefix": "lib",
-
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
