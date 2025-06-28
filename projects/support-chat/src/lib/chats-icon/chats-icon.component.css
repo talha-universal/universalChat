@@ -1,35 +1,49 @@
 .chat-icon-container {
-    position: fixed;
-    bottom: 60px;
-    right: 20px;
-  
-    background-color: #e71687; /* Change the background color as needed */
-    /* padding: 10px; */
-    border-radius: 20%;
-    box-shadow: 0 0 10px rgb(188 35 139,0.8); /* Adjust the color and intensity of the shadow */
-    animation: pulse 1.5s infinite; /* Adjust the animation duration as needed */
-    cursor: pointer;
+  position: fixed;
+  bottom: 60px;
+  right: 20px;
+
+  background-color: #e71687; /* Change the background color as needed */
+  /* padding: 10px; */
+  border-radius: 20%;
+  box-shadow: 0 0 10px rgb(188 35 139, 0.8); /* Adjust the color and intensity of the shadow */
+  animation: pulse 1.5s infinite; /* Adjust the animation duration as needed */
+  cursor: pointer;
+}
+.chat-icon-container-noti {
+  position: fixed;
+  bottom: 94px;
+  right: 18px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50px;
+  background-color: #d81d00;
+  font-size: 12px;
 }
 @keyframes pulse {
-    0% {
-      box-shadow: 0 0 10px #e71687;
-    }
-    50% {
-      box-shadow: 0 0 20px #e71687;
-    }
-    100% {
-      box-shadow: 0 0 10px #e71687;
-    }
+  0% {
+    box-shadow: 0 0 10px #e71687;
   }
+  50% {
+    box-shadow: 0 0 20px #e71687;
+  }
+  100% {
+    box-shadow: 0 0 10px #e71687;
+  }
+}
 
 /* Style the chat icon, you can use an actual image here */
 .chat-icon {
-    width: 46px;
-    height: 46px;
-    color: #fff;
-   fill: white;
-   cursor: pointer;
-    /* Change the color of the icon as needed */
-    background:no-repeat url("./../../../assets/chatbox/MobileAppIcon.png");
-    background-size: auto 46px;
+  width: 46px;
+  height: 46px;
+  color: #fff;
+  fill: white;
+  cursor: pointer;
+  /* Change the color of the icon as needed */
+  background: no-repeat url("./../../../assets/chatbox/MobileAppIcon.png");
+  background-size: auto 46px;
 }
