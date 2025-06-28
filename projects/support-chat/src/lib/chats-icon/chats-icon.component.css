@@ -47,3 +47,28 @@
   background: no-repeat url("./../../../assets/chatbox/MobileAppIcon.png");
   background-size: auto 46px;
 }
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+.box {
+  height: 10px;
+  width: 10px;
+  position: absolute;
+  right: 16px;
+  bottom: -6px;
+  background-color: #f8f9fa;
+  rotate: 135deg;
+  z-index: 1;
+}

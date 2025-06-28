@@ -1,6 +1,14 @@
 <div class="chat-icon-container" (click)="toggleChatBox()">
-    <span class="badge" *ngIf="badgeCount > 0">{{ badgeCount }}</span>
+    <span *ngIf="badgeCount > 0" class="chat-icon-container-noti">{{ badgeCount }}</span>
     <!-- You can replace the content of this div with your actual chat icon -->
+    <!-- Help tray message   -->
+    <div *ngIf="showTrayMessage"
+        class="fade-in-up position-absolute bottom-100 end-0 mb-2 p-2 bg-light border rounded shadow-sm"
+        style="min-width: 200px; z-index: 4;">
+        <small>If you need any help, just click!</small>
+        <div class="box"></div>
+    </div>
+
     <div class="chat-icon">
         <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
             <path
@@ -8,7 +16,4 @@
                 stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
         </svg> -->
     </div>
-</div>
-<div class="chat-icon-container-noti">
-    {{badgeCount}}
 </div>
