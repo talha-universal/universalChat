@@ -17,7 +17,7 @@ export class NotificationService {
 
   private registerServiceWorker(): void {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/assets/firebase-messaging-sw.js')
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then(registration => {
           console.log('Service Worker registered');
           this.requestPermission(registration);

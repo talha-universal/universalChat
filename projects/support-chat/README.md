@@ -2,6 +2,18 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.0.
 
+
+## Requirement
+Install socket.io in your projectfor chat socket
+Install firebase in your project  for FCM 
+and  paste this code in you angular.json file assets array 
+
+             {
+                “glob”: “firebase-messaging-sw.js”,
+                “input”: “node_modules/support-chat/firebase”,
+                “output”: “/”
+              }
+
 ## Code scaffolding
 
 Run `ng generate component component-name --project supportChat` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project supportChat`.
