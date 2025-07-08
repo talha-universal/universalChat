@@ -17,11 +17,11 @@ export class WebSocketService {
   }
   connect(token?: string): void {
     this.socket = io(BASE_URL_WS
-      //   , {
-      //     transports: ['websocket'],
-      //     path: '/csp-chat/',  // Specify the correct path for WebSocket namespace
-      //     query: { token },  // Pass token and project ID
-      // }
+      , {
+        // transports: ['websocket'],
+        // path: '/client/',  // Specify the correct path for WebSocket namespace
+        // query: { token },  // Pass token and project ID
+      }
     );
 
 
@@ -36,7 +36,7 @@ export class WebSocketService {
 
     // Start listening for FCM messages
     this.notificationService.listenForMessages();
-    console.log(' Start listening for FCM messages')
+    // console.log(' Start listening for FCM messages')
 
     // Reset badge when chat opens
     this.notificationService.resetBadge();

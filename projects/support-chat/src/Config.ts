@@ -5,10 +5,14 @@
 // const BASE_URL = 'http://10.10.0.14:3000'
 // const socketurl = 'ws://10.10.0.14:8080'
 
-export const BASE_URL = 'https://buzzmehi.com'
+// export const BASE_URL = 'https://buzzmehi.com'
+export const BASE_URL = 'https://api.talkbuzz.com'
 const socketurl ='';
 // export const BASE_URL_WS = "ws://101.0.20.132:3000";
-export const BASE_URL_WS = "wss://buzzmehi.com";
+// export const BASE_URL_WS = "wss://buzzmehi.com";
+export const BASE_URL_WS = "wss://api.talkbuzz.com";
+
+
     
 // const BASE_URL = ''
 

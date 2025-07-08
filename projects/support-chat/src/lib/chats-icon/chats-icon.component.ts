@@ -33,7 +33,6 @@ export class ChatsIconComponent implements OnInit {
 
     this.notificationService.badgeCount$.subscribe(count => {
       this.badgeCount = count;
-      console.log(this.badgeCount + "icom")
     });
   }
   toggleChatBox() {
@@ -51,7 +50,7 @@ export class ChatsIconComponent implements OnInit {
       }
 
       // 🔽 Add your chat toggle logic here
-      console.log("Chat box toggled");
+  
     }
 
     // your existing chat open/close logic
