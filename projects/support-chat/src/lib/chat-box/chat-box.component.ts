@@ -120,6 +120,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     //============ GET DATA FROM SOCKET =============//
 
     this.socketService.onEvent('client_joined', (data) => {
+      debugger
       this.clientDetail(data)
     });
 
@@ -704,7 +705,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     }
 
-    this.http.post<{ url: string; error?: any }>('https://buzzmehi.com/upload', formData)
+    this.http.post<{ url: string; error?: any }>(BASE_URL+ '/upload', formData)
       .subscribe({
         next: (data) => {
           if (data.error) return;
@@ -863,7 +864,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private upload(formData: FormData): void {
-    this.http.post<{ url: string; error?: any }>('https://buzzmehi.com/upload', formData)
+    this.http.post<{ url: string; error?: any }>(BASE_URL+ '/upload', formData)
       .subscribe({
         next: (data) => {
           if (data.error) return;
