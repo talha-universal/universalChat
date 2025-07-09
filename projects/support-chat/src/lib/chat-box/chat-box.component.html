@@ -46,8 +46,9 @@
                 </div>
             </div>
             <div class="w-100 position-relative">
-                <input class=" name-input-enter w-100" type="text" id="userName" [(ngModel)]="userName" name="userName"
-                    required #nameInput="ngModel" placeholder="Enter your name" />
+                <input class=" name-input-enter w-100" style="padding-bottom: 5px;" type="text" id="userName"
+                    [(ngModel)]="userName" name="userName" required #nameInput="ngModel"
+                    placeholder="Enter your name" />
                 <div class="errorMessageValidation position-absolute" style="top: 100%; font-size: 12px;"
                     *ngIf="nameInput.invalid && (nameInput.dirty || nameInput.touched)">
                     <div *ngIf="nameInput.errors && nameInput.errors['required']">Name is required.</div>
