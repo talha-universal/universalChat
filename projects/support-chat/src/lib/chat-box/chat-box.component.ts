@@ -120,7 +120,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     //============ GET DATA FROM SOCKET =============//
 
     this.socketService.onEvent('client_joined', (data) => {
-      debugger
       this.clientDetail(data)
     });
 
