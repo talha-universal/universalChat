@@ -1,4 +1,3 @@
-
 <!-- <app-chat (chatBoxToggle)="toggleChatBox()"></app-chat>
 <app-chat-box *ngIf="isChatBoxOpen" (chatBoxClose)="isChatBoxOpen = false" [isVisible]="isChatBoxOpen"></app-chat-box> -->
 
@@ -8,5 +7,108 @@
 
 <!-- <lib-chat-box></lib-chat-box> -->
 
-        <lib-chats></lib-chats>
+<lib-chats></lib-chats>
 
+<div class="voice-recorder-container">
+        <div class="recorder-button-container">
+                <!-- Lock Indicator -->
+                <!-- *ngIf="showLockHint && !isLocked && !showDeleteIndicator" -->
+                <div *ngIf="showLockHint && !isLocked && !showDeleteIndicator" class="lock-indicator"
+                        [class.locked]="isLocked">
+                        <svg class="vert-move" viewBox="0 0 24 24">
+                                <path *ngIf="!isLocked"
+                                        d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                                <path *ngIf="isLocked"
+                                        d="M12,17A2,2 0 0,0 14,15A2,2 0 0,0 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10A2,2 0 0,1 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                        </svg>
+
+                        <svg class="svg-arrow vert-move-arrow" viewBox="0 0 24 24" width="10px" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M12 7C12.2652 7 12.5196 7.10536 12.7071 7.29289L19.7071 14.2929C20.0976 14.6834 20.0976 15.3166 19.7071 15.7071C19.3166 16.0976 18.6834 16.0976 18.2929 15.7071L12 9.41421L5.70711 15.7071C5.31658 16.0976 4.68342 16.0976 4.29289 15.7071C3.90237 15.3166 3.90237 14.6834 4.29289 14.2929L11.2929 7.29289C11.4804 7.10536 11.7348 7 12 7Z"
+                                                fill="#fff"></path>
+                                </g>
+                        </svg>
+                </div>
+
+                <!-- Locked State UI -->
+                <div class="recording-display" *ngIf="isLocked">
+                        <div class="timer-waveform-container">
+                                <div class="recording-timer">
+                                        {{ recordingTime | date:'mm:ss' }}
+                                </div>
+                                <div class="sound-wave">
+                                        <!-- <div class="wave-bar" *ngFor="let bar of [1,2,3,4,5,6,7,8,9,10]"
+                                                [style.height.px]="(isPaused ? 15 : 10 + Math.random() * 20)"></div> -->
+                                        <img style="    height: 40px;
+    object-fit: cover;
+    width: 60%;" src="/assets/chatbox/wave.gif" alt="">
+                                </div>
+                        </div>
+
+                        <div class="locked-controls">
+                                <button class="control-button delete-button" (click)="cancelRecording()">
+                                        <svg viewBox="0 0 24 24">
+                                                <path
+                                                        d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                                        </svg>
+                                </button>
+
+                                <button class="control-button pause-button" (click)="togglePause()">
+                                        <svg *ngIf="!isPaused" fill="#ff0000" viewBox="0 0 24 24">
+                                                <path d="M14,19H18V5H14M6,19H10V5H6V19Z" />
+                                        </svg>
+                                        <!-- <svg *ngIf="isPaused" viewBox="0 0 24 24">
+                                                <path d="M10,16.5L16,12L10,7.5V16.5Z" />
+                                        </svg> -->
+                                        <svg *ngIf="isPaused" width="24px" height="24px" fill="#ff0000"
+                                                viewBox="0 0 24 24">
+                                                <path
+                                                        d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
+                                        </svg>
+                                </button>
+
+                                <button class="control-button send-button" (click)="sendRecording()">
+                                        <svg viewBox="0 0 24 24">
+                                                <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+                                        </svg>
+                                </button>
+                        </div>
+                </div>
+
+                <!-- Normal Recording UI -->
+                <div class="recording-area" *ngIf="!isLocked">
+                        <div *ngIf="!isRecording"></div>
+                        <!--  -->
+                        <div *ngIf="isRecording" class="recording-ui">
+                                <!-- <svg class="trash-blink" fill="red" width="24px" viewBox="0 0 24 24">
+                                        <path
+                                                d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                                </svg> -->
+                                <svg class="trash-blink" fill="red" viewBox="0 0 24 24">
+                                        <path
+                                                d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
+                                </svg>
+                                <div class="recording-timer">
+                                        {{ recordingTime | date:'mm:ss' }}
+                                </div>
+                                <!-- *ngIf="showDeleteIndicator" -->
+                                <div class="delete-indicator shine">
+
+                                        <span>Slide left to cancel</span>
+                                </div>
+                        </div>
+
+                        <button #recordButton class="record-button" (mousedown)="startRecording($event)"
+                                (touchstart)="startRecording($event)" [class.recording]="isRecording">
+                                <svg viewBox="0 0 24 24">
+                                        <path
+                                                d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
+                                </svg>
+                        </button>
+                </div>
+        </div>
+</div>
