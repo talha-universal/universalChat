@@ -697,7 +697,7 @@
 
     <!-- ========================================= mbl recording ========================================= -->
 
-    <div *ngIf="isMobile" class="voice-recorder-container" [ngClass]="{
+    <div *ngIf="isMobile && !isSendButtonVisible" class="voice-recorder-container" [ngClass]="{
         'recording-start' : isRecording
     }">
         <div class="recorder-button-container">
