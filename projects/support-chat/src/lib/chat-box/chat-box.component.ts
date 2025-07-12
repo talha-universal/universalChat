@@ -1241,6 +1241,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
+  showDeleteAnimation = false;
 
   handleMove(event: MouseEvent | TouchEvent) {
     if (!this.isBrowser || !this.isRecording || this.isLocked || !this.recordButton?.nativeElement) return;
@@ -1260,6 +1261,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     const verticalMovementPercent = Math.min(100, (deltaY / 150) * 100);
     const horizontalMovementPercent = Math.min(100, Math.abs(deltaX / 150) * 100);
 
+    // Slide Up - Lock Recording
     if (deltaY > 30) {
       this.showLockHint = true;
       this.showDeleteIndicator = false;
@@ -1277,30 +1279,40 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // Slide Left - Cancel Recording
     if (deltaX < -30) {
       this.showLockHint = false;
       this.showDeleteIndicator = true;
 
       const screenWidth = window.innerWidth;
-      const maxSlide = screenWidth * 0.5; // 50% of screen
+      const maxSlide = screenWidth * 0.5;
       const slideDistance = Math.min(maxSlide, Math.abs(deltaX));
       const translateX = -slideDistance;
-
       const opacity = 1 - (horizontalMovementPercent / 200);
 
       this.recordButton.nativeElement.style.transform = `scale(2) translateX(${translateX}px)`;
       this.recordButton.nativeElement.style.opacity = `${opacity}`;
 
       if (slideDistance >= maxSlide) {
-        this.cancelRecording(); // Your delete/cancel logic
+        this.cancelRecording();
+
+        // Only show animation if not locked
+        if (!this.isLocked) {
+          this.showDeleteAnimation = true;
+          setTimeout(() => {
+            this.showDeleteAnimation = false;
+          }, 2500);
+        }
+
         setTimeout(() => {
-          this.cancelRecording(); // Animate back to original
+          this.cancelRecording();
         }, 100);
       }
 
       return;
     }
 
+    // Reset UI
     this.showDeleteIndicator = false;
     this.deleteSlideAmount = 0;
     if (this.recordButton?.nativeElement) {
@@ -1308,6 +1320,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.recordButton.nativeElement.style.opacity = '1';
     }
   }
+
+
 
   handleEnd() {
     if (!this.isBrowser || !this.isRecording || !this.recordButton?.nativeElement) return;
