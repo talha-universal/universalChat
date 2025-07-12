@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { LibChatsComponent } from './../../projects/support-chat/src/public-api';
 // import { LibChatsComponent } from 'support-chat';
@@ -13,8 +13,12 @@ import { LibChatsComponent } from './../../projects/support-chat/src/public-api'
 export class AppComponent {
   title = 'UniversalChat';
   isChatBoxOpen = false;
+  Math: any;
 
   toggleChatBox() {
     this.isChatBoxOpen = !this.isChatBoxOpen;
   }
+
+
+
 }

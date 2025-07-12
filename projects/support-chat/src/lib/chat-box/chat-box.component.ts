@@ -1,5 +1,5 @@
-import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { CommonModule, DatePipe, isPlatformBrowser, NgClass, NgFor, NgIf } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, Input, NgZone, OnDestroy, OnInit, Output, PLATFORM_ID, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CONFIG, BASE_URL } from '../../Config';
 import { NetworkService } from '../Serives/network.service';
@@ -84,10 +84,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     private sanitizer: DomSanitizer,
     private socketService: WebSocketService,
     private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object,
     private ngZone: NgZone, private el: ElementRef) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     const ua = navigator.userAgent;
     const isIOS = /iPad|iPhone|iPod/.test(ua) && !('MSStream' in window);
     this.isIOSChrome = isIOS && /CriOS/.test(ua); // CriOS = Chrome on iOS
+
 
 
     this.baseURL = BASE_URL;
@@ -187,6 +190,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       this.stream.getTracks().forEach(track => track.stop());
     }
     clearInterval(this.timerInterval);
+    this.cleanup();
+    cancelAnimationFrame(this.pausedAnimId);
   }
   ngAfterViewInit(): void {
     this.scrollToTop();
@@ -202,6 +207,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
         this.shouldScrollToTop = false;
       }
     });
+    if (this.isBrowser) {
+      this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
   }
 
 
@@ -704,7 +712,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
     }
 
-    this.http.post<{ url: string; error?: any }>(BASE_URL+ '/upload', formData)
+    this.http.post<{ url: string; error?: any }>(BASE_URL + '/upload', formData)
       .subscribe({
         next: (data) => {
           if (data.error) return;
@@ -863,7 +871,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private upload(formData: FormData): void {
-    this.http.post<{ url: string; error?: any }>(BASE_URL+ '/upload', formData)
+    this.http.post<{ url: string; error?: any }>(BASE_URL + '/upload', formData)
       .subscribe({
         next: (data) => {
           if (data.error) return;
@@ -980,26 +988,60 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // audio recording
 
+  @ViewChild('recordButton') recordButton!: ElementRef<HTMLButtonElement>;
+
+  // isMobile = false;
+  isBrowser = false;
+  isTouchDevice = false;
+
   isRecording = false;
-  // isUploading = false;
-  recordingTime = 0; // in seconds
+  isLocked = false;
+  isPaused = false;
+  showLockHint = false;
+  showDeleteIndicator = false;
+  voiceLoading = false;
+  uploadDoc = false;
+
+  // For mobile recording
+  recordingTime = new Date(0);
+  deleteSlideAmount = 0;
+  startX = 0;
+  startY = 0;
+  currentX = 0;
+  currentY = 0;
+  timerInterval: any;
+  moveListener: any;
+  endListener: any;
+  lockHintTimeout: any;
+  recordingStartTime = 0;
+  pausedTime = 0;
+
+  // Audio recording
   recordingError: string | null = null;
   recordedAudioURL: string | null = null;
   recordedAudioBlob: Blob | null = null;
   audioChunks: Blob[] = [];
   mediaRecorder!: MediaRecorder;
   stream!: MediaStream;
-  timerInterval: any;
-  voiceLoading: boolean = false
-  uploadDoc: boolean = false
+  showShortMsg = false;
 
 
-  // Convert seconds to mm:ss format
-  get formattedTime(): string {
-    const minutes = Math.floor(this.recordingTime / 60);
-    const seconds = this.recordingTime % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  }
+
+  // ngOnInit() {
+  //   this.isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  // }
+
+  // ngAfterViewInit() {
+  //   if (this.isBrowser) {
+  //     this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  //   }
+  // }
+
+  // ngOnDestroy() {
+  //   this.cleanup();
+  // }
+
+  // ------------ Shared Methods ------------
 
   toggleRecording() {
     if (!this.isRecording) {
@@ -1007,6 +1049,116 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.stopRecordingAndSend();
     }
+  }
+
+  async startTapToRecord() {
+    this.recordingError = null;
+    this.recordingTime = new Date(0);
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.startRecording();
+    } catch (err) {
+      this.recordingError = '🎙️ Microphone permission denied. Please allow mic access.';
+      console.error('Microphone error:', err);
+    }
+  }
+  pausedPreviewBlob: Blob | null = null;
+  pausedPreviewUrl: string | null = null;
+
+  startRecording() {
+    this.audioChunks = [];
+    this.mediaRecorder = new MediaRecorder(this.stream!);
+    this.recordingTime = new Date(0);
+
+    this.mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        this.audioChunks.push(event.data);
+
+        if (this.isPaused) {
+          // ✅ Create paused preview blob & URL
+          this.pausedPreviewBlob = new Blob([event.data], { type: 'audio/webm' });
+          this.pausedPreviewUrl = URL.createObjectURL(this.pausedPreviewBlob);
+        }
+      }
+    };
+
+
+    this.mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
+      this.recordedAudioBlob = audioBlob;
+      this.recordedAudioURL = URL.createObjectURL(audioBlob);
+    };
+
+    this.mediaRecorder.start();
+    this.isRecording = true;
+
+    this.recordingStartTime = Date.now();
+    this.startTimer();
+  }
+
+  stopRecordingAndSend() {
+    // debugger
+    console.log('Recording stopped');
+
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.stream?.getTracks().forEach(track => track.stop());
+      this.isRecording = false;
+      this.isLocked = false;
+      this.isPaused = false;
+      this.showLockHint = false;
+      this.showDeleteIndicator = false;
+
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+
+      setTimeout(() => {
+        const durationSec = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+
+        if (this.recordedAudioBlob && durationSec >= 1) {
+          this.sendAudioToAPI();
+        } else {
+          console.log('Recording too short, discarded.');
+
+          this.showShortMsg = true; // show message
+
+          setTimeout(() => {
+            this.showShortMsg = false; // hide after 2s
+          }, 2000);
+        }
+
+        this.clearRecording();
+      }, 200);
+    }
+  }
+
+
+  sendAudioToAPI(): void {
+    if (!this.recordedAudioBlob) return;
+    console.log('Recording sent');
+    const audioFile = new File([this.recordedAudioBlob], 'voice-message.mp3', { type: 'audio/mp3' });
+    this.voiceLoading = true;
+    this.isLocked = false;
+    this.showLockHint = false;
+
+    // Replace with your real upload method
+    this.uploadNonImageFile(audioFile);
+  }
+
+  // uploadNonImageFile(file: File): void {
+  //   console.log('Uploading file...', file);
+  //   // Your actual upload logic goes here
+  // }
+
+  clearRecording() {
+    if (this.recordedAudioURL) {
+      URL.revokeObjectURL(this.recordedAudioURL);
+    }
+    this.recordedAudioURL = null;
+    this.recordedAudioBlob = null;
+    this.audioChunks = [];
+    this.recordingTime = new Date(0);
   }
 
   deleteRecording() {
@@ -1021,83 +1173,263 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.clearRecording();
   }
 
-  async startTapToRecord() {
-    this.recordingError = null;
-    this.recordingTime = 0;
+  // ------------ Mobile Specific Actions ------------
 
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.startRecording();
-    } catch (err) {
-      this.recordingError = '🎙️ Microphone permission denied. Please allow mic access.';
-      console.error('Microphone error:', err);
+  holdTimeout: any;
+  minHoldTime = 200; // ms
+  isHoldTriggered = false;
+
+  startRecordingMobile(event: MouseEvent | TouchEvent) {
+    if (!this.isBrowser) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const clientX = this.isTouchDevice
+      ? (event as TouchEvent).touches[0].clientX
+      : (event as MouseEvent).clientX;
+    const clientY = this.isTouchDevice
+      ? (event as TouchEvent).touches[0].clientY
+      : (event as MouseEvent).clientY;
+
+    this.startX = clientX;
+    this.startY = clientY;
+    this.currentX = clientX;
+    this.currentY = clientY;
+
+    this.isLocked = false;
+    this.isPaused = false;
+    this.showLockHint = false;
+    this.showDeleteIndicator = false;
+    this.deleteSlideAmount = 0;
+    this.recordingTime = new Date(0);
+    this.recordingStartTime = Date.now();
+    this.pausedTime = 0;
+    this.isHoldTriggered = false;
+
+    // Start hold timer
+    this.holdTimeout = setTimeout(() => {
+      this.isHoldTriggered = true;
+      this.isRecording = true;
+
+      this.lockHintTimeout = setTimeout(() => {
+        if (this.isRecording && !this.isLocked) {
+          this.showLockHint = true;
+        }
+      }, 1000);
+
+      this.startTapToRecord();
+
+      this.moveListener = this.handleMove.bind(this);
+      this.endListener = this.handleEnd.bind(this);
+
+      if (this.isTouchDevice) {
+        window.addEventListener('touchmove', this.moveListener, { passive: false });
+        window.addEventListener('touchend', this.endListener);
+      } else {
+        window.addEventListener('mousemove', this.moveListener);
+        window.addEventListener('mouseup', this.endListener);
+      }
+    }, this.minHoldTime);
+  }
+
+  cancelRecordingIfNotHeld() {
+    clearTimeout(this.holdTimeout);
+    if (!this.isHoldTriggered) {
+      console.log('📵 Tap ignored – hold to record');
     }
   }
 
-  startRecording() {
-    this.audioChunks = [];
-    this.mediaRecorder = new MediaRecorder(this.stream!);
-    this.recordingTime = 0;
 
-    this.mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        this.audioChunks.push(event.data);
+
+  handleMove(event: MouseEvent | TouchEvent) {
+    if (!this.isBrowser || !this.isRecording || this.isLocked || !this.recordButton?.nativeElement) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.currentX = this.isTouchDevice
+      ? (event as TouchEvent).touches[0].clientX
+      : (event as MouseEvent).clientX;
+    this.currentY = this.isTouchDevice
+      ? (event as TouchEvent).touches[0].clientY
+      : (event as MouseEvent).clientY;
+
+    const deltaX = this.currentX - this.startX;
+    const deltaY = this.startY - this.currentY;
+
+    const verticalMovementPercent = Math.min(100, (deltaY / 150) * 100);
+    const horizontalMovementPercent = Math.min(100, Math.abs(deltaX / 150) * 100);
+
+    if (deltaY > 30) {
+      this.showLockHint = true;
+      this.showDeleteIndicator = false;
+      this.deleteSlideAmount = 0;
+
+      const scale = 1.1 - (verticalMovementPercent * 0.1 / 100);
+      const translateY = -verticalMovementPercent * 0.8;
+
+      this.recordButton.nativeElement.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+      this.recordButton.nativeElement.style.opacity = `${1 - (verticalMovementPercent / 200)}`;
+
+      if (deltaY > 150) {
+        this.isLocked = true;
       }
-    };
+      return;
+    }
 
-    this.mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
-      this.recordedAudioBlob = audioBlob;
-      this.recordedAudioURL = URL.createObjectURL(audioBlob);
-    };
+    if (deltaX < -30) {
+      this.showLockHint = false;
+      this.showDeleteIndicator = true;
 
-    this.mediaRecorder.start();
-    this.isRecording = true;
+      const screenWidth = window.innerWidth;
+      const maxSlide = screenWidth * 0.5; // 50% of screen
+      const slideDistance = Math.min(maxSlide, Math.abs(deltaX));
+      const translateX = -slideDistance;
 
+      const scale = 1.5 - (horizontalMovementPercent * 0.1 / 100);
+      const opacity = 1 - (horizontalMovementPercent / 200);
+
+      this.recordButton.nativeElement.style.transform = `scale(${scale}) translateX(${translateX}px)`;
+      this.recordButton.nativeElement.style.opacity = `${opacity}`;
+
+      // ✅ Check if slide reached 50% — trigger delete
+      if (slideDistance >= maxSlide) {
+        this.cancelRecording(); // Your delete/cancel logic
+        setTimeout(() => {
+          this.cancelRecording(); // Animate back to original
+        }, 100); // small delay to allow cancel to finish
+      }
+
+      return;
+    }
+
+    this.showDeleteIndicator = false;
+    this.deleteSlideAmount = 0;
+    if (this.recordButton?.nativeElement) {
+      this.recordButton.nativeElement.style.transform = 'scale(1.5)';
+      this.recordButton.nativeElement.style.opacity = '1';
+    }
+  }
+
+  handleEnd() {
+    if (!this.isBrowser || !this.isRecording || !this.recordButton?.nativeElement) return;
+
+
+    this.recordButton.nativeElement.style.transform = '';
+    this.recordButton.nativeElement.style.opacity = '';
+
+    const deltaX = this.currentX - this.startX;
+
+
+    if (this.showDeleteIndicator && deltaX < -100) {
+      this.cancelRecording();
+      return;
+    }
+
+    if (!this.isLocked) {
+      this.stopRecordingAndSend();
+    }
+  }
+
+  togglePause() {
+    if (!this.isBrowser || !this.mediaRecorder) return;
+
+    this.isPaused = !this.isPaused;
+
+    if (this.isPaused) {
+      clearInterval(this.timerInterval);
+      this.pausedTime = Date.now();
+
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.pause();
+        this.mediaRecorder.requestData(); // force flush current chunk
+      }
+
+      setTimeout(() => {
+        if (this.audioChunks.length > 0) {
+          const previewBlob = new Blob(this.audioChunks, { type: 'audio/webm; codecs=opus' });
+          this.pausedPreviewBlob = previewBlob;
+          this.pausedPreviewUrl = URL.createObjectURL(previewBlob);
+          console.log("⏸️ Preview audio ready", this.pausedPreviewUrl);
+        }
+      }, 300);
+
+    } else {
+      const pauseDuration = Date.now() - this.pausedTime;
+      this.recordingStartTime += pauseDuration;
+
+      if (this.mediaRecorder.state === 'paused') {
+        this.mediaRecorder.resume();
+        console.log('▶️ Recording resumed');
+      }
+
+      this.startTimer();
+    }
+  }
+
+
+
+
+  cancelRecording() {
+    const el = this.recordButton?.nativeElement;
+    if (el) {
+      el.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      el.style.transform = 'scale(1.1) translateX(0px)';
+      el.style.opacity = '1';
+      setTimeout(() => {
+        el.style.transition = '';
+      }, 300);
+    }
+
+    this.deleteRecording();
+    this.isRecording = false;
+    this.isLocked = false;
+    this.isPaused = false;
+    this.showLockHint = false;
+    this.showDeleteIndicator = false;
+    this.deleteSlideAmount = 0;
+  }
+
+  private startTimer() {
+    if (!this.isBrowser) return;
+
+    clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => {
-      this.ngZone.run(() => {
-        this.recordingTime++;
-      });
+      if (!this.isRecording || this.isPaused) {
+        clearInterval(this.timerInterval);
+        return;
+      }
+      this.recordingTime = new Date(Date.now() - this.recordingStartTime);
     }, 1000);
   }
 
-  stopRecordingAndSend() {
-    if (this.mediaRecorder && this.isRecording) {
-      this.mediaRecorder.stop();
-      this.stream?.getTracks().forEach(track => track.stop());
-      this.isRecording = false;
+  private cleanupListeners() {
+    if (!this.isBrowser) return;
 
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
+    if (this.moveListener) {
+      window.removeEventListener('mousemove', this.moveListener);
+      window.removeEventListener('touchmove', this.moveListener);
+    }
 
-      setTimeout(() => {
-        if (this.recordingTime >= 1 && this.recordedAudioBlob) {
-          this.sendAudioToAPI();
-          this.clearRecording();
-        }
-      }, 200); // slight delay to ensure blob is ready
+    if (this.endListener) {
+      window.removeEventListener('mouseup', this.endListener);
+      window.removeEventListener('touchend', this.endListener);
     }
   }
 
-  sendAudioToAPI(): void {
-    // this.enableScrollToTopTemporarily();
-    if (!this.recordedAudioBlob) return;
+  private cleanup() {
+    if (!this.isBrowser) return;
 
-    const audioFile = new File([this.recordedAudioBlob], 'voice-message.mp3', { type: 'audio/mp3' });
-    this.voiceLoading = true;
-    this.uploadNonImageFile(audioFile);
-  }
-
-  clearRecording() {
-    if (this.recordedAudioURL) {
-      URL.revokeObjectURL(this.recordedAudioURL);
+    clearInterval(this.timerInterval);
+    if (this.lockHintTimeout) {
+      clearTimeout(this.lockHintTimeout);
     }
-    this.recordedAudioURL = null;
-    this.recordedAudioBlob = null;
-    this.audioChunks = [];
-    // this.voiceLoading = false;
-    this.recordingTime = 0;
+    this.cleanupListeners();
   }
+
+
+
+
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
   private shouldScrollToTop: boolean = true;
 
@@ -1226,4 +1558,107 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   closeModal() {
     this.isModalOpen = false;
   }
+
+  // animation wavee
+
+  @ViewChild('pausedAudio') pausedAudioRef!: ElementRef<HTMLAudioElement>;
+  @ViewChild('pausedCanvas') pausedCanvasRef!: ElementRef<HTMLCanvasElement>;
+
+  isPausedPlaying = false;
+
+  pausedWaveformData: number[] = Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.6);
+  pausedAnimId: number = 0;
+
+  pausedCurrentTime = 0;
+  pausedDuration = 0;
+
+  // Play/Pause Toggle
+  togglePausedAudio() {
+    const audio = this.pausedAudioRef.nativeElement;
+    if (audio.paused) {
+      audio.play();
+      this.isPausedPlaying = true;
+      this.animatePausedWaveform();
+    } else {
+      audio.pause();
+      this.isPausedPlaying = false;
+      cancelAnimationFrame(this.pausedAnimId);
+      this.drawPausedWaveform();
+    }
+  }
+
+  // Time Update Event
+  onPausedTimeUpdate() {
+    const audio = this.pausedAudioRef.nativeElement;
+    this.pausedCurrentTime = audio.currentTime;
+    this.drawPausedWaveform();
+  }
+
+  // On Audio Metadata Loaded
+  onPausedLoadedMetadata() {
+    const audio = this.pausedAudioRef.nativeElement;
+    this.pausedDuration = audio.duration;
+    this.pausedCurrentTime = 0;
+    this.isPausedPlaying = false;
+    this.drawPausedWaveform();
+  }
+
+  // On Audio Ended
+  onPausedEnded() {
+    this.isPausedPlaying = false;
+    this.pausedCurrentTime = 0;
+    this.drawPausedWaveform();
+  }
+
+  // Draw waveform static or animated
+  private drawPausedWaveform() {
+    const canvas = this.pausedCanvasRef.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const bars = this.pausedWaveformData;
+    const barCount = bars.length;
+    const barWidth = width / barCount;
+
+    const audio = this.pausedAudioRef.nativeElement;
+    const progress = audio.duration ? audio.currentTime / audio.duration : 0;
+
+    bars.forEach((bar, i) => {
+      const x = i * barWidth;
+      const barHeight = bar * height;
+      ctx.fillStyle = (i / barCount < progress) ? '#000000' : '#54656f';
+      ctx.fillRect(x + 1, (height - barHeight) / 2, barWidth - 2, barHeight);
+    });
+
+    // Draw blue progress dot
+    if (audio.duration && (this.isPausedPlaying || audio.currentTime > 0)) {
+      const dotX = Math.min(progress * width, width - 8);
+      ctx.beginPath();
+      ctx.arc(dotX, height / 2, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#24D366';
+      ctx.shadowColor = '#FF0000';
+      ctx.shadowBlur = 2;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  private animatePausedWaveform() {
+    if (!this.isPausedPlaying) return;
+    this.drawPausedWaveform();
+    this.pausedAnimId = requestAnimationFrame(() => this.animatePausedWaveform());
+  }
+
+  formatTime(seconds: number): string {
+    if (!seconds) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+
+
 }
