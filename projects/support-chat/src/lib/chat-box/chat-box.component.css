@@ -608,7 +608,12 @@ ul {
   height: calc(100% - 67px);
   /* height: auto; */
   display: flex;
+  transition-duration: 300ms;
   flex-direction: column-reverse;
+}
+
+.height-calc {
+  height: calc(100% - 97px) !important;
 }
 
 .message-list {
@@ -1353,15 +1358,19 @@ ul {
   padding-top: 5px;
   width: 15px !important;
 }
+.svg-arrow-slide {
+  rotate: -90deg;
+  width: 15px !important;
+}
 
 .lock-indicator {
   position: absolute;
   top: 30px;
-  right: -7px;
+  right: -18px;
   transform: translateX(-50%) translateY(-100%);
   width: 40px;
   /* height: 140px; */
-  background: rgba(0, 0, 0, 0.7);
+  background: #fcfcfa;
   border-radius: 20px;
   display: flex;
   /* justify-content: center; */
@@ -1388,7 +1397,7 @@ ul {
 .vert-move {
   -webkit-animation: mover 1s infinite alternate;
   animation: mover 1s infinite alternate;
-  fill: white;
+  fill: #8b9698;
   width: 24px;
   height: 24px;
 }
@@ -1448,13 +1457,13 @@ ul {
   padding: 0;
   outline: none;
   position: fixed;
-  bottom: 15px;
-  right: 11px;
+  bottom: 16px;
+  right: 10px;
   z-index: 10000;
   will-change: transform, opacity;
 
   &.recording {
-    background: #f44336;
+    /* background: #f44336; */
     transform: scale(1.5);
   }
 
@@ -1471,10 +1480,11 @@ ul {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-top: 15px;
+  /* margin-top: 15px; */
+  min-height: 65px;
 
   .recording-timer {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
     color: #333;
   }
@@ -1483,6 +1493,8 @@ ul {
     display: flex;
     align-items: center;
     /* background: rgba(244, 67, 54, 0.9); */
+    padding-right: 60px !important;
+    justify-content: end;
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -1510,7 +1522,7 @@ ul {
   display: flex;
   align-items: center;
   column-gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 
   .recording-timer {
     font-size: 18px;
@@ -1523,6 +1535,7 @@ ul {
   .sound-wave {
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 50px;
     width: 100%;
     gap: 4px;
@@ -1542,10 +1555,11 @@ ul {
   justify-content: space-between;
   width: 100%;
   padding: 0 20px;
+  margin-bottom: 8px;
 
   .control-button {
-    width: 48px;
-    height: 48px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     border: none;
     display: flex;
@@ -1568,18 +1582,25 @@ ul {
     }
 
     &.pause-button {
-      background: #25d366;
+      /* background: #25d366; */
       svg {
         fill: red;
       }
     }
 
-    &.send-button:hover {
+    &.send-button {
+      background: #25d366;
+      svg {
+        fill: #fff;
+      }
+    }
+
+    /* &.send-button:hover {
       background: rgba(37, 211, 102, 0.1);
       svg {
         fill: #25d366;
       }
-    }
+    } */
   }
 }
 
@@ -1635,7 +1656,7 @@ ul {
   content: "";
   top: 0;
   transform: translateX(100%);
-  width: 100%;
+  width: 48%;
   height: 40px;
   position: absolute;
   z-index: 1;

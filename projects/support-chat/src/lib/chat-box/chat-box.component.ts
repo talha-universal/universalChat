@@ -1190,7 +1190,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       if (this.isRecording && !this.isLocked) {
         this.showLockHint = true;
       }
-    }, 1000);
+    },);
 
     this.startTapToRecord();
 
@@ -1296,19 +1296,32 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   togglePause() {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || !this.mediaRecorder) return;
 
     this.isPaused = !this.isPaused;
 
     if (this.isPaused) {
       clearInterval(this.timerInterval);
       this.pausedTime = Date.now();
+
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.pause();
+        console.log('Recording paused');
+      }
+
     } else {
       const pauseDuration = Date.now() - this.pausedTime;
       this.recordingStartTime += pauseDuration;
+
+      if (this.mediaRecorder.state === 'paused') {
+        this.mediaRecorder.resume();
+        console.log('Recording resumed');
+      }
+
       this.startTimer();
     }
   }
+
 
   cancelRecording() {
     const el = this.recordButton?.nativeElement;
