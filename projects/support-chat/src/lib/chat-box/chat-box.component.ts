@@ -1286,18 +1286,16 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       const slideDistance = Math.min(maxSlide, Math.abs(deltaX));
       const translateX = -slideDistance;
 
-      const scale = 1.5 - (horizontalMovementPercent * 0.1 / 100);
       const opacity = 1 - (horizontalMovementPercent / 200);
 
-      this.recordButton.nativeElement.style.transform = `scale(${scale}) translateX(${translateX}px)`;
+      this.recordButton.nativeElement.style.transform = `scale(2) translateX(${translateX}px)`;
       this.recordButton.nativeElement.style.opacity = `${opacity}`;
 
-      // ✅ Check if slide reached 50% — trigger delete
       if (slideDistance >= maxSlide) {
         this.cancelRecording(); // Your delete/cancel logic
         setTimeout(() => {
           this.cancelRecording(); // Animate back to original
-        }, 100); // small delay to allow cancel to finish
+        }, 100);
       }
 
       return;
@@ -1306,7 +1304,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showDeleteIndicator = false;
     this.deleteSlideAmount = 0;
     if (this.recordButton?.nativeElement) {
-      this.recordButton.nativeElement.style.transform = 'scale(1.5)';
+      this.recordButton.nativeElement.style.transform = 'scale(2)';
       this.recordButton.nativeElement.style.opacity = '1';
     }
   }
