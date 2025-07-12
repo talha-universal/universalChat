@@ -1023,6 +1023,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   audioChunks: Blob[] = [];
   mediaRecorder!: MediaRecorder;
   stream!: MediaStream;
+  showShortMsg = false;
 
 
 
@@ -1119,6 +1120,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
           this.sendAudioToAPI();
         } else {
           console.log('Recording too short, discarded.');
+
+          this.showShortMsg = true; // show message
+
+          setTimeout(() => {
+            this.showShortMsg = false; // hide after 2s
+          }, 2000);
         }
 
         this.clearRecording();
@@ -1168,6 +1175,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ------------ Mobile Specific Actions ------------
 
+  holdTimeout: any;
+  minHoldTime = 200; // ms
+  isHoldTriggered = false;
+
   startRecordingMobile(event: MouseEvent | TouchEvent) {
     if (!this.isBrowser) return;
 
@@ -1186,7 +1197,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentX = clientX;
     this.currentY = clientY;
 
-    this.isRecording = true;
     this.isLocked = false;
     this.isPaused = false;
     this.showLockHint = false;
@@ -1195,26 +1205,42 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recordingTime = new Date(0);
     this.recordingStartTime = Date.now();
     this.pausedTime = 0;
+    this.isHoldTriggered = false;
 
-    this.lockHintTimeout = setTimeout(() => {
-      if (this.isRecording && !this.isLocked) {
-        this.showLockHint = true;
+    // Start hold timer
+    this.holdTimeout = setTimeout(() => {
+      this.isHoldTriggered = true;
+      this.isRecording = true;
+
+      this.lockHintTimeout = setTimeout(() => {
+        if (this.isRecording && !this.isLocked) {
+          this.showLockHint = true;
+        }
+      }, 1000);
+
+      this.startTapToRecord();
+
+      this.moveListener = this.handleMove.bind(this);
+      this.endListener = this.handleEnd.bind(this);
+
+      if (this.isTouchDevice) {
+        window.addEventListener('touchmove', this.moveListener, { passive: false });
+        window.addEventListener('touchend', this.endListener);
+      } else {
+        window.addEventListener('mousemove', this.moveListener);
+        window.addEventListener('mouseup', this.endListener);
       }
-    },);
+    }, this.minHoldTime);
+  }
 
-    this.startTapToRecord();
-
-    this.moveListener = this.handleMove.bind(this);
-    this.endListener = this.handleEnd.bind(this);
-
-    if (this.isTouchDevice) {
-      window.addEventListener('touchmove', this.moveListener, { passive: false });
-      window.addEventListener('touchend', this.endListener);
-    } else {
-      window.addEventListener('mousemove', this.moveListener);
-      window.addEventListener('mouseup', this.endListener);
+  cancelRecordingIfNotHeld() {
+    clearTimeout(this.holdTimeout);
+    if (!this.isHoldTriggered) {
+      console.log('📵 Tap ignored – hold to record');
     }
   }
+
+
 
   handleMove(event: MouseEvent | TouchEvent) {
     if (!this.isBrowser || !this.isRecording || this.isLocked || !this.recordButton?.nativeElement) return;
