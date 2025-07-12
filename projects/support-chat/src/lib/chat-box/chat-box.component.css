@@ -1372,7 +1372,7 @@ ul {
   /* height: 140px; */
   background: #fcfcfa;
   border-radius: 20px;
-  display: flex;
+  display: none;
   /* justify-content: center; */
   flex-direction: column;
   align-items: center;
@@ -1463,8 +1463,7 @@ ul {
   will-change: transform, opacity;
 
   &.recording {
-    /* background: #f44336; */
-    transform: scale(1.5);
+    transform: scale(2);
   }
 
   svg {

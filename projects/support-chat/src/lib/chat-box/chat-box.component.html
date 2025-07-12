@@ -703,8 +703,9 @@
         <div class="recorder-button-container">
             <!-- Lock Indicator -->
             <!-- *ngIf="showLockHint && !isLocked && !showDeleteIndicator" -->
-            <div *ngIf="showLockHint && !isLocked && !showDeleteIndicator" class="lock-indicator"
-                [class.locked]="isLocked">
+            <div *ngIf="showLockHint && !isLocked" class="lock-indicator" [class.locked]="isLocked" [ngClass]="{
+                    'd-flex' : !showDeleteIndicator
+                }">
                 <svg class="vert-move" viewBox="0 0 24 24">
                     <path *ngIf="!isLocked"
                         d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
@@ -887,10 +888,6 @@
                 <div *ngIf="!isRecording"></div>
                 <!--  -->
                 <div *ngIf="isRecording" class="recording-ui">
-                    <!-- <svg class="trash-blink" fill="red" width="24px" viewBox="0 0 24 24">
-                                        <path
-                                                d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-                                </svg> -->
                     <svg class="trash-blink" fill="red" viewBox="0 0 24 24">
                         <path
                             d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
