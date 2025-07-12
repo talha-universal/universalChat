@@ -727,15 +727,89 @@
             <!-- Locked State UI -->
             <div class="recording-display" *ngIf="isLocked">
                 <div class="timer-waveform-container">
-                    <div class="recording-timer">
+                    <div *ngIf="!isPaused" class="recording-timer">
                         {{ recordingTime | date:'mm:ss' }}
                     </div>
+
                     <div class="sound-wave">
-                        <!-- <div class="wave-bar" *ngFor="let bar of [1,2,3,4,5,6,7,8,9,10]"
-                                                [style.height.px]="(isPaused ? 15 : 10 + Math.random() * 20)"></div> -->
-                        <!-- <img style="height: 40px; object-fit: cover;width: 60%;" src="/assets/chatbox/wave.gif" alt=""> -->
-                        <video style="height: 40px; object-fit: cover;width: 60%;"
-                            src="/assets/chatbox/wave.gif"></video>
+                        <div *ngIf="!isPaused" style="height: 40px; object-fit: cover;width: 60%;">
+                            <div class="waveform">
+                                <!-- 40 spans -->
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+
+                        </div>
+
+                        <div *ngIf="pausedPreviewUrl && isPaused" class="paused-preview">
+                            <div class="d-flex align-items-center">
+                                <button (click)="togglePausedAudio()" class="play-btn" style="margin: 0;">
+                                    <svg *ngIf="!isPausedPlaying" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 2v20l18-10L3 2z" />
+                                    </svg>
+                                    <svg *ngIf="isPausedPlaying" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M4 2h6v20H4V2zm10 0h6v20h-6V2z" />
+                                    </svg>
+                                </button>
+
+                                <canvas #pausedCanvas width="144" height="32"></canvas>
+
+                                <div *ngIf="isPaused" class="recording-timer" style="padding-left: 8px;">
+                                    {{ formatTime(pausedCurrentTime) }}
+                                </div>
+
+                                <audio #pausedAudio [src]="pausedPreviewUrl" (timeupdate)="onPausedTimeUpdate()"
+                                    (loadedmetadata)="onPausedLoadedMetadata()" (ended)="onPausedEnded()"
+                                    preload="metadata">
+                                </audio>
+                            </div>
+
+
+                        </div>
+
 
                     </div>
                 </div>
@@ -752,10 +826,8 @@
                         <svg *ngIf="!isPaused" fill="#ff0000" viewBox="0 0 24 24">
                             <path d="M14,19H18V5H14M6,19H10V5H6V19Z" />
                         </svg>
-                        <!-- <svg *ngIf="isPaused" viewBox="0 0 24 24">
-                                                <path d="M10,16.5L16,12L10,7.5V16.5Z" />
-                                        </svg> -->
-                        <svg *ngIf="isPaused" width="24px" height="24px" fill="#ff0000" viewBox="0 0 24 24">
+                        <svg class="mike-svg" *ngIf="isPaused" width="30px" height="30px" fill="#ff0000"
+                            viewBox="0 0 24 24">
                             <path
                                 d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
                         </svg>

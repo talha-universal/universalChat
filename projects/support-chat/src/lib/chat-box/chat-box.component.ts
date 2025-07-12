@@ -191,6 +191,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     clearInterval(this.timerInterval);
     this.cleanup();
+    cancelAnimationFrame(this.pausedAnimId);
   }
   ngAfterViewInit(): void {
     this.scrollToTop();
@@ -1061,6 +1062,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
       console.error('Microphone error:', err);
     }
   }
+  pausedPreviewBlob: Blob | null = null;
+  pausedPreviewUrl: string | null = null;
 
   startRecording() {
     this.audioChunks = [];
@@ -1070,8 +1073,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         this.audioChunks.push(event.data);
+
+        if (this.isPaused) {
+          // ✅ Create paused preview blob & URL
+          this.pausedPreviewBlob = new Blob([event.data], { type: 'audio/webm' });
+          this.pausedPreviewUrl = URL.createObjectURL(this.pausedPreviewBlob);
+        }
       }
     };
+
 
     this.mediaRecorder.onstop = () => {
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/mp3' });
@@ -1306,8 +1316,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (this.mediaRecorder.state === 'recording') {
         this.mediaRecorder.pause();
-        console.log('Recording paused');
+        this.mediaRecorder.requestData(); // force flush current chunk
       }
+
+      setTimeout(() => {
+        if (this.audioChunks.length > 0) {
+          const previewBlob = new Blob(this.audioChunks, { type: 'audio/webm; codecs=opus' });
+          this.pausedPreviewBlob = previewBlob;
+          this.pausedPreviewUrl = URL.createObjectURL(previewBlob);
+          console.log("⏸️ Preview audio ready", this.pausedPreviewUrl);
+        }
+      }, 300);
 
     } else {
       const pauseDuration = Date.now() - this.pausedTime;
@@ -1315,12 +1334,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (this.mediaRecorder.state === 'paused') {
         this.mediaRecorder.resume();
-        console.log('Recording resumed');
+        console.log('▶️ Recording resumed');
       }
 
       this.startTimer();
     }
   }
+
+
 
 
   cancelRecording() {
@@ -1511,4 +1532,107 @@ export class ChatBoxComponent implements OnInit, OnDestroy, AfterViewInit {
   closeModal() {
     this.isModalOpen = false;
   }
+
+  // animation wavee
+
+  @ViewChild('pausedAudio') pausedAudioRef!: ElementRef<HTMLAudioElement>;
+  @ViewChild('pausedCanvas') pausedCanvasRef!: ElementRef<HTMLCanvasElement>;
+
+  isPausedPlaying = false;
+
+  pausedWaveformData: number[] = Array.from({ length: 48 }, () => 0.2 + Math.random() * 0.6);
+  pausedAnimId: number = 0;
+
+  pausedCurrentTime = 0;
+  pausedDuration = 0;
+
+  // Play/Pause Toggle
+  togglePausedAudio() {
+    const audio = this.pausedAudioRef.nativeElement;
+    if (audio.paused) {
+      audio.play();
+      this.isPausedPlaying = true;
+      this.animatePausedWaveform();
+    } else {
+      audio.pause();
+      this.isPausedPlaying = false;
+      cancelAnimationFrame(this.pausedAnimId);
+      this.drawPausedWaveform();
+    }
+  }
+
+  // Time Update Event
+  onPausedTimeUpdate() {
+    const audio = this.pausedAudioRef.nativeElement;
+    this.pausedCurrentTime = audio.currentTime;
+    this.drawPausedWaveform();
+  }
+
+  // On Audio Metadata Loaded
+  onPausedLoadedMetadata() {
+    const audio = this.pausedAudioRef.nativeElement;
+    this.pausedDuration = audio.duration;
+    this.pausedCurrentTime = 0;
+    this.isPausedPlaying = false;
+    this.drawPausedWaveform();
+  }
+
+  // On Audio Ended
+  onPausedEnded() {
+    this.isPausedPlaying = false;
+    this.pausedCurrentTime = 0;
+    this.drawPausedWaveform();
+  }
+
+  // Draw waveform static or animated
+  private drawPausedWaveform() {
+    const canvas = this.pausedCanvasRef.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const bars = this.pausedWaveformData;
+    const barCount = bars.length;
+    const barWidth = width / barCount;
+
+    const audio = this.pausedAudioRef.nativeElement;
+    const progress = audio.duration ? audio.currentTime / audio.duration : 0;
+
+    bars.forEach((bar, i) => {
+      const x = i * barWidth;
+      const barHeight = bar * height;
+      ctx.fillStyle = (i / barCount < progress) ? '#000000' : '#54656f';
+      ctx.fillRect(x + 1, (height - barHeight) / 2, barWidth - 2, barHeight);
+    });
+
+    // Draw blue progress dot
+    if (audio.duration && (this.isPausedPlaying || audio.currentTime > 0)) {
+      const dotX = Math.min(progress * width, width - 8);
+      ctx.beginPath();
+      ctx.arc(dotX, height / 2, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#24D366';
+      ctx.shadowColor = '#FF0000';
+      ctx.shadowBlur = 2;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  private animatePausedWaveform() {
+    if (!this.isPausedPlaying) return;
+    this.drawPausedWaveform();
+    this.pausedAnimId = requestAnimationFrame(() => this.animatePausedWaveform());
+  }
+
+  formatTime(seconds: number): string {
+    if (!seconds) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+
+
 }
