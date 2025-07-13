@@ -207,6 +207,35 @@
   border-radius: 125px;
 }
 
+.bg-trash {
+  background-image: url("./../../../assets/chatbox/mike.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  width: 13px;
+  height: 20px;
+  border: unset !important;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+  /* border-radius: 125px; */
+}
+.gif-bg {
+  background-image: url("./../../../assets/chatbox/mike-bin-anim.gif");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  width: 40px;
+  height: 135.29px;
+  border: unset !important;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+  /* border-radius: 125px; */
+}
+
 .userName {
   font-weight: 600;
   font-size: 16px; /* 18px before*/
