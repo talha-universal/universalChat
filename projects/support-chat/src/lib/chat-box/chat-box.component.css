@@ -1059,7 +1059,7 @@ ul {
 .voice-msg {
   position: absolute !important;
   bottom: -2px;
-  right: -3px;
+  right: 3px;
   height: 15px;
 }
 .for-voice-note {
