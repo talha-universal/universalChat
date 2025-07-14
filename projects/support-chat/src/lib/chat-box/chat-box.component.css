@@ -666,7 +666,7 @@ ul {
   margin-right: 6px;
   border-radius: 10px;
   word-wrap: break-word;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .messagetext {
