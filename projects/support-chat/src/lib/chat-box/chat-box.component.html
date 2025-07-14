@@ -995,17 +995,18 @@
                 </div>
             </div>
             <!--  -->
-            <div *ngIf="showDeleteAnimation" style="position: fixed; left: 0; bottom: 20px; z-index: 91;">
+            <div *ngIf="showDeleteAnimation" style="position: fixed; left: 5px; bottom: 20px; z-index: 91;">
                 <!-- <img src="./../../../assets/chatbox/mike-bin-anim.gif" alt="" style="width: 40px;"> -->
                 <div class="gif-bg"></div>
             </div>
             <div *ngIf="showDeleteAnimation" style="    position: fixed;
-    background-color: white;
-    height: 66px;
-    width: 100%;
-    z-index: 90;
-    left: 0;
-    bottom: 0;"></div>
+                background-color: white;
+                height: 66px;
+                width: 100%;
+                z-index: 90;
+                left: 0;
+                bottom: 0;">
+            </div>
             <!-- Normal Recording UI -->
             <div class="recording-area" *ngIf="!isLocked">
                 <div *ngIf="!isRecording"></div>
@@ -1016,7 +1017,7 @@
                             d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
                     </svg> -->
                     <!-- <img class="trash-blink bg-trash" alt=""> -->
-                    <div class="trash-blink bg-trash"></div>
+                    <div class="trash-blink bg-trash" style=""></div>
 
                     <div class="recording-timer">
                         {{ recordingTime | date:'mm:ss' }}
